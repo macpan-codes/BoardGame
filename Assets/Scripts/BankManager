@@ -1,0 +1,49 @@
+using UnityEngine;
+
+/// <summary>
+/// Handles money coming from and going to the bank.
+/// The bank has effectively unlimited funds.
+/// </summary>
+public class BankManager : MonoBehaviour
+{
+    /// <summary>
+    /// Gives money to a player.
+    /// </summary>
+    public void PayPlayer(BoardPlayer player, int amount)
+    {
+        if (player == null || amount <= 0)
+            return;
+
+        player.AddMoney(amount);
+
+        Debug.Log(
+            $"Bank paid ${amount}M to {player.name}."
+        );
+    }
+
+    /// <summary>
+    /// Takes money from a player.
+    /// </summary>
+    public bool TakeMoney(BoardPlayer player, int amount)
+    {
+        if (player == null || amount <= 0)
+            return false;
+
+        bool success = player.RemoveMoney(amount);
+
+        if (success)
+        {
+            Debug.Log(
+                $"Bank received ${amount}M from {player.name}."
+            );
+        }
+        else
+        {
+            Debug.Log(
+                $"{player.name} cannot afford ${amount}M."
+            );
+        }
+
+        return success;
+    }
+}

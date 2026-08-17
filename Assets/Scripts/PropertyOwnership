@@ -1,0 +1,43 @@
+using UnityEngine;
+
+/// <summary>
+/// Stores ownership information for one board space.
+/// </summary>
+public class PropertyOwnership : MonoBehaviour
+{
+    private BoardPlayer owner;
+
+    /// <summary>
+    /// The player who owns this space.
+    /// Null means nobody owns it.
+    /// </summary>
+    public BoardPlayer Owner => owner;
+
+    /// <summary>
+    /// Returns true if this space is owned.
+    /// </summary>
+    public bool IsOwned => owner != null;
+
+    /// <summary>
+    /// Gives ownership of this space to a player.
+    /// </summary>
+    public void SetOwner(BoardPlayer newOwner)
+    {
+        owner = newOwner;
+
+        if (owner != null)
+        {
+            Debug.Log(
+                $"{owner.name} now owns {gameObject.name}."
+            );
+        }
+    }
+
+    /// <summary>
+    /// Removes the current owner.
+    /// </summary>
+    public void ClearOwner()
+    {
+        owner = null;
+    }
+}
