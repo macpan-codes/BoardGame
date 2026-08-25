@@ -6,46 +6,89 @@ using UnityEngine.UI;
 public class PlayerRowUI : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private TMP_Text playerNameText;
-    [SerializeField] private TMP_Dropdown playerTypeDropdown;
-    [SerializeField] private Button playerColorButton;
+    [SerializeField]
+    private TMP_Text playerNameText;
+
+    [SerializeField]
+    private TMP_Dropdown playerTypeDropdown;
+
+    [SerializeField]
+    private Button playerColorButton;
+
+    [SerializeField]
+    private Image playerColorImage;
+
+    [Header("Visual")]
+    [SerializeField]
+    private float colorButtonAlpha = 1f;
 
     private int playerNumber;
-    private Color playerColor = Color.white;
 
-    public void Setup(int number, Color color)
+    private Color playerColor =
+        Color.white;
+
+    // ============================================================
+    // SETUP
+    // ============================================================
+
+    public void Setup(
+        int number,
+        Color color)
     {
-        playerNumber = number;
-        playerColor = color;
-
-        if (playerNameText != null)
-        {
-            playerNameText.text =
-                $"PLAYER {number}";
-        }
-
-        if (playerTypeDropdown != null)
-        {
-            playerTypeDropdown.ClearOptions();
-
-            playerTypeDropdown.AddOptions(
-                new List<string>
-                {
-                    "Human",
-                    "Bot"
-                }
+        playerNumber =
+            Mathf.Max(
+                1,
+                number
             );
 
-            playerTypeDropdown.value = 0;
-            playerTypeDropdown.RefreshShownValue();
-        }
+        playerColor =
+            color;
 
+        UpdateName();
+        SetupDropdown();
         ApplyColor();
+    }
+
+    // ============================================================
+    // NAME
+    // ============================================================
+
+    private void UpdateName()
+    {
+        if (playerNameText == null)
+            return;
+
+        playerNameText.text =
+            $"PLAYER {playerNumber}";
     }
 
     public string GetPlayerName()
     {
         return $"Player {playerNumber}";
+    }
+
+    // ============================================================
+    // TYPE
+    // ============================================================
+
+    private void SetupDropdown()
+    {
+        if (playerTypeDropdown == null)
+            return;
+
+        playerTypeDropdown.ClearOptions();
+
+        playerTypeDropdown.AddOptions(
+            new List<string>
+            {
+                "Human",
+                "Bot"
+            }
+        );
+
+        playerTypeDropdown.value = 0;
+
+        playerTypeDropdown.RefreshShownValue();
     }
 
     public bool IsBot()
@@ -54,28 +97,50 @@ public class PlayerRowUI : MonoBehaviour
                playerTypeDropdown.value == 1;
     }
 
+    // ============================================================
+    // COLOR
+    // ============================================================
+
     public Color GetColor()
     {
         return playerColor;
     }
 
-    public void SetColor(Color color)
+    public void SetColor(
+        Color color)
     {
-        playerColor = color;
+        playerColor =
+            color;
+
         ApplyColor();
     }
 
     private void ApplyColor()
     {
-        if (playerColorButton == null)
-            return;
+        Color displayColor =
+            playerColor;
 
-        Image image =
-            playerColorButton.GetComponent<Image>();
+        displayColor.a =
+            Mathf.Clamp01(
+                colorButtonAlpha
+            );
 
-        if (image != null)
+        if (playerColorButton != null)
         {
-            image.color = playerColor;
+            Image buttonImage =
+                playerColorButton.GetComponent<Image>();
+
+            if (buttonImage != null)
+            {
+                buttonImage.color =
+                    displayColor;
+            }
+        }
+
+        if (playerColorImage != null)
+        {
+            playerColorImage.color =
+                displayColor;
         }
     }
-}   
+}

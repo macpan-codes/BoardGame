@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BoardPlayer : MonoBehaviour
 {
@@ -19,6 +20,12 @@ public class BoardPlayer : MonoBehaviour
 
     public Color TokenColor =>
         tokenColor;
+
+    [Header("Player Type")]
+    [SerializeField] private bool isBot;
+
+    public bool IsBot =>
+        isBot;
 
     [Header("Board")]
     [SerializeField] private BoardGenerator boardGenerator;
@@ -67,6 +74,103 @@ public class BoardPlayer : MonoBehaviour
     }
 
     // ============================================================
+    // CONFIGURATION
+    // ============================================================
+
+    public void SetPlayerNumber(int number)
+    {
+        playerNumber =
+            Mathf.Max(1, number);
+
+        if (string.IsNullOrWhiteSpace(playerName) ||
+            playerName == "Player")
+        {
+            playerName =
+                $"Player {playerNumber}";
+        }
+    }
+
+    public void SetPlayerName(string newName)
+    {
+        playerName =
+            string.IsNullOrWhiteSpace(newName)
+                ? $"Player {playerNumber}"
+                : newName.Trim();
+    }
+
+    public void SetTokenColor(Color newColor)
+    {
+        tokenColor =
+            newColor;
+
+        ApplyTokenColor();
+    }
+
+    public void SetIsBot(bool value)
+    {
+        isBot = value;
+    }
+
+    // ============================================================
+    // TOKEN COLOR
+    // ============================================================
+
+    private void ApplyTokenColor()
+    {
+        SpriteRenderer[] renderers =
+            GetComponentsInChildren<SpriteRenderer>(
+                true
+            );
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            if (renderer == null)
+                continue;
+
+            renderer.color =
+                tokenColor;
+        }
+
+        Image[] images =
+            GetComponentsInChildren<Image>(
+                true
+            );
+
+        foreach (Image image in images)
+        {
+            if (image == null)
+                continue;
+
+            image.color =
+                tokenColor;
+        }
+    }
+
+    // ============================================================
+    // RESET FOR NEW GAME
+    // ============================================================
+
+    public void ResetForNewGame()
+    {
+        currentSpaceIndex =
+            Mathf.Clamp(
+                startingSpaceIndex,
+                0,
+                BoardSize - 1
+            );
+
+        isMoving = false;
+
+        money = startingMoney;
+
+        inJail = false;
+        jailTurnsRemaining = 0;
+
+        bankrupt = false;
+        initialized = false;
+    }
+
+    // ============================================================
     // INITIALIZATION
     // ============================================================
 
@@ -99,31 +203,13 @@ public class BoardPlayer : MonoBehaviour
 
         SnapToCurrentSpace();
 
+        ApplyTokenColor();
+
         Debug.Log(
             $"{PlayerName} initialized at Space " +
-            $"{currentSpaceIndex} with ${money:N0}M."
+            $"{currentSpaceIndex} with ${money:N0}M. " +
+            $"Type: {(isBot ? "BOT" : "HUMAN")}."
         );
-    }
-
-    public void SetPlayerNumber(int number)
-    {
-        playerNumber =
-            Mathf.Max(1, number);
-
-        if (string.IsNullOrWhiteSpace(playerName) ||
-            playerName == "Player")
-        {
-            playerName =
-                $"Player {playerNumber}";
-        }
-    }
-
-    public void SetPlayerName(string newName)
-    {
-        playerName =
-            string.IsNullOrWhiteSpace(newName)
-                ? $"Player {playerNumber}"
-                : newName.Trim();
     }
 
     // ============================================================
@@ -343,10 +429,6 @@ public class BoardPlayer : MonoBehaviour
             $"{space.SpaceName}."
         );
 
-        // --------------------------------------------------------
-        // PROPERTY / AIRPORT / UTILITY
-        // --------------------------------------------------------
-
         bool purchasable =
             space.SpaceType == BoardSpaceType.Property ||
             space.SpaceType == BoardSpaceType.Airport ||
@@ -354,10 +436,6 @@ public class BoardPlayer : MonoBehaviour
 
         if (purchasable)
         {
-            // ----------------------------------------------------
-            // UNOWNED
-            // ----------------------------------------------------
-
             if (!space.IsOwned)
             {
                 gameManager.BeginPlayerAction();
@@ -371,10 +449,6 @@ public class BoardPlayer : MonoBehaviour
 
                 return;
             }
-
-            // ----------------------------------------------------
-            // SOMEONE ELSE OWNS IT
-            // ----------------------------------------------------
 
             if (space.Owner != this)
             {
@@ -400,12 +474,6 @@ public class BoardPlayer : MonoBehaviour
                 return;
             }
 
-            // ----------------------------------------------------
-            // OWN PROPERTY
-            //
-            // THIS IS NOW AN ACTIVE PLAYER ACTION.
-            // ----------------------------------------------------
-
             if (space.IsProperty)
             {
                 space.RegisterOwnerLanding(this);
@@ -415,8 +483,6 @@ public class BoardPlayer : MonoBehaviour
                     $"PROPERTY: {space.SpaceName.ToUpperInvariant()}"
                 );
 
-                // The player gets the management panel
-                // immediately during THIS turn.
                 gameManager.BeginPlayerAction();
 
                 OpenPropertyManagementAction(space);
@@ -424,7 +490,6 @@ public class BoardPlayer : MonoBehaviour
                 return;
             }
 
-            // Airport / Utility owned by player.
             GameNotificationUI.Show(
                 $"{PlayerName} LANDED ON THEIR OWN " +
                 $"SPACE: {space.SpaceName.ToUpperInvariant()}"
@@ -434,10 +499,6 @@ public class BoardPlayer : MonoBehaviour
 
             return;
         }
-
-        // --------------------------------------------------------
-        // TAX
-        // --------------------------------------------------------
 
         if (space.SpaceType == BoardSpaceType.Tax)
         {
@@ -474,10 +535,6 @@ public class BoardPlayer : MonoBehaviour
             return;
         }
 
-        // --------------------------------------------------------
-        // GO TO JAIL
-        // --------------------------------------------------------
-
         if (space.SpaceType ==
             BoardSpaceType.GoToJail)
         {
@@ -490,10 +547,6 @@ public class BoardPlayer : MonoBehaviour
             FinishLanding();
             return;
         }
-
-        // --------------------------------------------------------
-        // CHANCE
-        // --------------------------------------------------------
 
         if (space.SpaceType ==
             BoardSpaceType.Chance)
@@ -526,10 +579,6 @@ public class BoardPlayer : MonoBehaviour
             return;
         }
 
-        // --------------------------------------------------------
-        // COMMUNITY CHEST
-        // --------------------------------------------------------
-
         if (space.SpaceType ==
             BoardSpaceType.CommunityChest)
         {
@@ -560,10 +609,6 @@ public class BoardPlayer : MonoBehaviour
 
             return;
         }
-
-        // --------------------------------------------------------
-        // FREE PARKING / JAIL / GO
-        // --------------------------------------------------------
 
         FinishLanding();
     }

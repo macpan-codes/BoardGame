@@ -186,25 +186,62 @@ public class GameSetupController : MonoBehaviour
     // PLAYER COLORS
     // ============================================================
 
-    private Color GetDefaultColor(int index)
+    private Color GetDefaultColor(
+        int index)
     {
-        Color[] colors =
+        switch (index)
         {
-            new Color(0.90f, 0.15f, 0.15f),
-            new Color(0.15f, 0.35f, 0.95f),
-            new Color(0.15f, 0.80f, 0.30f),
-            new Color(0.95f, 0.80f, 0.10f),
-            new Color(0.70f, 0.20f, 0.85f),
-            new Color(1.00f, 0.45f, 0.10f)
-        };
+            case 0:
+                return new Color(
+                    0.90f,
+                    0.15f,
+                    0.15f,
+                    1f
+                ); // Red
 
-        return colors[
-            Mathf.Clamp(
-                index,
-                0,
-                colors.Length - 1
-            )
-        ];
+            case 1:
+                return new Color(
+                    0.15f,
+                    0.35f,
+                    0.95f,
+                    1f
+                ); // Blue
+
+            case 2:
+                return new Color(
+                    0.15f,
+                    0.80f,
+                    0.30f,
+                    1f
+                ); // Green
+
+            case 3:
+                return new Color(
+                    0.95f,
+                    0.80f,
+                    0.10f,
+                    1f
+                ); // Yellow
+
+            case 4:
+                return new Color(
+                    0.70f,
+                    0.20f,
+                    0.85f,
+                    1f
+                ); // Purple
+
+            case 5:
+                return new Color(
+                    1.00f,
+                    0.45f,
+                    0.10f,
+                    1f
+                ); // Orange
+
+            default:
+                return Color.white;
+        }
     }
 
     // ============================================================

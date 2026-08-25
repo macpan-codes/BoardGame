@@ -8,7 +8,12 @@ public class PropertyOwnershipMarker : MonoBehaviour
 
     private BoardPlayer owner;
 
-    public BoardPlayer Owner => owner;
+    public BoardPlayer Owner =>
+        owner;
+
+    // ============================================================
+    // UNITY
+    // ============================================================
 
     private void Awake()
     {
@@ -16,14 +21,19 @@ public class PropertyOwnershipMarker : MonoBehaviour
         Hide();
     }
 
+    // ============================================================
+    // VISUAL CREATION
+    // ============================================================
+
     private void CreateVisual()
     {
         if (visualObject != null)
             return;
 
-        visualObject = new GameObject(
-            "OwnershipColor"
-        );
+        visualObject =
+            new GameObject(
+                "OwnershipColor"
+            );
 
         visualObject.transform.SetParent(
             transform,
@@ -33,26 +43,43 @@ public class PropertyOwnershipMarker : MonoBehaviour
         RectTransform rect =
             visualObject.AddComponent<RectTransform>();
 
-        rect.anchorMin = new Vector2(1f, 0f);
-        rect.anchorMax = new Vector2(1f, 0f);
-        rect.pivot = new Vector2(1f, 0f);
+        rect.anchorMin =
+            new Vector2(1f, 0f);
+
+        rect.anchorMax =
+            new Vector2(1f, 0f);
+
+        rect.pivot =
+            new Vector2(1f, 0f);
 
         rect.anchoredPosition =
-            new Vector2(-3f, 3f);
+            new Vector2(
+                -3f,
+                3f
+            );
 
         rect.sizeDelta =
-            new Vector2(10f, 10f);
+            new Vector2(
+                10f,
+                10f
+            );
 
         markerImage =
             visualObject.AddComponent<Image>();
 
-        markerImage.raycastTarget = false;
+        markerImage.raycastTarget =
+            false;
     }
+
+    // ============================================================
+    // OWNERSHIP
+    // ============================================================
 
     public void SetOwner(
         BoardPlayer newOwner)
     {
-        owner = newOwner;
+        owner =
+            newOwner;
 
         if (owner == null)
         {
@@ -60,13 +87,7 @@ public class PropertyOwnershipMarker : MonoBehaviour
             return;
         }
 
-        if (markerImage != null)
-        {
-            markerImage.color =
-                GetPlayerColor(
-                    owner.PlayerNumber
-                );
-        }
+        RefreshColor();
 
         if (visualObject != null)
         {
@@ -74,27 +95,30 @@ public class PropertyOwnershipMarker : MonoBehaviour
         }
     }
 
-    private Color GetPlayerColor(
-        int playerNumber)
+    // ============================================================
+    // REFRESH COLOR
+    // ============================================================
+
+    public void RefreshColor()
     {
-        switch (playerNumber)
+        if (owner == null)
+            return;
+
+        if (markerImage == null)
         {
-            case 1:
-                return Color.red;
-
-            case 2:
-                return Color.yellow;
-
-            case 3:
-                return Color.blue;
-
-            case 4:
-                return Color.green;
-
-            default:
-                return Color.white;
+            CreateVisual();
         }
+
+        if (markerImage == null)
+            return;
+
+        markerImage.color =
+            owner.TokenColor;
     }
+
+    // ============================================================
+    // HIDE
+    // ============================================================
 
     public void Hide()
     {

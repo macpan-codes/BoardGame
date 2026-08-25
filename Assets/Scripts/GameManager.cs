@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -23,6 +24,8 @@ public class GameManager : MonoBehaviour
     [Header("Game State")]
     [SerializeField] private bool gameStarted;
     [SerializeField] private bool gameOver;
+
+    private bool playersConfigured;
 
     // ============================================================
     // PROPERTIES
@@ -89,15 +92,10 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (players == null ||
-            players.Length == 0)
-        {
-            players =
-                FindObjectsByType<BoardPlayer>(
-                    FindObjectsInactive.Exclude,
-                    FindObjectsSortMode.None
-                );
-        }
+        players =
+            FindExistingPlayers();
+
+        ConfigurePlayersFromLocalSettings();
 
         RemoveNullPlayers();
         SortPlayers();
@@ -108,6 +106,164 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         InitializeGame();
+    }
+
+    // ============================================================
+    // PLAYER DISCOVERY
+    // ============================================================
+
+    private BoardPlayer[] FindExistingPlayers()
+    {
+        return FindObjectsByType<BoardPlayer>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None
+        );
+    }
+
+    // ============================================================
+    // LOCAL GAME CONFIGURATION
+    // ============================================================
+
+    private void ConfigurePlayersFromLocalSettings()
+    {
+        if (LocalGameSettings.Players == null ||
+            LocalGameSettings.Players.Count < 2)
+        {
+            Debug.Log(
+                "GameManager: No local player configuration found. " +
+                "Using scene players."
+            );
+
+            return;
+        }
+
+        List<BoardPlayer> existing =
+            new List<BoardPlayer>(
+                FindExistingPlayers()
+            );
+
+        if (existing.Count == 0)
+        {
+            Debug.LogError(
+                "GameManager: No BoardPlayer objects exist " +
+                "in MainScene to use as templates."
+            );
+
+            return;
+        }
+
+        BoardPlayer template =
+            existing[0];
+
+        int requestedCount =
+            Mathf.Clamp(
+                LocalGameSettings.Players.Count,
+                2,
+                6
+            );
+
+        // --------------------------------------------------------
+        // CREATE ADDITIONAL PLAYER OBJECTS
+        // --------------------------------------------------------
+
+        while (existing.Count < requestedCount)
+        {
+            BoardPlayer clone =
+                Instantiate(
+                    template,
+                    template.transform.parent
+                );
+
+            clone.name =
+                $"Player_{existing.Count + 1}";
+
+            clone.gameObject.SetActive(true);
+
+            existing.Add(clone);
+        }
+
+        // --------------------------------------------------------
+        // DISABLE EXCESS PLAYERS
+        // --------------------------------------------------------
+
+        for (int i = 0; i < existing.Count; i++)
+        {
+            if (existing[i] == null)
+                continue;
+
+            if (i >= requestedCount)
+            {
+                existing[i].gameObject.SetActive(false);
+            }
+        }
+
+        // --------------------------------------------------------
+        // APPLY CONFIGURATION
+        // --------------------------------------------------------
+
+        List<BoardPlayer> configured =
+            new List<BoardPlayer>();
+
+        for (int i = 0;
+             i < requestedCount;
+             i++)
+        {
+            BoardPlayer player =
+                existing[i];
+
+            if (player == null)
+                continue;
+
+            LocalGameSettings.PlayerConfig config =
+                LocalGameSettings.GetPlayer(i);
+
+            if (config == null)
+                continue;
+
+            player.gameObject.SetActive(true);
+
+            player.ResetForNewGame();
+
+            player.SetPlayerNumber(
+                i + 1
+            );
+
+            player.SetPlayerName(
+                config.playerName
+            );
+
+            player.SetTokenColor(
+                config.color
+            );
+
+            player.SetIsBot(
+                config.isBot
+            );
+
+            configured.Add(
+                player
+            );
+        }
+
+        players =
+            configured.ToArray();
+
+        playersConfigured = true;
+
+        Debug.Log(
+            $"GameManager: Configured " +
+            $"{players.Length} local players."
+        );
+
+        foreach (BoardPlayer player in players)
+        {
+            Debug.Log(
+                $"PLAYER CONFIG: " +
+                $"{player.PlayerNumber} | " +
+                $"{player.PlayerName} | " +
+                $"{(player.IsBot ? "BOT" : "HUMAN")}"
+            );
+        }
     }
 
     // ============================================================
@@ -134,7 +290,10 @@ public class GameManager : MonoBehaviour
             if (players[i] == null)
                 continue;
 
-            players[i].SetPlayerNumber(i + 1);
+            players[i].SetPlayerNumber(
+                i + 1
+            );
+
             players[i].Initialize();
         }
 
@@ -180,12 +339,15 @@ public class GameManager : MonoBehaviour
         {
             if (player != null)
             {
-                validPlayers[index] = player;
+                validPlayers[index] =
+                    player;
+
                 index++;
             }
         }
 
-        players = validPlayers;
+        players =
+            validPlayers;
     }
 
     private void SortPlayers()
@@ -281,10 +443,6 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // --------------------------------------------------------
-        // DOUBLES
-        // --------------------------------------------------------
-
         if (consecutiveDoubles > 0)
         {
             isTurnActive = true;
@@ -303,10 +461,6 @@ public class GameManager : MonoBehaviour
 
             return;
         }
-
-        // --------------------------------------------------------
-        // NORMAL TURN END
-        // --------------------------------------------------------
 
         isTurnActive = false;
 
@@ -615,7 +769,6 @@ public class GameManager : MonoBehaviour
             buyer
         );
 
-        // Purchase counts as the first landing.
         if (boardSpace.IsProperty)
         {
             boardSpace.RegisterOwnerLanding(
@@ -674,11 +827,6 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // BoardSpace.GetRent() should handle:
-            // base rent
-            // house rent
-            // hotel rent
-            // completed PropertyGroup multiplier
             rent =
                 boardSpace.GetRent();
         }
@@ -839,8 +987,6 @@ public class GameManager : MonoBehaviour
         if (!IsPlayerTurn(player))
             return false;
 
-        // Player must physically be standing
-        // on this exact property.
         if (!IsPlayerStandingOn(
                 player,
                 space))
@@ -862,12 +1008,6 @@ public class GameManager : MonoBehaviour
         if (!CanBuildHouse(space))
             return false;
 
-        // BoardSpace handles:
-        // - required landing count
-        // - house limit
-        // - mortgage restriction
-        // - money check
-        // - house cost
         if (!space.AddHouse(player))
             return false;
 
