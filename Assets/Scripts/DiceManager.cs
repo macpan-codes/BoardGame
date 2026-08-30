@@ -1,16 +1,28 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
-/// <summary>
-/// Handles rolling the two dice and starting movement for
-/// the current player.
-///
-/// GameManager remains the single source of truth for turns.
-/// </summary>
 public class DiceManager : MonoBehaviour
 {
     [Header("Game Manager")]
     [SerializeField] private GameManager gameManager;
+
+    [Header("Dice UI")]
+    [SerializeField] private Image firstDieImage;
+    [SerializeField] private Image secondDieImage;
+
+    [Header("Result Text")]
+    [SerializeField] private TMP_Text lastRollText;
+    [SerializeField] private TMP_Text resultText;
+    [SerializeField] private TMP_Text totalText;
+
+    [Header("Dice Sprites")]
+    [SerializeField] private Sprite[] diceSprites = new Sprite[6];
+
+    [Header("Dice Animation")]
+    [SerializeField] private float rollAnimationDuration = 0.65f;
+    [SerializeField] private float spriteChangeInterval = 0.08f;
 
     [Header("Dice Result")]
     [SerializeField] private int firstDie;
@@ -28,14 +40,20 @@ public class DiceManager : MonoBehaviour
     private void Awake()
     {
         FindGameManager();
+
+        // Make sure the dice images are visible.
+        if (firstDieImage != null)
+            firstDieImage.enabled = true;
+
+        if (secondDieImage != null)
+            secondDieImage.enabled = true;
     }
 
     private void FindGameManager()
     {
         if (gameManager == null)
         {
-            gameManager =
-                FindFirstObjectByType<GameManager>();
+            gameManager = FindFirstObjectByType<GameManager>();
         }
     }
 
@@ -55,7 +73,6 @@ public class DiceManager : MonoBehaviour
             Debug.LogError(
                 "DiceManager: GameManager could not be found."
             );
-
             return;
         }
 
@@ -64,7 +81,6 @@ public class DiceManager : MonoBehaviour
             Debug.Log(
                 "DiceManager: The game is already over."
             );
-
             return;
         }
 
@@ -73,7 +89,6 @@ public class DiceManager : MonoBehaviour
             Debug.LogWarning(
                 "DiceManager: Game has not started."
             );
-
             return;
         }
 
@@ -82,28 +97,23 @@ public class DiceManager : MonoBehaviour
             Debug.LogWarning(
                 "DiceManager: There is no active turn."
             );
-
             return;
         }
 
         if (gameManager.WaitingForPlayerAction)
         {
             Debug.Log(
-                "DiceManager: Player must resolve the " +
-                "current action before rolling again."
+                "DiceManager: Player must resolve the current action before rolling again."
             );
-
             return;
         }
 
-        if (gameManager.CurrentPhase !=
-            GamePhase.WaitingToRoll)
+        if (gameManager.CurrentPhase != GamePhase.WaitingToRoll)
         {
             Debug.Log(
                 "DiceManager: Player cannot roll during " +
                 gameManager.CurrentPhase + "."
             );
-
             return;
         }
 
@@ -115,7 +125,6 @@ public class DiceManager : MonoBehaviour
             Debug.LogWarning(
                 "DiceManager: No current player."
             );
-
             return;
         }
 
@@ -124,7 +133,6 @@ public class DiceManager : MonoBehaviour
             Debug.Log(
                 "DiceManager: Player is still moving."
             );
-
             return;
         }
 
@@ -133,7 +141,6 @@ public class DiceManager : MonoBehaviour
             Debug.LogWarning(
                 "DiceManager: Current player is bankrupt."
             );
-
             return;
         }
 
@@ -152,7 +159,38 @@ public class DiceManager : MonoBehaviour
         isRolling = true;
 
         // --------------------------------------------------------
-        // ROLL
+        // ANIMATION
+        // --------------------------------------------------------
+
+        float elapsed = 0f;
+
+        while (elapsed < rollAnimationDuration)
+        {
+            int randomFirst =
+                Random.Range(1, 7);
+
+            int randomSecond =
+                Random.Range(1, 7);
+
+            SetDieSprite(
+                firstDieImage,
+                randomFirst
+            );
+
+            SetDieSprite(
+                secondDieImage,
+                randomSecond
+            );
+
+            elapsed += spriteChangeInterval;
+
+            yield return new WaitForSeconds(
+                spriteChangeInterval
+            );
+        }
+
+        // --------------------------------------------------------
+        // FINAL RESULT
         // --------------------------------------------------------
 
         firstDie =
@@ -163,6 +201,26 @@ public class DiceManager : MonoBehaviour
 
         total =
             firstDie + secondDie;
+
+        // --------------------------------------------------------
+        // DISPLAY FINAL DICE
+        // --------------------------------------------------------
+
+        SetDieSprite(
+            firstDieImage,
+            firstDie
+        );
+
+        SetDieSprite(
+            secondDieImage,
+            secondDie
+        );
+
+        // --------------------------------------------------------
+        // UPDATE RESULT TEXT
+        // --------------------------------------------------------
+
+        UpdateResultText();
 
         bool isDouble =
             firstDie == secondDie;
@@ -235,9 +293,7 @@ public class DiceManager : MonoBehaviour
         // MOVE
         // --------------------------------------------------------
 
-        currentPlayer.MoveBySteps(
-            total
-        );
+        currentPlayer.MoveBySteps(total);
 
         // --------------------------------------------------------
         // WAIT FOR MOVEMENT
@@ -248,12 +304,83 @@ public class DiceManager : MonoBehaviour
         );
 
         // --------------------------------------------------------
-        // MOVEMENT FINISHED
+        // FINISHED
         // --------------------------------------------------------
 
         isRolling = false;
+    }
 
-        // BoardPlayer handles landing resolution.
+    // ============================================================
+    // DISPLAY DICE SPRITE
+    // ============================================================
+
+    private void SetDieSprite(
+        Image dieImage,
+        int value)
+    {
+        if (dieImage == null)
+            return;
+
+        // IMPORTANT:
+        // Always make the Image visible.
+        dieImage.enabled = true;
+
+        if (value < 1 || value > 6)
+        {
+            Debug.LogError(
+                $"DiceManager: Invalid dice value {value}."
+            );
+            return;
+        }
+
+        int spriteIndex = value - 1;
+
+        if (diceSprites == null ||
+            diceSprites.Length < 6)
+        {
+            Debug.LogError(
+                "DiceManager: Six dice sprites are required."
+            );
+            return;
+        }
+
+        Sprite sprite =
+            diceSprites[spriteIndex];
+
+        if (sprite == null)
+        {
+            Debug.LogError(
+                $"DiceManager: Dice sprite for value {value} is missing."
+            );
+            return;
+        }
+
+        dieImage.sprite = sprite;
+    }
+
+    // ============================================================
+    // RESULT TEXT
+    // ============================================================
+
+    private void UpdateResultText()
+    {
+        if (resultText != null)
+        {
+            resultText.text =
+                $"{firstDie} + {secondDie}";
+        }
+
+        if (totalText != null)
+        {
+            totalText.text =
+                $"Total: {total}";
+        }
+
+        if (lastRollText != null)
+        {
+            lastRollText.text =
+                "Last Roll";
+        }
     }
 
     // ============================================================
