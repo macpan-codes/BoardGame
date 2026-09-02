@@ -25,7 +25,26 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool gameStarted;
     [SerializeField] private bool gameOver;
 
-    private bool playersConfigured;
+    // ============================================================
+    // CHANCE / TURN HISTORY
+    // ============================================================
+
+    // Balance recorded at the beginning of each player's turn.
+    private readonly Dictionary<BoardPlayer, int> turnStartBalances =
+        new Dictionary<BoardPlayer, int>();
+
+    // Stores whether the player lost money on their last completed
+    // turns. Maximum of the most recent 2 turns is kept.
+    private readonly Dictionary<BoardPlayer, Queue<bool>> turnLossHistory =
+        new Dictionary<BoardPlayer, Queue<bool>>();
+
+    // ============================================================
+    // CHANCE EFFECTS
+    // ============================================================
+
+    // These are accessed by CardManager.
+    // The actual effect storage remains in CardManager.
+    // GameManager only handles the game-wide transactions.
 
     // ============================================================
     // PROPERTIES
@@ -248,8 +267,6 @@ public class GameManager : MonoBehaviour
         players =
             configured.ToArray();
 
-        playersConfigured = true;
-
         Debug.Log(
             $"GameManager: Configured " +
             $"{players.Length} local players."
@@ -285,7 +302,12 @@ public class GameManager : MonoBehaviour
         RemoveNullPlayers();
         SortPlayers();
 
-        for (int i = 0; i < players.Length; i++)
+        turnStartBalances.Clear();
+        turnLossHistory.Clear();
+
+        for (int i = 0;
+             i < players.Length;
+             i++)
         {
             if (players[i] == null)
                 continue;
@@ -295,6 +317,12 @@ public class GameManager : MonoBehaviour
             );
 
             players[i].Initialize();
+
+            turnStartBalances[players[i]] =
+                players[i].Money;
+
+            turnLossHistory[players[i]] =
+                new Queue<bool>();
         }
 
         currentPlayerIndex = 0;
@@ -403,12 +431,18 @@ public class GameManager : MonoBehaviour
         }
 
         isTurnActive = true;
+
         waitingForPlayerAction = false;
 
         currentPhase =
             GamePhase.WaitingToRoll;
 
         lastDiceRoll = 0;
+
+        // Record the balance at the exact beginning
+        // of this player's turn.
+        turnStartBalances[player] =
+            player.Money;
 
         Debug.Log(
             $"TURN STARTED: {player.PlayerName}"
@@ -443,6 +477,23 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        BoardPlayer endingPlayer =
+            CurrentPlayer;
+
+        // A double keeps the same turn alive, so do not
+        // record the turn history yet.
+        if (consecutiveDoubles == 0 &&
+            endingPlayer != null)
+        {
+            RecordCompletedTurn(
+                endingPlayer
+            );
+        }
+
+        // --------------------------------------------------------
+        // DOUBLE
+        // --------------------------------------------------------
+
         if (consecutiveDoubles > 0)
         {
             isTurnActive = true;
@@ -462,20 +513,108 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // --------------------------------------------------------
+        // END NORMAL TURN
+        // --------------------------------------------------------
+
         isTurnActive = false;
 
         currentPhase =
             GamePhase.TurnEnded;
 
-        if (CurrentPlayer != null)
+        if (endingPlayer != null)
         {
             Debug.Log(
                 $"TURN ENDED: " +
-                $"{CurrentPlayer.PlayerName}"
+                $"{endingPlayer.PlayerName}"
             );
         }
 
         MoveToNextPlayer();
+    }
+
+    private void RecordCompletedTurn(
+        BoardPlayer player)
+    {
+        if (player == null)
+            return;
+
+        if (!turnStartBalances.TryGetValue(
+                player,
+                out int startBalance))
+        {
+            startBalance =
+                player.Money;
+        }
+
+        bool lostMoney =
+            player.Money < startBalance;
+
+        if (!turnLossHistory.ContainsKey(player))
+        {
+            turnLossHistory[player] =
+                new Queue<bool>();
+        }
+
+        Queue<bool> history =
+            turnLossHistory[player];
+
+        history.Enqueue(
+            lostMoney
+        );
+
+        while (history.Count > 2)
+        {
+            history.Dequeue();
+        }
+
+        Debug.Log(
+            $"TURN HISTORY: {player.PlayerName} | " +
+            $"START ${startBalance:N0}M | " +
+            $"END ${player.Money:N0}M | " +
+            $"LOST MONEY: {lostMoney}"
+        );
+    }
+
+    // Used by Chance #16.
+    public bool LostMoneyOnLastTwoTurns(
+        BoardPlayer player)
+    {
+        if (player == null)
+            return false;
+
+        if (!turnLossHistory.TryGetValue(
+                player,
+                out Queue<bool> history))
+        {
+            return false;
+        }
+
+        if (history.Count < 2)
+            return false;
+
+        bool[] records =
+            history.ToArray();
+
+        return
+            records[records.Length - 2] &&
+            records[records.Length - 1];
+    }
+
+    public int GetCompletedTurnCount(
+        BoardPlayer player)
+    {
+        if (player == null)
+            return 0;
+
+        if (!turnLossHistory.TryGetValue(
+                player,
+                out Queue<bool> history))
+        {
+            return 0;
+        }
+
+        return history.Count;
     }
 
     private void MoveToNextPlayer()
@@ -543,6 +682,9 @@ public class GameManager : MonoBehaviour
 
     public void EndPlayerAction()
     {
+        if (gameOver)
+            return;
+
         waitingForPlayerAction = false;
 
         currentPhase =
@@ -557,7 +699,11 @@ public class GameManager : MonoBehaviour
         int total)
     {
         lastDiceRoll =
-            Mathf.Clamp(total, 2, 12);
+            Mathf.Clamp(
+                total,
+                2,
+                12
+            );
 
         currentPhase =
             GamePhase.Moving;
@@ -607,20 +753,32 @@ public class GameManager : MonoBehaviour
     }
 
     // ============================================================
-    // BANK -> PLAYER
+    // BANK -> CURRENT PLAYER
     // ============================================================
 
     public bool PayPlayer(
         long amount)
     {
-        if (amount <= 0)
-            return false;
+        return PaySpecificPlayer(
+            CurrentPlayer,
+            amount
+        );
+    }
 
-        BoardPlayer player =
-            CurrentPlayer;
+    // ============================================================
+    // BANK -> SPECIFIC PLAYER
+    // ============================================================
 
-        if (player == null)
+    public bool PaySpecificPlayer(
+        BoardPlayer player,
+        long amount)
+    {
+        if (player == null ||
+            amount <= 0 ||
+            player.IsBankrupt)
+        {
             return false;
+        }
 
         if (!RemoveBankMoney(amount))
         {
@@ -650,9 +808,16 @@ public class GameManager : MonoBehaviour
     public bool PlayerPaysBank(
         long amount)
     {
-        BoardPlayer player =
-            CurrentPlayer;
+        return PlayerPaysBank(
+            CurrentPlayer,
+            amount
+        );
+    }
 
+    public bool PlayerPaysBank(
+        BoardPlayer player,
+        long amount)
+    {
         if (player == null)
             return false;
 
@@ -670,7 +835,53 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
-        AddBankMoney(amount);
+        AddBankMoney(
+            amount
+        );
+
+        return true;
+    }
+
+    // ============================================================
+    // PLAYER -> PLAYER
+    // ============================================================
+
+    public bool TransferMoneyBetweenPlayers(
+        BoardPlayer from,
+        BoardPlayer to,
+        long amount)
+    {
+        if (from == null ||
+            to == null ||
+            from == to ||
+            amount <= 0 ||
+            from.IsBankrupt ||
+            to.IsBankrupt)
+        {
+            return false;
+        }
+
+        int safeAmount =
+            amount > int.MaxValue
+                ? int.MaxValue
+                : (int)amount;
+
+        if (!from.RemoveMoney(
+                safeAmount))
+        {
+            return false;
+        }
+
+        to.AddMoney(
+            safeAmount
+        );
+
+        Debug.Log(
+            $"PLAYER TRANSFER: " +
+            $"{from.PlayerName} -> " +
+            $"{to.PlayerName} | " +
+            $"${amount:N0}M"
+        );
 
         return true;
     }
@@ -683,53 +894,20 @@ public class GameManager : MonoBehaviour
         BoardPlayer player,
         long amount)
     {
-        if (player == null ||
-            amount <= 0)
-        {
-            return false;
-        }
-
-        if (bankMoney < amount)
-            return false;
-
-        bankMoney -= amount;
-
-        int safeAmount =
-            amount > int.MaxValue
-                ? int.MaxValue
-                : (int)amount;
-
-        player.AddMoney(
-            safeAmount
+        return PaySpecificPlayer(
+            player,
+            amount
         );
-
-        return true;
     }
 
     public bool PlayerPaysBankForPlayer(
         BoardPlayer player,
         long amount)
     {
-        if (player == null)
-            return false;
-
-        if (amount <= 0)
-            return true;
-
-        int safeAmount =
-            amount > int.MaxValue
-                ? int.MaxValue
-                : (int)amount;
-
-        if (!player.RemoveMoney(
-                safeAmount))
-        {
-            return false;
-        }
-
-        bankMoney += amount;
-
-        return true;
+        return PlayerPaysBank(
+            player,
+            amount
+        );
     }
 
     // ============================================================
@@ -760,10 +938,15 @@ public class GameManager : MonoBehaviour
         if (buyer.Money < price)
             return false;
 
-        if (!buyer.RemoveMoney(price))
+        if (!buyer.RemoveMoney(
+                price))
+        {
             return false;
+        }
 
-        AddBankMoney(price);
+        AddBankMoney(
+            price
+        );
 
         boardSpace.SetOwner(
             buyer
@@ -816,6 +999,38 @@ public class GameManager : MonoBehaviour
         if (payer == owner)
             return true;
 
+        CardManager cardManager =
+            FindFirstObjectByType<CardManager>();
+
+        // --------------------------------------------------------
+        // CHANCE — NEXT PROPERTY RENT FREE
+        // --------------------------------------------------------
+
+        if (cardManager != null &&
+            cardManager.ConsumeNextRentFree(
+                payer
+            ))
+        {
+            Debug.Log(
+                $"CHANCE RENT SHIELD: " +
+                $"{payer.PlayerName} pays $0 rent for " +
+                $"{boardSpace.SpaceName}."
+            );
+
+            GameNotificationUI.Show(
+                $"{payer.PlayerName.ToUpperInvariant()} " +
+                $"PAID $0 RENT FOR " +
+                $"{boardSpace.SpaceName.ToUpperInvariant()} " +
+                "• CHANCE RENT SHIELD"
+            );
+
+            return true;
+        }
+
+        // --------------------------------------------------------
+        // CALCULATE BASE RENT
+        // --------------------------------------------------------
+
         int rent;
 
         if (boardSpace.IsUtility)
@@ -834,6 +1049,81 @@ public class GameManager : MonoBehaviour
         if (rent <= 0)
             return true;
 
+        // --------------------------------------------------------
+        // CHANCE — DOUBLE NEXT RENT
+        // --------------------------------------------------------
+
+        if (cardManager != null &&
+            cardManager.HasDoubledNextRent(
+                boardSpace
+            ))
+        {
+            rent =
+                SafeMultiplyRent(
+                    rent,
+                    2
+                );
+
+            cardManager.ConsumeDoubledNextRent(
+                boardSpace
+            );
+
+            GameNotificationUI.Show(
+                $"{boardSpace.SpaceName.ToUpperInvariant()} " +
+                $"RENT DOUBLED TO ${rent:N0}M"
+            );
+        }
+
+        // --------------------------------------------------------
+        // CHANCE — BANK PAYS NEXT RENT
+        // --------------------------------------------------------
+
+        if (cardManager != null &&
+            cardManager.HasBankPaysNextRent(
+                payer
+            ))
+        {
+            // Do not consume the protection if the bank cannot
+            // actually cover the payment.
+            if (bankMoney >= rent)
+            {
+                cardManager.ConsumeBankPaysNextRent(
+                    payer
+                );
+
+                RemoveBankMoney(
+                    rent
+                );
+
+                owner.AddMoney(
+                    rent
+                );
+
+                Debug.Log(
+                    $"CHANCE BANK RENT COVER: " +
+                    $"Bank paid ${rent:N0}M to " +
+                    $"{owner.PlayerName} " +
+                    $"for {boardSpace.SpaceName}."
+                );
+
+                GameNotificationUI.Show(
+                    $"{owner.PlayerName.ToUpperInvariant()} " +
+                    $"RECEIVED ${rent:N0}M RENT FROM THE BANK " +
+                    $"FOR {boardSpace.SpaceName.ToUpperInvariant()}"
+                );
+
+                return true;
+            }
+
+            Debug.LogWarning(
+                "GameManager: Bank cannot cover the protected rent."
+            );
+        }
+
+        // --------------------------------------------------------
+        // NORMAL RENT
+        // --------------------------------------------------------
+
         if (payer.Money < rent)
         {
             HandleBankruptcy(
@@ -844,10 +1134,15 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
-        if (!payer.RemoveMoney(rent))
+        if (!payer.RemoveMoney(
+                rent))
+        {
             return false;
+        }
 
-        owner.AddMoney(rent);
+        owner.AddMoney(
+            rent
+        );
 
         Debug.Log(
             $"RENT: {payer.PlayerName} paid " +
@@ -863,6 +1158,18 @@ public class GameManager : MonoBehaviour
         );
 
         return true;
+    }
+
+    private int SafeMultiplyRent(
+        int rent,
+        int multiplier)
+    {
+        long result =
+            (long)rent * multiplier;
+
+        return result > int.MaxValue
+            ? int.MaxValue
+            : (int)result;
     }
 
     // ============================================================
@@ -967,6 +1274,7 @@ public class GameManager : MonoBehaviour
 
         return currentSpace == space;
     }
+
     // ============================================================
     // HOUSE
     // ============================================================

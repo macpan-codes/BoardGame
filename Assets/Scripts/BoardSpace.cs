@@ -704,6 +704,55 @@ public class BoardSpace : MonoBehaviour
         return AddHouse();
     }
 
+
+// ============================================================
+// FREE HOUSE — CHANCE / SPECIAL CARD
+// ============================================================
+
+    public bool AddFreeHouse(BoardPlayer player)
+    {
+        if (player == null)
+            return false;
+
+        if (owner != player)
+            return false;
+
+        if (!IsProperty)
+            return false;
+
+        if (mortgaged)
+            return false;
+
+        if (hotel)
+            return false;
+
+        if (houses >= 4)
+            return false;
+
+        if (player.CurrentSpaceIndex != boardIndex)
+            return false;
+
+        if (houses >= MaximumAllowedHouses)
+            return false;
+
+        houses++;
+
+        RefreshBuildingVisual();
+
+        Debug.Log(
+            $"{player.PlayerName} received a FREE HOUSE on " +
+            $"{SpaceName}. Houses: {houses}/4"
+        );
+
+        GameNotificationUI.Show(
+            $"{player.PlayerName} RECEIVED A FREE HOUSE ON " +
+            $"{SpaceName.ToUpperInvariant()}"
+        );
+
+        return true;
+    }
+
+
     public bool CanBuildHotel()
     {
         if (owner == null)
