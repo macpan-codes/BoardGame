@@ -293,17 +293,40 @@ public class BoardSpace : MonoBehaviour
         if (mortgaged)
             return 0;
 
+        // Airports/railroads use the dedicated ownership-based rent table.
         if (IsRailroad)
             return GetRailroadRent();
 
+        // Utilities are calculated from the dice roll in GetUtilityRent().
+        // Keep this fallback for callers that ask for GetRent() directly.
         if (IsUtility)
-            return baseRent;
+        {
+            return baseRent > 0
+                ? baseRent
+                : PropertyEconomy
+                    .FromPurchasePrice(purchasePrice)
+                    .baseRent;
+        }
+
+        // Use PropertyEconomy as the authoritative fallback whenever a
+        // per-property rent field has not been explicitly configured.
+        // This keeps ordinary rent, property-info displays, and Chance-card
+        // calculations on the same economy model.
+        PropertyEconomy economy =
+            PropertyEconomy.FromPurchasePrice(
+                purchasePrice
+            );
+
+        int calculatedBaseRent =
+            baseRent > 0
+                ? baseRent
+                : economy.baseRent;
 
         if (hotel)
         {
             return hotelRent > 0
                 ? hotelRent
-                : baseRent;
+                : economy.hotelRent;
         }
 
         int rent;
@@ -314,32 +337,32 @@ public class BoardSpace : MonoBehaviour
                 rent =
                     rentLevel1 > 0
                         ? rentLevel1
-                        : baseRent;
+                        : economy.houseRent;
                 break;
 
             case 2:
                 rent =
                     rentLevel2 > 0
                         ? rentLevel2
-                        : baseRent;
+                        : economy.twoHouseRent;
                 break;
 
             case 3:
                 rent =
                     rentLevel3 > 0
                         ? rentLevel3
-                        : baseRent;
+                        : economy.threeHouseRent;
                 break;
 
             case 4:
                 rent =
                     rentLevel4 > 0
                         ? rentLevel4
-                        : baseRent;
+                        : economy.fourHouseRent;
                 break;
 
             default:
-                rent = baseRent;
+                rent = calculatedBaseRent;
                 break;
         }
 
@@ -709,31 +732,44 @@ public class BoardSpace : MonoBehaviour
 // FREE HOUSE — CHANCE / SPECIAL CARD
 // ============================================================
 
+// ============================================================
+// FREE HOUSE — CHANCE / SPECIAL CARD
+// ============================================================
+
     public bool AddFreeHouse(BoardPlayer player)
     {
         if (player == null)
             return false;
 
+        // The property must belong to the player.
         if (owner != player)
             return false;
 
+        // Free house only applies to normal properties.
         if (!IsProperty)
             return false;
 
+        // Cannot develop a mortgaged property.
         if (mortgaged)
             return false;
 
+        // Cannot place a house on a hotel property.
         if (hotel)
             return false;
 
+        // Maximum of four houses.
         if (houses >= 4)
             return false;
 
-        if (player.CurrentSpaceIndex != boardIndex)
-            return false;
-
-        if (houses >= MaximumAllowedHouses)
-            return false;
+        // IMPORTANT:
+        // This is a Chance Card reward.
+        // It intentionally bypasses:
+        //
+        // 1. "Player must be standing on this property."
+        // 2. "Property must have enough development landings."
+        //
+        // The player may therefore receive a free house on
+        // ANY eligible property they own.
 
         houses++;
 
@@ -751,7 +787,6 @@ public class BoardSpace : MonoBehaviour
 
         return true;
     }
-
 
     public bool CanBuildHotel()
     {

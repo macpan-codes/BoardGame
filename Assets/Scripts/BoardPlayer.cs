@@ -216,7 +216,9 @@ public class BoardPlayer : MonoBehaviour
     // MOVEMENT
     // ============================================================
 
-    public void MoveBySteps(int steps)
+    public void MoveBySteps(
+        int steps,
+        bool triggerLanding = true)
     {
         if (steps <= 0 ||
             isMoving ||
@@ -235,11 +237,16 @@ public class BoardPlayer : MonoBehaviour
         }
 
         StartCoroutine(
-            MoveRoutine(steps)
+            MoveRoutine(
+                steps,
+                triggerLanding
+            )
         );
     }
 
-    private IEnumerator MoveRoutine(int steps)
+    private IEnumerator MoveRoutine(
+        int steps,
+        bool triggerLanding)
     {
         isMoving = true;
 
@@ -307,7 +314,10 @@ public class BoardPlayer : MonoBehaviour
 
         isMoving = false;
 
-        LandOnCurrentSpace();
+        if (triggerLanding)
+        {
+            LandOnCurrentSpace();
+        }
     }
 
     private IEnumerator MoveTokenTo(
@@ -687,13 +697,40 @@ public class BoardPlayer : MonoBehaviour
         currentSpaceIndex =
             JailIndex;
 
+        CardManager cardManager =
+            FindFirstObjectByType<CardManager>();
+
+        if (cardManager != null &&
+            cardManager.ConsumeGetOutOfJailFree(this))
+        {
+            inJail = false;
+            jailTurnsRemaining = 0;
+
+            SnapToCurrentSpace();
+
+            GameNotificationUI.Show(
+                $"{PlayerName.ToUpperInvariant()} USED A GET OUT OF JAIL FREE CARD"
+            );
+
+            Debug.Log(
+                $"{PlayerName} used a Get Out Of Jail Free card."
+            );
+
+            return;
+        }
+
         inJail = true;
-        jailTurnsRemaining = 3;
+        jailTurnsRemaining = 2;
 
         SnapToCurrentSpace();
 
+        GameNotificationUI.Show(
+            $"{PlayerName.ToUpperInvariant()} IS IN JAIL"
+        );
+
         Debug.Log(
-            $"{PlayerName} was sent to Jail."
+            $"{PlayerName} was sent to Jail. " +
+            $"Jail turns remaining: {jailTurnsRemaining}"
         );
     }
 

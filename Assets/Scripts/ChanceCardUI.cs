@@ -134,6 +134,7 @@ public class ChanceCardUI : MonoBehaviour
     private Vector3 originalScale = Vector3.one;
     private CardManager cardManager;
     private BoardPlayer currentPlayer;
+    private bool previewMode;
 
     private void Awake()
     {
@@ -192,11 +193,8 @@ public class ChanceCardUI : MonoBehaviour
                 cardManager.NextTarget();
         });
 
-        Wire(targetSelectButton, () =>
-        {
-            if (cardManager != null)
-                cardManager.TargetPlayerButtonPressed();
-        });
+        // TargetSelectButton is rewired dynamically by
+        // ShowPlayerTarget() or ShowPropertyTarget().
     }
 
     private void Wire(Button button, UnityEngine.Events.UnityAction action)
@@ -231,6 +229,7 @@ public class ChanceCardUI : MonoBehaviour
         CardManager.CardPreview finalCard,
         Action onRevealFinished)
     {
+        previewMode = false;
         currentPlayer = player;
         ResetAllSections();
         SetActive(true);
@@ -368,6 +367,7 @@ public class ChanceCardUI : MonoBehaviour
         string title,
         string description)
     {
+        previewMode = false;
         currentPlayer = player;
         ResetAllSections();
         SetActive(true);
@@ -395,11 +395,52 @@ public class ChanceCardUI : MonoBehaviour
     }
 
     // ============================================================
+    // DEVELOPER PREVIEW
+    // ============================================================
+
+    public void ShowPreviewCard(
+        string deckName,
+        string title,
+        string description)
+    {
+        previewMode = true;
+        currentPlayer = null;
+
+        ResetAllSections();
+        SetActive(true);
+        SetMainCard(
+            deckName,
+            title,
+            description
+        );
+        SetCloseInteractable(true);
+
+        if (cardTransform != null)
+        {
+            cardTransform.localScale =
+                originalScale * revealScale;
+
+            if (coroutineRunner != null)
+            {
+                coroutineRunner.Run(
+                    RevealRoutine()
+                );
+            }
+        }
+    }
+
+    // ============================================================
     // CLOSE
     // ============================================================
 
     private void Close()
     {
+        if (previewMode)
+        {
+            HideImmediate();
+            return;
+        }
+
         if (cardManager != null)
             cardManager.CloseCard();
         else
@@ -415,6 +456,7 @@ public class ChanceCardUI : MonoBehaviour
 
         SetCloseInteractable(false);
         currentPlayer = null;
+        previewMode = false;
     }
 
     private void EnsurePopupCanvasGroup()
@@ -560,6 +602,19 @@ public class ChanceCardUI : MonoBehaviour
     // EFFECT AREA
     // ============================================================
 
+    // Only ONE effect child is allowed to be visible at a time.
+    // A card may have multiple mechanical outcomes, but they must be
+    // represented inside one primary effect panel to avoid overlap.
+    private void HideAllEffectSections()
+    {
+        SetSection(moneyEffect, false);
+        SetSection(conditionEffect, false);
+        SetSection(propertyEffect, false);
+        SetSection(movementEffect, false);
+        SetSection(playerEffect, false);
+        SetSection(specialEffect, false);
+    }
+
     public void ShowMoneyEffect(
         string label,
         string amount,
@@ -567,6 +622,7 @@ public class ChanceCardUI : MonoBehaviour
         string detail,
         string breakdown = "")
     {
+        HideAllEffectSections();
         SetSection(effectArea, true);
         SetSection(moneyEffect, true);
 
@@ -583,6 +639,7 @@ public class ChanceCardUI : MonoBehaviour
         string status,
         string result)
     {
+        HideAllEffectSections();
         SetSection(effectArea, true);
         SetSection(conditionEffect, true);
 
@@ -600,6 +657,7 @@ public class ChanceCardUI : MonoBehaviour
         string target,
         string result)
     {
+        HideAllEffectSections();
         SetSection(effectArea, true);
         SetSection(propertyEffect, true);
 
@@ -617,6 +675,7 @@ public class ChanceCardUI : MonoBehaviour
         string distance,
         string rule)
     {
+        HideAllEffectSections();
         SetSection(effectArea, true);
         SetSection(movementEffect, true);
 
@@ -632,6 +691,7 @@ public class ChanceCardUI : MonoBehaviour
         string direction,
         string amount)
     {
+        HideAllEffectSections();
         SetSection(effectArea, true);
         SetSection(playerEffect, true);
 
@@ -647,6 +707,7 @@ public class ChanceCardUI : MonoBehaviour
         string details,
         string status)
     {
+        HideAllEffectSections();
         SetSection(effectArea, true);
         SetSection(specialEffect, true);
 
@@ -716,20 +777,22 @@ public class ChanceCardUI : MonoBehaviour
         if (targetInfoText != null)
             targetInfoText.text = info;
 
-        // Player targeting uses TargetSelectButton.
+        // TargetArea owns the universal confirmation button.
+        // Rewire it for player targeting.
         if (targetSelectButton != null)
         {
             targetSelectButton.gameObject.SetActive(true);
+            SetButtonText(targetSelectButton, buttonText);
 
-            TMP_Text text =
-                targetSelectButton.GetComponentInChildren<TMP_Text>();
-
-            if (text != null)
-                text.text = buttonText;
+            targetSelectButton.onClick.RemoveAllListeners();
+            targetSelectButton.onClick.AddListener(() =>
+            {
+                if (cardManager != null)
+                    cardManager.TargetPlayerButtonPressed();
+            });
         }
 
-        // Property targeting uses the other button,
-        // so hide it while we are targeting a player.
+        // The old PropertyEffect selection button is not used for targeting.
         if (selectPropertyButton != null)
             selectPropertyButton.gameObject.SetActive(false);
     }
@@ -753,23 +816,24 @@ public class ChanceCardUI : MonoBehaviour
         if (targetInfoText != null)
             targetInfoText.text = info;
 
-        // Property selection uses the property button,
-        // not the player-target button.
-        if (selectPropertyButton != null)
+        // TargetArea owns the universal confirmation button.
+        // Rewire it for property targeting.
+        if (targetSelectButton != null)
         {
-            selectPropertyButton.gameObject.SetActive(true);
+            targetSelectButton.gameObject.SetActive(true);
+            SetButtonText(targetSelectButton, buttonText);
 
-            TMP_Text buttonTextComponent =
-                selectPropertyButton.GetComponentInChildren<TMP_Text>();
-
-            if (buttonTextComponent != null)
-                buttonTextComponent.text = buttonText;
+            targetSelectButton.onClick.RemoveAllListeners();
+            targetSelectButton.onClick.AddListener(() =>
+            {
+                if (cardManager != null)
+                    cardManager.TargetPropertyButtonPressed();
+            });
         }
 
-        // The player target controls are not needed for
-        // property selection.
-        if (targetSelectButton != null)
-            targetSelectButton.gameObject.SetActive(false);
+        // The PropertyEffect button is not used for targeting.
+        if (selectPropertyButton != null)
+            selectPropertyButton.gameObject.SetActive(false);
     }
 
     public void SetTargetNextButtonVisible(
@@ -823,6 +887,19 @@ public class ChanceCardUI : MonoBehaviour
         string detail,
         string status)
     {
+        // A final result replaces temporary selection UI.
+        SetSection(choiceArea, false);
+        SetSection(targetArea, false);
+
+        if (targetNextButton != null)
+            targetNextButton.gameObject.SetActive(false);
+
+        if (targetSelectButton != null)
+            targetSelectButton.gameObject.SetActive(false);
+
+        if (selectPropertyButton != null)
+            selectPropertyButton.gameObject.SetActive(false);
+
         SetSection(resultArea, true);
         SetText(resultHeader, "RESULT");
         SetText(resultMainText, mainText);
@@ -836,6 +913,8 @@ public class ChanceCardUI : MonoBehaviour
 
     public void ShowPlayerList(string header, string total)
     {
+        HideAllEffectSections();
+
         SetSection(effectArea, true);
         SetSection(playerEffect, true);
         SetSection(playerListEffect, true);

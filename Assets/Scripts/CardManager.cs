@@ -177,37 +177,226 @@ public class CardManager : MonoBehaviour
         DrawCard(player, chanceCards, "CHANCE");
     }
 
-    // Community Chest remains separate. Its visual system will be built later.
-    public void DrawCommunityChestCard(BoardPlayer player)
-    {
-        GameManager gameManager =
-            FindFirstObjectByType<GameManager>();
+    // ============================================================
+    // DEVELOPER / TESTER API
+    // ============================================================
 
-        if (communityChestCards == null ||
-            communityChestCards.Count == 0)
+    public int ChanceCardCount
+    {
+        get
+        {
+            EnsureChanceCards();
+            return chanceCards != null ? chanceCards.Count : 0;
+        }
+    }
+
+    public bool TryGetChanceCardPreview(
+        int index,
+        out CardPreview preview)
+    {
+        EnsureChanceCards();
+        preview = null;
+
+        if (chanceCards == null ||
+            index < 0 ||
+            index >= chanceCards.Count ||
+            chanceCards[index] == null)
+        {
+            return false;
+        }
+
+        CardDefinition card = chanceCards[index];
+
+        preview = new CardPreview(
+            card.title,
+            card.description
+        );
+
+        return true;
+    }
+
+    public void PreviewChanceCard(int index)
+    {
+        EnsureChanceCards();
+
+        if (chanceCards == null ||
+            index < 0 ||
+            index >= chanceCards.Count ||
+            chanceCards[index] == null)
         {
             Debug.LogWarning(
-                "CardManager: Community Chest is not configured yet."
+                $"Chance Tester: Invalid card index {index}."
             );
-
-            if (gameManager != null)
-            {
-                gameManager.EndPlayerAction();
-                gameManager.EndTurn();
-            }
-
             return;
         }
 
-        Debug.LogWarning(
-            "CardManager: Community Chest deck exists, but its UI is not implemented yet."
+        if (chanceCardUI == null)
+        {
+            chanceCardUI =
+                FindFirstObjectByType<ChanceCardUI>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        if (chanceCardUI == null)
+        {
+            Debug.LogError(
+                "Chance Tester: ChanceCardUI could not be found."
+            );
+            return;
+        }
+
+        CardDefinition card = chanceCards[index];
+
+        Debug.Log(
+            $"CHANCE TEST PREVIEW: #{index + 1} - {card.title}"
         );
 
-        if (gameManager != null)
+        chanceCardUI.ShowPreviewCard(
+            "CHANCE • PREVIEW",
+            card.title,
+            card.description
+        );
+    }
+
+    public bool TestChanceCard(int index)
+    {
+        EnsureChanceCards();
+
+        GameManager gameManager =
+            FindFirstObjectByType<GameManager>();
+
+        if (gameManager == null)
         {
-            gameManager.EndPlayerAction();
-            gameManager.EndTurn();
+            Debug.LogError(
+                "Chance Tester: GameManager not found."
+            );
+            return false;
         }
+
+        BoardPlayer player = gameManager.CurrentPlayer;
+
+        if (player == null)
+        {
+            Debug.LogError(
+                "Chance Tester: Current player is missing."
+            );
+            return false;
+        }
+
+        if (!gameManager.IsPlayerTurn(player))
+        {
+            Debug.LogWarning(
+                "Chance Tester: Test a card during an active player turn."
+            );
+            return false;
+        }
+
+        if (gameManager.WaitingForPlayerAction)
+        {
+            Debug.LogWarning(
+                "Chance Tester: Finish the current player action first."
+            );
+            return false;
+        }
+
+        if (chanceCardUI == null)
+        {
+            chanceCardUI =
+                FindFirstObjectByType<ChanceCardUI>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        if (chanceCardUI == null)
+        {
+            Debug.LogError(
+                "Chance Tester: ChanceCardUI could not be found."
+            );
+            return false;
+        }
+
+        if (chanceCards == null ||
+            index < 0 ||
+            index >= chanceCards.Count ||
+            chanceCards[index] == null)
+        {
+            Debug.LogWarning(
+                $"Chance Tester: Invalid card index {index}."
+            );
+            return false;
+        }
+
+        CardDefinition selected = chanceCards[index];
+
+        activePlayer = player;
+        activeCard = selected;
+        activeDeck = chanceCards;
+
+        waitingForChoice = false;
+        waitingForPlayerTarget = false;
+        waitingForPropertyTarget = false;
+
+        playerTargets.Clear();
+        propertyTargets.Clear();
+        selectedPlayerTarget = null;
+        selectedPropertyTarget = null;
+        targetIndex = 0;
+
+        gameManager.BeginPlayerAction();
+
+        Debug.Log(
+            $"CHANCE TEST EXECUTION: #{index + 1} - " +
+            $"{selected.title} - {selected.description}"
+        );
+
+        List<CardPreview> previews =
+            BuildRollPreviews(
+                chanceCards,
+                selected,
+                7
+            );
+
+        CardPreview finalPreview =
+            new CardPreview(
+                selected.title,
+                selected.description
+            );
+
+        chanceCardUI.BeginCardReveal(
+            player,
+            "CHANCE • TEST",
+            previews,
+            finalPreview,
+            () => ResolveCard(
+                player,
+                selected,
+                gameManager
+            )
+        );
+
+        return true;
+    }
+
+    // ============================================================
+    // COMMUNITY CHEST
+    // ============================================================
+
+    public void DrawCommunityChestCard(BoardPlayer player)
+    {
+        if (player == null)
+            return;
+
+        CommunityChestCardManager communityChest =
+            FindFirstObjectByType<CommunityChestCardManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (communityChest == null)
+            communityChest =
+                gameObject.AddComponent<CommunityChestCardManager>();
+
+        communityChest.Draw(player);
     }
 
     private void DrawCard(
@@ -715,20 +904,15 @@ public class CardManager : MonoBehaviour
 
         GiveNextRentFree(player);
 
-        chanceCardUI.ShowMoneyEffect(
-            "BANK REWARD",
-            paid ? $"+${card.amount:N0}M" : "$0",
-            "FROM THE BANK",
-            paid
-                ? "Your reward has been added."
-                : "The bank could not provide the reward.",
-            ""
-        );
-
+        // Card #5 has two mechanical outcomes (cash + rent protection),
+        // but only ONE visual effect panel should be active.
+        // SpecialEffect is the primary visual category for this card.
         chanceCardUI.ShowSpecialEffect(
-            "YOUR NEXT PROPERTY RENT IS FREE",
+            "RENT SHIELD",
             "NEXT PROPERTY LANDING",
-            "The next rent you owe on another player's property will be reduced to $0.",
+            paid
+                ? $"You received +${card.amount:N0}M and your next rent is FREE."
+                : "Your next property rent is FREE. The bank could not provide the cash reward.",
             "ACTIVE"
         );
 
@@ -789,7 +973,7 @@ public class CardManager : MonoBehaviour
             return;
         }
 
-        player.MoveBySteps(steps);
+        player.MoveBySteps(steps, false);
 
         StartCoroutine(
             WaitForMovementAndComplete(
@@ -919,7 +1103,7 @@ public class CardManager : MonoBehaviour
 
         if (steps > 0)
         {
-            player.MoveBySteps(steps);
+            player.MoveBySteps(steps, false);
 
             StartCoroutine(
                 WaitForMovementAndComplete(
@@ -1186,7 +1370,7 @@ public class CardManager : MonoBehaviour
             return;
         }
 
-        player.MoveBySteps(steps);
+        player.MoveBySteps(steps, false);
 
         StartCoroutine(
             WaitForMovementAndComplete(
@@ -1434,6 +1618,75 @@ public class CardManager : MonoBehaviour
     }
 
     // ============================================================
+    // #20 — LUCKY BREAK
+    // ============================================================
+
+    private void ResolveLuckyBreak(
+        BoardPlayer player,
+        CardDefinition card,
+        GameManager gameManager)
+    {
+        if (player == null || card == null || gameManager == null)
+        {
+            EnableClose();
+            return;
+        }
+
+        BoardPlayer lowest =
+            FindLowestBalancePlayer(gameManager.Players);
+
+        bool isLowest =
+            lowest != null && lowest == player;
+
+        int reward =
+            isLowest
+                ? card.amount
+                : card.secondaryAmount;
+
+        bool paid =
+            reward > 0 &&
+            gameManager.PaySpecificPlayer(
+                player,
+                reward
+            );
+
+        chanceCardUI.ShowConditionEffect(
+            isLowest
+                ? "YOU HAVE THE LOWEST CASH BALANCE"
+                : "YOU DO NOT HAVE THE LOWEST CASH BALANCE",
+            isLowest
+                ? $"You qualify for the ${card.amount:N0}M reward."
+                : $"Standard reward: ${card.secondaryAmount:N0}M.",
+            isLowest
+                ? "LOWEST BALANCE"
+                : "STANDARD REWARD",
+            paid ? $"+${reward:N0}M" : "$0"
+        );
+
+        chanceCardUI.ShowMoneyEffect(
+            "LUCKY BREAK",
+            paid ? $"+${reward:N0}M" : "$0",
+            "FROM THE BANK",
+            isLowest
+                ? "You had the lowest cash balance, so the bonus reward was applied."
+                : "You received the standard Lucky Break reward.",
+            isLowest
+                ? $"LOWEST BALANCE BONUS: ${card.amount:N0}M"
+                : $"STANDARD REWARD: ${card.secondaryAmount:N0}M"
+        );
+
+        chanceCardUI.ShowResult(
+            paid ? $"+${reward:N0}M" : "NO REWARD",
+            paid
+                ? "Lucky Break has been applied to your balance."
+                : "The bank could not provide the reward.",
+            paid ? "REWARD RECEIVED" : "NO EFFECT"
+        );
+
+        EnableClose();
+    }
+
+    // ============================================================
     // #17 — MOVE FORWARD 5 + $1M
     // ============================================================
 
@@ -1451,7 +1704,7 @@ public class CardManager : MonoBehaviour
 
         chanceCardUI.SetCloseInteractable(false);
 
-        player.MoveBySteps(card.movement);
+        player.MoveBySteps(card.movement, false);
 
         StartCoroutine(
             WaitForMovementAndComplete(
@@ -1751,7 +2004,7 @@ public class CardManager : MonoBehaviour
 
         if (steps > 0)
         {
-            player.MoveBySteps(steps);
+            player.MoveBySteps(steps, false);
 
             StartCoroutine(
                 WaitForMovementAndComplete(
@@ -1927,6 +2180,7 @@ public class CardManager : MonoBehaviour
         switch (activeCard.effect)
         {
             case CardEffect.FreeUpgrade:
+            case CardEffect.MoneyOrFreeHouse:
 
                 if (property.Owner != activePlayer ||
                     !property.IsProperty ||
@@ -1951,7 +2205,9 @@ public class CardManager : MonoBehaviour
                     );
 
                     chanceCardUI.ShowResult(
-                        "FREE UPGRADE",
+                        activeCard.effect == CardEffect.MoneyOrFreeHouse
+                            ? "FREE HOUSE"
+                            : "FREE UPGRADE",
                         $"A free house was added to {property.SpaceName}.",
                         "EFFECT APPLIED"
                     );
@@ -2602,100 +2858,6 @@ public class CardManager : MonoBehaviour
             gameManager.EndTurn();
         }
     }
-
-
-    private void ResolveLuckyBreak(
-        BoardPlayer player,
-        CardDefinition card,
-        GameManager gameManager)
-    {
-        if (player == null ||
-            card == null ||
-            gameManager == null)
-        {
-            return;
-        }
-
-        BoardPlayer lowestBalancePlayer =
-            FindLowestBalancePlayer(
-                gameManager.Players
-            );
-
-        bool isLowestBalance =
-            lowestBalancePlayer == player;
-
-        int rewardAmount =
-            isLowestBalance
-                ? card.amount
-                : card.secondaryAmount;
-
-        bool received =
-            rewardAmount > 0 &&
-            gameManager.PayPlayer(
-                rewardAmount
-            );
-
-        // --------------------------------------------------------
-        // CONDITION DISPLAY
-        // --------------------------------------------------------
-
-        chanceCardUI.ShowConditionEffect(
-            isLowestBalance
-                ? "YOU HAVE THE LOWEST CASH BALANCE"
-                : "YOU DO NOT HAVE THE LOWEST CASH BALANCE",
-
-            lowestBalancePlayer != null
-                ? $"Lowest balance: " +
-                $"{lowestBalancePlayer.PlayerName} " +
-                $"(${lowestBalancePlayer.Money:N0}M)"
-                : "Lowest balance player could not be determined.",
-
-            isLowestBalance
-                ? "FULL REWARD"
-                : "STANDARD REWARD",
-
-            received
-                ? $"+${rewardAmount:N0}M"
-                : "$0"
-        );
-
-        // --------------------------------------------------------
-        // MONEY DISPLAY
-        // --------------------------------------------------------
-
-        chanceCardUI.ShowMoneyEffect(
-            "LUCKY BREAK",
-            received
-                ? $"+${rewardAmount:N0}M"
-                : "$0",
-            "FROM THE BANK",
-            isLowestBalance
-                ? "You had the lowest cash balance, so you received the full reward."
-                : "You received the standard Lucky Break reward.",
-            isLowestBalance
-                ? "LOWEST BALANCE BONUS"
-                : "STANDARD REWARD"
-        );
-
-        // --------------------------------------------------------
-        // RESULT
-        // --------------------------------------------------------
-
-        chanceCardUI.ShowResult(
-            received
-                ? $"+${rewardAmount:N0}M"
-                : "NO REWARD",
-
-            isLowestBalance
-                ? $"You were the player with the lowest cash balance and received the full ${rewardAmount:N0}M reward."
-                : $"You received the standard ${rewardAmount:N0}M reward.",
-
-            received
-                ? "EFFECT APPLIED"
-                : "BANK PAYMENT FAILED"
-        );
-    }
-
 
     // ============================================================
     // DEFAULT CHANCE DECK
