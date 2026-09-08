@@ -575,10 +575,11 @@ public class CommunityChestCardUI : MonoBehaviour
     public void ShowResult(
         string mainText,
         string detail,
-        string status)
+        string status,
+        bool keepTargetVisible = false)
     {
         SetSection(choiceArea, false);
-        SetSection(targetArea, false);
+        SetSection(targetArea, keepTargetVisible);
         SetSection(resultArea, true);
 
         SetText(resultHeader, "RESULT");

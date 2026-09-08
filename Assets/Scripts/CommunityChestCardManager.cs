@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
 public class CommunityChestCardManager : MonoBehaviour
 {
@@ -57,6 +56,9 @@ public class CommunityChestCardManager : MonoBehaviour
     // Player purchase / development restrictions from Market Freeze.
     private readonly Dictionary<BoardPlayer, int> marketFreezeTurns =
         new Dictionary<BoardPlayer, int>();
+
+    private readonly HashSet<BoardPlayer> newlyAppliedMarketFreezes =
+        new HashSet<BoardPlayer>();
 
     public bool IsMarketFrozen(BoardPlayer player)
     {
@@ -422,11 +424,12 @@ public class CommunityChestCardManager : MonoBehaviour
         GameManager gm,
         int amount)
     {
-        int total =
-            0;
+        int total = 0;
 
-        foreach (BoardPlayer player
-                 in gm.Players)
+        List<string> contributions =
+            new List<string>();
+
+        foreach (BoardPlayer player in gm.Players)
         {
             if (player == null ||
                 player == activePlayer ||
@@ -442,13 +445,29 @@ public class CommunityChestCardManager : MonoBehaviour
                 );
 
             if (payment <= 0)
+            {
+                contributions.Add(
+                    $"{player.PlayerName}: $0M"
+                );
+
                 continue;
+            }
 
             if (!player.RemoveMoney(payment))
+            {
+                contributions.Add(
+                    $"{player.PlayerName}: $0M"
+                );
+
                 continue;
+            }
 
             activePlayer.AddMoney(payment);
             total += payment;
+
+            contributions.Add(
+                $"{player.PlayerName}: +${payment:N0}M"
+            );
         }
 
         ui.ShowPlayerEffect(
@@ -458,37 +477,9 @@ public class CommunityChestCardManager : MonoBehaviour
             "Each eligible player contributed up to $10M."
         );
 
-        // The current UI no longer has PlayerListEffect.
-        // Use the existing TargetArea as an informational summary.
-        List<string> contributors =
-            new List<string>();
-
-        foreach (BoardPlayer participant in gm.Players)
-        {
-            if (participant == null ||
-                participant == activePlayer ||
-                participant.IsBankrupt)
-            {
-                continue;
-            }
-
-            int contribution =
-                Mathf.Min(
-                    amount,
-                    participant.Money + amount // reconstructed below
-                );
-
-            // Reconstruct the actual contribution from the current balances
-            // only where possible. The transfer itself is already complete.
-            // For clarity, use the fixed card amount as the displayed maximum.
-            contributors.Add(
-                $"{participant.PlayerName}: up to ${amount:N0}M"
-            );
-        }
-
         string summary =
-            contributors.Count > 0
-                ? string.Join("\n", contributors)
+            contributions.Count > 0
+                ? string.Join("\n", contributions)
                 : "No other active players were able to contribute.";
 
         ui.ShowPlayerTargetInfo(
@@ -497,12 +488,11 @@ public class CommunityChestCardManager : MonoBehaviour
             "AUTOMATIC COLLECTION"
         );
 
-        StartCoroutine(
-            ShowTargetThenFinish(
-                gm,
-                $"+${total:N0}M",
-                "Birthday collection completed."
-            )
+        Finish(
+            gm,
+            $"+${total:N0}M",
+            "Birthday collection completed.",
+            true
         );
     }
 
@@ -784,6 +774,8 @@ public class CommunityChestCardManager : MonoBehaviour
             activePlayer
         ] = 2;
 
+        newlyAppliedMarketFreezes.Add(activePlayer);
+
         ui.ShowSpecialEffect(
             "MARKET FREEZE",
             "2 TURNS",
@@ -931,7 +923,8 @@ public class CommunityChestCardManager : MonoBehaviour
         Finish(
             gm,
             $"-${donation:N0}M",
-            $"{poorest.PlayerName} received the donation."
+            $"{poorest.PlayerName} received the donation.",
+            true
         );
     }
 
@@ -1465,7 +1458,8 @@ public class CommunityChestCardManager : MonoBehaviour
     private void Finish(
         GameManager gm,
         string main,
-        string detail)
+        string detail,
+        bool keepTargetVisible = false)
     {
         if (gm == null)
             return;
@@ -1473,27 +1467,13 @@ public class CommunityChestCardManager : MonoBehaviour
         ui.ShowResult(
             main,
             detail,
-            "EFFECT APPLIED"
+            "EFFECT APPLIED",
+            keepTargetVisible
         );
 
         gm.EndPlayerAction();
         gm.EndTurn();
 
-    }
-
-    private IEnumerator ShowTargetThenFinish(
-        GameManager gm,
-        string main,
-        string detail,
-        float delay = 1.25f)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-
-        Finish(
-            gm,
-            main,
-            detail
-        );
     }
 
 
@@ -1508,10 +1488,13 @@ public class CommunityChestCardManager : MonoBehaviour
 
     }
 
-    private void AdvanceMarketFreezeTurn(
+    public void AdvanceMarketFreezeTurn(
         BoardPlayer player)
     {
         if (player == null)
+            return;
+
+        if (newlyAppliedMarketFreezes.Remove(player))
             return;
 
         if (!marketFreezeTurns.TryGetValue(
