@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class CommunityChestCardManager : MonoBehaviour
 {
@@ -135,6 +136,8 @@ public class CommunityChestCardManager : MonoBehaviour
 
         return true;
     }
+
+
 
     public void Draw(BoardPlayer player)
     {
@@ -452,12 +455,12 @@ public class CommunityChestCardManager : MonoBehaviour
             "BIRTHDAY COLLECTION",
             "EVERY OTHER PLAYER → YOU",
             $"+${total:N0}M",
-            "Each active player contributed up to the card amount."
+            "Each eligible player contributed up to $10M."
         );
 
-        // Use the existing TargetArea as a clean collection summary,
-        // instead of putting player details inside PlayerEffect.
-        List<string> contributions =
+        // The current UI no longer has PlayerListEffect.
+        // Use the existing TargetArea as an informational summary.
+        List<string> contributors =
             new List<string>();
 
         foreach (BoardPlayer participant in gm.Players)
@@ -472,38 +475,34 @@ public class CommunityChestCardManager : MonoBehaviour
             int contribution =
                 Mathf.Min(
                     amount,
-                    participant.Money
+                    participant.Money + amount // reconstructed below
                 );
 
-            if (contribution > 0)
-            {
-                contributions.Add(
-                    $"{participant.PlayerName}: +${contribution:N0}M"
-                );
-            }
-            else
-            {
-                contributions.Add(
-                    $"{participant.PlayerName}: $0"
-                );
-            }
+            // Reconstruct the actual contribution from the current balances
+            // only where possible. The transfer itself is already complete.
+            // For clarity, use the fixed card amount as the displayed maximum.
+            contributors.Add(
+                $"{participant.PlayerName}: up to ${amount:N0}M"
+            );
         }
 
-        string contributionSummary =
-            contributions.Count > 0
-                ? string.Join("\n", contributions)
-                : "No other active players could contribute.";
+        string summary =
+            contributors.Count > 0
+                ? string.Join("\n", contributors)
+                : "No other active players were able to contribute.";
 
         ui.ShowPlayerTargetInfo(
             "COLLECTION SUMMARY",
-            contributionSummary,
+            summary,
             "AUTOMATIC COLLECTION"
         );
 
-        Finish(
-            gm,
-            $"+${total:N0}M",
-            "Birthday collection completed."
+        StartCoroutine(
+            ShowTargetThenFinish(
+                gm,
+                $"+${total:N0}M",
+                "Birthday collection completed."
+            )
         );
     }
 
@@ -925,7 +924,7 @@ public class CommunityChestCardManager : MonoBehaviour
 
         ui.ShowPlayerTargetInfo(
             poorest.PlayerName,
-            $"Balance after receiving: ${poorest.Money:N0}M",
+            $"Current balance: ${poorest.Money:N0}M",
             "DONATION RECEIVED"
         );
 
@@ -1238,13 +1237,13 @@ public class CommunityChestCardManager : MonoBehaviour
         int payment =
             Mathf.CeilToInt(
                 target.PurchasePrice *
-                0.25f
+                0.10f
             );
 
         ui.ShowPaymentEffect(
             "PROPERTY ASSESSMENT",
             $"-${payment:N0}M",
-            $"{target.SpaceName}: 25% of ${target.PurchasePrice:N0}M."
+            $"{target.SpaceName}: 10% of ${target.PurchasePrice:N0}M."
         );
 
         ui.ShowTarget(
@@ -1286,7 +1285,7 @@ public class CommunityChestCardManager : MonoBehaviour
         int payment =
             Mathf.CeilToInt(
                 property.PurchasePrice *
-                0.25f
+                0.10f
             );
 
         bool paid =
@@ -1298,7 +1297,7 @@ public class CommunityChestCardManager : MonoBehaviour
         ui.ShowPropertyEffect(
             property.SpaceName,
             $"Value: ${property.PurchasePrice:N0}M",
-            "25% ASSESSMENT",
+            "10% ASSESSMENT",
             paid
                 ? $"-${payment:N0}M paid to the bank."
                 : "Payment failed."
@@ -1310,7 +1309,7 @@ public class CommunityChestCardManager : MonoBehaviour
                 ? $"-${payment:N0}M"
                 : "PAYMENT FAILED",
             paid
-                ? $"You paid 25% of {property.SpaceName}'s purchase value."
+                ? $"You paid 10% of {property.SpaceName}'s purchase value."
                 : "You could not afford the assessment."
         );
     }
@@ -1481,6 +1480,22 @@ public class CommunityChestCardManager : MonoBehaviour
         gm.EndTurn();
 
     }
+
+    private IEnumerator ShowTargetThenFinish(
+        GameManager gm,
+        string main,
+        string detail,
+        float delay = 1.25f)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+
+        Finish(
+            gm,
+            main,
+            detail
+        );
+    }
+
 
     private void FinishTurn(
         GameManager gm)

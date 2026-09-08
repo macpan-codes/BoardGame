@@ -67,19 +67,9 @@ public class CommunityChestCardUI : MonoBehaviour
     [SerializeField] private TMP_Text playerEffectHeader;
     [SerializeField] private Image playerInteractionIcon;
     [SerializeField] private TMP_Text interactionText;
-    [SerializeField] private GameObject targetPlayer;
-    [SerializeField] private Image playerAvatar;
-    [SerializeField] private TMP_Text targetPlayerNameText;
-    [SerializeField] private TMP_Text targetPlayerBalanceText;
-    [SerializeField] private TMP_Text targetIndicator;
-    [SerializeField] private TMP_Text transferAmountText;
+[SerializeField] private TMP_Text transferAmountText;
     [SerializeField] private TMP_Text transferDirectionText;
-    [SerializeField] private GameObject playerListEffect;
-    [SerializeField] private TMP_Text listHeader;
-    [SerializeField] private Transform playerRowContainer;
-    [SerializeField] private TMP_Text totalAmountText;
-
-    [Header("Special Effect")]
+[Header("Special Effect")]
     [SerializeField] private TMP_Text specialEffectHeader;
     [SerializeField] private Image specialEffectIcon;
     [SerializeField] private TMP_Text specialEffectText;
@@ -231,17 +221,8 @@ public class CommunityChestCardUI : MonoBehaviour
         playerEffectHeader = FindText("PlayerEffectHeader", playerEffectHeader);
         playerInteractionIcon = FindComponent<Image>("PlayerInteractionIcon", playerInteractionIcon);
         interactionText = FindText("InteractionText", interactionText);
-        targetPlayer = FindObject("TargetPlayer", targetPlayer);
-        playerAvatar = FindComponent<Image>("PlayerAvatar", playerAvatar);
-        targetPlayerNameText = FindText("TargetPlayerNameText", targetPlayerNameText);
-        targetPlayerBalanceText = FindText("TargetPlayerBalanceText", targetPlayerBalanceText);
-        targetIndicator = FindText("TargetIndicator", targetIndicator);
         transferAmountText = FindText("TransferAmountText", transferAmountText);
         transferDirectionText = FindText("TransferDirectionText", transferDirectionText);
-        playerListEffect = FindObject("PlayerListEffect", playerListEffect);
-        listHeader = FindText("ListHeader", listHeader);
-        playerRowContainer = FindTransform("PlayerRowContainer", playerRowContainer);
-        totalAmountText = FindText("TotalAmountText", totalAmountText);
 
         specialEffectHeader = FindText("SpecialEffectHeader", specialEffectHeader);
         specialEffectIcon = FindComponent<Image>("SpecialEffectIcon", specialEffectIcon);
@@ -466,42 +447,10 @@ public class CommunityChestCardUI : MonoBehaviour
         HideEffectChildren();
         SetSection(playerEffect, true);
 
-        SetText(
-            playerEffectHeader,
-            "PLAYER INTERACTION"
-        );
-
-        SetText(
-            interactionText,
-            interaction
-        );
-
-        SetText(
-            transferDirectionText,
-            direction
-        );
-
-        SetText(
-            transferAmountText,
-            amount
-        );
-
-        // PlayerEffect is intentionally kept simple.
-        // Target identity/details belong in TargetArea.
-        SetText(
-            targetPlayerNameText,
-            string.Empty
-        );
-
-        SetText(
-            targetPlayerBalanceText,
-            string.Empty
-        );
-
-        SetText(
-            targetIndicator,
-            string.Empty
-        );
+        SetText(playerEffectHeader, "PLAYER INTERACTION");
+        SetText(interactionText, interaction);
+        SetText(transferDirectionText, direction);
+        SetText(transferAmountText, amount);
     }
 
     public void ShowSpecialEffect(
@@ -587,35 +536,22 @@ public class CommunityChestCardUI : MonoBehaviour
         string info,
         string status)
     {
-        SetSection(
-            choiceArea,
-            false
-        );
+        SetSection(choiceArea, false);
+        SetSection(targetArea, true);
+        SetSection(resultArea, false);
 
-        SetSection(
-            targetArea,
-            true
-        );
+        SetText(targetHeader, "TARGET PLAYER");
+        SetText(targetNameText, name);
 
-        SetSection(
-            resultArea,
-            false
-        );
+        string finalInfo = info ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            finalInfo +=
+                (string.IsNullOrWhiteSpace(finalInfo) ? string.Empty : "\n") +
+                status;
+        }
 
-        SetText(
-            targetHeader,
-            "TARGET PLAYER"
-        );
-
-        SetText(
-            targetNameText,
-            name
-        );
-
-        SetText(
-            targetInfoText,
-            info
-        );
+        SetText(targetInfoText, finalInfo);
 
         if (targetNextButton != null)
         {
@@ -627,21 +563,6 @@ public class CommunityChestCardUI : MonoBehaviour
         {
             targetSelectButton.gameObject.SetActive(false);
             targetSelectButton.interactable = false;
-        }
-
-        if (!string.IsNullOrWhiteSpace(status))
-        {
-            string currentInfo =
-                targetInfoText != null
-                    ? targetInfoText.text
-                    : string.Empty;
-
-            SetText(
-                targetInfoText,
-                string.IsNullOrWhiteSpace(currentInfo)
-                    ? status
-                    : currentInfo + "\n" + status
-            );
         }
     }
 
@@ -730,7 +651,6 @@ public class CommunityChestCardUI : MonoBehaviour
         SetSection(movementEffect, false);
         SetSection(playerEffect, false);
         SetSection(specialEffect, false);
-        SetSection(playerListEffect, false);
     }
 
     private void SetSection(GameObject section, bool active)
