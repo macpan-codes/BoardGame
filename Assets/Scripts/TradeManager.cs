@@ -46,6 +46,15 @@ public class TradeManager : MonoBehaviour
     public TradeOffer PendingOffer =>
         pendingOffer;
 
+    private bool IsMarketFrozen(BoardPlayer player)
+    {
+        GameManager gameManager =
+            FindFirstObjectByType<GameManager>();
+
+        return gameManager != null &&
+               gameManager.IsMarketFrozen(player);
+    }
+
     // ============================================================
     // TRADE ACCESS
     // ============================================================
@@ -56,6 +65,9 @@ public class TradeManager : MonoBehaviour
             return false;
 
         if (player.IsBankrupt)
+            return false;
+
+        if (IsMarketFrozen(player))
             return false;
 
         GameManager gameManager =
@@ -91,6 +103,12 @@ public class TradeManager : MonoBehaviour
 
         if (proposer.IsBankrupt ||
             receiver.IsBankrupt)
+        {
+            return false;
+        }
+
+        if (IsMarketFrozen(proposer) ||
+            IsMarketFrozen(receiver))
         {
             return false;
         }
@@ -276,6 +294,22 @@ public class TradeManager : MonoBehaviour
             receiver.IsBankrupt)
         {
             error = "Bankrupt players cannot trade.";
+            return false;
+        }
+
+        if (IsMarketFrozen(proposer))
+        {
+            error =
+                $"{proposer.PlayerName} cannot trade because " +
+                "Market Freeze is active.";
+            return false;
+        }
+
+        if (IsMarketFrozen(receiver))
+        {
+            error =
+                $"{receiver.PlayerName} cannot trade because " +
+                "Market Freeze is active.";
             return false;
         }
 

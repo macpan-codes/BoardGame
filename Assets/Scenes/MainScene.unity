@@ -11885,6 +11885,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 488402562}
   m_CullTransparentMesh: 1
+--- !u!1 &489944834
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 489944836}
+  - component: {fileID: 489944835}
+  m_Layer: 0
+  m_Name: RentTester
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &489944835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489944834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fdb40d11dc668d44a781eec022abe04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameManager: {fileID: 262012917}
+  toggleKey: 286
+  openOnStart: 0
+  utilityDiceRoll: 7
+--- !u!4 &489944836
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489944834}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 264.38666, y: 218.98367, z: -1.0901892}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &490121221
 GameObject:
   m_ObjectHideFlags: 0
@@ -15854,6 +15902,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 634206845}
   m_CullTransparentMesh: 1
+--- !u!1 &641775252
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 641775254}
+  - component: {fileID: 641775253}
+  m_Layer: 0
+  m_Name: JailTester
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &641775253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641775252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67a447b9e0cb112438fd71c661616c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameManager: {fileID: 262012917}
+  diceManager: {fileID: 996576942}
+  toggleKey: 287
+  openOnStart: 0
+--- !u!4 &641775254
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641775252}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 264.38666, y: 218.98367, z: -1.0901892}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &642769622
 GameObject:
   m_ObjectHideFlags: 0
@@ -49110,7 +49206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardManager: {fileID: 1071090987}
   toggleKey: 289
-  openOnStart: 1
+  openOnStart: 0
   windowSize: {x: 820, y: 720}
   overlayColor: {r: 0, g: 0, b: 0, a: 0.68}
   windowColor: {r: 0.055, g: 0.075, b: 0.11, a: 0.98}
@@ -53557,3 +53653,5 @@ SceneRoots:
   - {fileID: 262012918}
   - {fileID: 1071090986}
   - {fileID: 1963945336}
+  - {fileID: 641775254}
+  - {fileID: 489944836}

@@ -105,6 +105,21 @@ public class GameManager : MonoBehaviour
     public long BankMoney =>
         bankMoney;
 
+    public bool IsMarketFrozen(
+        BoardPlayer player)
+    {
+        if (player == null)
+            return false;
+
+        CommunityChestCardManager communityChest =
+            FindFirstObjectByType<CommunityChestCardManager>(
+                FindObjectsInactive.Include
+            );
+
+        return communityChest != null &&
+               communityChest.IsMarketFrozen(player);
+    }
+
     // ============================================================
     // UNITY
     // ============================================================
@@ -530,6 +545,19 @@ public class GameManager : MonoBehaviour
             );
         }
 
+        CommunityChestCardManager communityChest =
+            FindFirstObjectByType<CommunityChestCardManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (communityChest != null &&
+            endingPlayer != null)
+        {
+            communityChest.AdvanceMarketFreezeTurn(
+                endingPlayer
+            );
+        }
+
         MoveToNextPlayer();
     }
 
@@ -929,6 +957,16 @@ public class GameManager : MonoBehaviour
         if (!IsPlayerTurn(buyer))
             return false;
 
+        if (IsMarketFrozen(buyer))
+        {
+            GameNotificationUI.Show(
+                $"{buyer.PlayerName.ToUpperInvariant()} " +
+                "CANNOT BUY PROPERTY â€” MARKET FROZEN"
+            );
+
+            return false;
+        }
+
         if (!boardSpace.CanBePurchased())
             return false;
 
@@ -1315,6 +1353,16 @@ public class GameManager : MonoBehaviour
         if (!CanBuildHouse(space))
             return false;
 
+        if (IsMarketFrozen(player))
+        {
+            GameNotificationUI.Show(
+                $"{player.PlayerName.ToUpperInvariant()} " +
+                "CANNOT BUILD â€” MARKET FROZEN"
+            );
+
+            return false;
+        }
+
         if (!space.AddHouse(player))
             return false;
 
@@ -1374,6 +1422,16 @@ public class GameManager : MonoBehaviour
         if (!CanBuildHotel(space))
             return false;
 
+        if (IsMarketFrozen(player))
+        {
+            GameNotificationUI.Show(
+                $"{player.PlayerName.ToUpperInvariant()} " +
+                "CANNOT BUILD â€” MARKET FROZEN"
+            );
+
+            return false;
+        }
+
         if (!space.AddHotel(player))
             return false;
 
@@ -1407,6 +1465,16 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
+        if (IsMarketFrozen(player))
+        {
+            GameNotificationUI.Show(
+                $"{player.PlayerName.ToUpperInvariant()} " +
+                "CANNOT MORTGAGE â€” MARKET FROZEN"
+            );
+
+            return false;
+        }
+
         if (space.Owner != player)
             return false;
 
@@ -1434,6 +1502,16 @@ public class GameManager : MonoBehaviour
         if (player == null ||
             space == null)
         {
+            return false;
+        }
+
+        if (IsMarketFrozen(player))
+        {
+            GameNotificationUI.Show(
+                $"{player.PlayerName.ToUpperInvariant()} " +
+                "CANNOT UNMORTGAGE â€” MARKET FROZEN"
+            );
+
             return false;
         }
 

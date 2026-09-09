@@ -133,6 +133,9 @@ public class LandingActionPanel : MonoBehaviour
         bool canBuy =
             space.CanBePurchased();
 
+        bool marketFrozen =
+            gameManager.IsMarketFrozen(player);
+
         if (purchasePriceText != null)
         {
             purchasePriceText.text =
@@ -144,11 +147,14 @@ public class LandingActionPanel : MonoBehaviour
             buyButton.gameObject.SetActive(canBuy);
             buyButton.interactable =
                 canBuy &&
+                !marketFrozen &&
                 player.Money >= space.PurchasePrice;
 
             SetButtonText(
                 buyButton,
-                "BUY"
+                canBuy && marketFrozen
+                    ? "FROZEN"
+                    : "BUY"
             );
         }
 

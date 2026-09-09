@@ -144,6 +144,30 @@ public class DiceManager : MonoBehaviour
             return;
         }
 
+        if (currentPlayer.IsInJail)
+        {
+            currentPlayer.DecreaseJailTurn();
+
+            if (currentPlayer.IsInJail)
+            {
+                GameNotificationUI.Show(
+                    $"{currentPlayer.PlayerName.ToUpperInvariant()} " +
+                    $"IS IN JAIL â€” " +
+                    $"{currentPlayer.JailTurnsRemaining} TURN(S) REMAINING"
+                );
+            }
+            else
+            {
+                GameNotificationUI.Show(
+                    $"{currentPlayer.PlayerName.ToUpperInvariant()} " +
+                    "IS RELEASED FROM JAIL"
+                );
+            }
+
+            gameManager.EndTurn();
+            return;
+        }
+
         StartCoroutine(
             RollRoutine(currentPlayer)
         );
