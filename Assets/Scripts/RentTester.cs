@@ -1,20 +1,11 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Development-only Rent System Tester.
-///
-/// IMPORTANT:
-/// - Uses the real GameManager.BuySpace().
-/// - Uses the real GameManager.PayRent().
-/// - Uses the real GameManager.BuildHouse()/BuildHotel().
-/// - Reads rent from the real BoardSpace rent system.
-/// - Does not directly modify ownership, money, houses, hotel, or mortgage state.
-/// </summary>
 public class RentTester : MonoBehaviour
 {
     [Header("References")]
@@ -22,15 +13,11 @@ public class RentTester : MonoBehaviour
 
     [Header("Keyboard")]
     [SerializeField] private KeyCode toggleKey = KeyCode.F5;
-    [SerializeField] private bool openOnStart;
+    [SerializeField] private bool openOnStart = true;
 
-    [Header("Utility Test")]
+    [Header("Utility")]
     [Range(2, 12)]
     [SerializeField] private int utilityDiceRoll = 7;
-
-    // ============================================================
-    // DATA
-    // ============================================================
 
     private readonly List<BoardSpace> rentableSpaces =
         new List<BoardSpace>();
@@ -40,16 +27,17 @@ public class RentTester : MonoBehaviour
 
     private RectTransform propertyListContent;
 
-    private TMP_Text selectedPropertyText;
-    private TMP_Text rentReferenceText;
-    private TMP_Text playerSetupText;
+    private TMP_Text propertyText;
+    private TMP_Text rentText;
+    private TMP_Text setupText;
     private TMP_Text resultText;
-    private TMP_Text logText;
 
     private int selectedPropertyIndex;
     private int selectedBuyerIndex;
     private int selectedOwnerIndex;
     private int selectedPayerIndex;
+
+    private bool busy;
 
     // ============================================================
     // UNITY
@@ -62,7 +50,7 @@ public class RentTester : MonoBehaviour
 
     private void Start()
     {
-        BuildTesterUI();
+        BuildUI();
         RefreshProperties();
         SetVisible(openOnStart);
     }
@@ -76,20 +64,20 @@ public class RentTester : MonoBehaviour
     }
 
     // ============================================================
-    // PROPERTY DISCOVERY
+    // PROPERTY LIST
     // ============================================================
 
     public void RefreshProperties()
     {
         rentableSpaces.Clear();
 
-        BoardSpace[] allSpaces =
+        BoardSpace[] spaces =
             FindObjectsByType<BoardSpace>(
                 FindObjectsInactive.Include,
                 FindObjectsSortMode.None
             );
 
-        foreach (BoardSpace space in allSpaces)
+        foreach (BoardSpace space in spaces)
         {
             if (space == null)
                 continue;
@@ -106,7 +94,9 @@ public class RentTester : MonoBehaviour
 
         rentableSpaces.Sort(
             (a, b) =>
-                a.BoardIndex.CompareTo(b.BoardIndex)
+                a.BoardIndex.CompareTo(
+                    b.BoardIndex
+                )
         );
 
         selectedPropertyIndex =
@@ -123,11 +113,8 @@ public class RentTester : MonoBehaviour
         RefreshStatus();
     }
 
-    // ============================================================
-    // PROPERTY SELECTION
-    // ============================================================
-
-    public void SelectProperty(int index)
+    public void SelectProperty(
+        int index)
     {
         if (index < 0 ||
             index >= rentableSpaces.Count)
@@ -135,7 +122,8 @@ public class RentTester : MonoBehaviour
             return;
         }
 
-        selectedPropertyIndex = index;
+        selectedPropertyIndex =
+            index;
 
         RefreshStatus();
     }
@@ -175,42 +163,12 @@ public class RentTester : MonoBehaviour
     }
 
     // ============================================================
-    // UTILITY DICE
+    // MOVE BUYER
     // ============================================================
 
-    public void DecreaseUtilityDice()
+    public void MoveBuyerHere()
     {
-        utilityDiceRoll =
-            Mathf.Clamp(
-                utilityDiceRoll - 1,
-                2,
-                12
-            );
-
-        RefreshStatus();
-    }
-
-    public void IncreaseUtilityDice()
-    {
-        utilityDiceRoll =
-            Mathf.Clamp(
-                utilityDiceRoll + 1,
-                2,
-                12
-            );
-
-        RefreshStatus();
-    }
-
-    // ============================================================
-    // PURCHASE TEST
-    // ============================================================
-
-    public void PurchaseSelected()
-    {
-        FindGameManager();
-
-        BoardSpace space =
+        BoardSpace property =
             SelectedSpace;
 
         BoardPlayer buyer =
@@ -218,37 +176,168 @@ public class RentTester : MonoBehaviour
                 selectedBuyerIndex
             );
 
-        if (gameManager == null ||
-            space == null ||
-            buyer == null)
+        if (!PrepareMovement(
+                buyer,
+                property,
+                "BUYER"))
+        {
+            return;
+        }
+
+        busy = true;
+
+        SetResult(
+            $"MOVING {buyer.PlayerName}\n" +
+            $"→ {property.SpaceName}"
+        );
+
+        buyer.MoveToSpaceForRentTest(
+            property.BoardIndex,
+            false
+        );
+
+        StartCoroutine(
+            WaitForMovement(
+                buyer,
+                null
+            )
+        );
+    }
+
+    // ============================================================
+    // MOVE OWNER
+    // ============================================================
+
+    public void MoveOwnerHere()
+    {
+        BoardSpace property =
+            SelectedSpace;
+
+        if (property == null)
+        {
+            SetResult(
+                "MOVE OWNER FAILED\n" +
+                "Select a property."
+            );
+
+            return;
+        }
+
+        BoardPlayer owner =
+            property.Owner;
+
+        if (owner == null)
+        {
+            SetResult(
+                "MOVE OWNER FAILED\n" +
+                "The selected property has no owner."
+            );
+
+            return;
+        }
+
+        if (!PrepareMovement(
+                owner,
+                property,
+                "OWNER"))
+        {
+            return;
+        }
+
+        selectedOwnerIndex =
+            GetPlayerIndex(owner);
+
+        busy = true;
+
+        SetResult(
+            $"MOVING OWNER\n" +
+            $"{owner.PlayerName}\n" +
+            $"→ {property.SpaceName}"
+        );
+
+        owner.MoveToSpaceForRentTest(
+            property.BoardIndex,
+            true
+        );
+
+        StartCoroutine(
+            WaitForMovement(
+                owner,
+                null
+            )
+        );
+    }
+
+    // ============================================================
+    // PURCHASE
+    // ============================================================
+
+    public void PurchaseSelected()
+    {
+        FindGameManager();
+
+        BoardSpace property =
+            SelectedSpace;
+
+        BoardPlayer buyer =
+            SelectedPlayer(
+                selectedBuyerIndex
+            );
+
+        if (property == null ||
+            buyer == null ||
+            gameManager == null)
         {
             SetResult(
                 "PURCHASE FAILED\n" +
-                "Missing GameManager, property, or buyer."
+                "Missing property, buyer, or GameManager."
             );
 
             return;
         }
 
-        if (buyer != gameManager.CurrentPlayer)
+        if (busy)
+        {
+            SetResult(
+                "WAIT\n" +
+                "Player is still moving."
+            );
+
+            return;
+        }
+
+        if (gameManager.CurrentPlayer != buyer)
+        {
+            SetResult(
+                $"PURCHASE BLOCKED\n" +
+                $"Current player: {GetPlayerName(gameManager.CurrentPlayer)}\n" +
+                $"Buyer: {buyer.PlayerName}\n\n" +
+                "Click MOVE BUYER first."
+            );
+
+            return;
+        }
+
+        if (buyer.CurrentSpaceIndex !=
+            property.BoardIndex)
         {
             SetResult(
                 "PURCHASE BLOCKED\n" +
-                "The real GameManager only allows the current player to buy."
+                "Buyer is not standing on the property."
             );
 
             return;
         }
 
-        int balanceBefore =
+        int before =
             buyer.Money;
 
         bool success =
             gameManager.BuySpace(
-                space
+                property
             );
 
-        int balanceAfter =
+        int after =
             buyer.Money;
 
         if (success)
@@ -256,279 +345,313 @@ public class RentTester : MonoBehaviour
             selectedOwnerIndex =
                 selectedBuyerIndex;
 
-            if (gameManager.Players != null &&
-                gameManager.Players.Length > 1)
-            {
-                selectedPayerIndex =
-                    (selectedOwnerIndex + 1) %
-                    gameManager.Players.Length;
-            }
+            selectedPayerIndex =
+                FindDifferentPlayer(
+                    selectedOwnerIndex
+                );
+
+            SetResult(
+                $"PURCHASE SUCCESS\n" +
+                $"{buyer.PlayerName} → {property.SpaceName}\n" +
+                $"${before:N0}M → ${after:N0}M"
+            );
         }
-
-        SetResult(
-            success
-                ? "PURCHASE SUCCESS\n" +
-                  $"{space.SpaceName}\n" +
-                  $"{buyer.PlayerName} now owns this property.\n" +
-                  $"Balance: ${balanceBefore:N0}M → ${balanceAfter:N0}M"
-                : "PURCHASE FAILED\n" +
-                  "The real purchase rules rejected the transaction."
-        );
-
-        AppendLog(
-            "PURCHASE TEST\n" +
-            $"Property: {space.SpaceName}\n" +
-            $"Buyer: {buyer.PlayerName}\n" +
-            $"Balance: ${balanceBefore:N0}M → ${balanceAfter:N0}M\n" +
-            $"RESULT: {(success ? "SUCCESS" : "FAILED")}"
-        );
+        else
+        {
+            SetResult(
+                "PURCHASE FAILED\n" +
+                "The real game purchase rules rejected it."
+            );
+        }
 
         RefreshStatus();
     }
 
     // ============================================================
-    // HOUSE TEST
+    // HOUSE
     // ============================================================
 
-    public void AddHouseToSelected()
+    public void AddHouse()
     {
         FindGameManager();
 
-        BoardSpace space =
+        BoardSpace property =
             SelectedSpace;
 
-        if (gameManager == null ||
-            space == null)
+        if (property == null ||
+            gameManager == null)
         {
             SetResult(
                 "HOUSE FAILED\n" +
-                "Missing GameManager or property."
+                "Select a property."
             );
 
             return;
         }
 
-        if (!space.IsProperty)
+        BoardPlayer owner =
+            property.Owner;
+
+        if (owner == null)
+        {
+            SetResult(
+                "HOUSE FAILED\n" +
+                "Property has no owner."
+            );
+
+            return;
+        }
+
+        if (gameManager.CurrentPlayer != owner)
         {
             SetResult(
                 "HOUSE BLOCKED\n" +
-                "Houses only apply to normal properties."
+                $"Current player: " +
+                $"{GetPlayerName(gameManager.CurrentPlayer)}\n" +
+                $"Owner: {owner.PlayerName}\n\n" +
+                "Click MOVE OWNER first."
+            );
+
+            return;
+        }
+
+        if (owner.CurrentSpaceIndex !=
+            property.BoardIndex)
+        {
+            SetResult(
+                "HOUSE BLOCKED\n" +
+                "Owner is not standing on the property."
             );
 
             return;
         }
 
         int before =
-            space.Houses;
+            property.Houses;
 
         bool success =
             gameManager.BuildHouse(
-                space
+                property
             );
 
         int after =
-            space.Houses;
+            property.Houses;
 
         SetResult(
             success
                 ? $"HOUSE BUILT\n" +
-                  $"{space.SpaceName}\n" +
-                  $"{before} houses → {after} houses"
+                  $"{property.SpaceName}\n" +
+                  $"{before}/4 → {after}/4"
                 : "HOUSE BLOCKED\n" +
-                  "The real building rules rejected the action."
-        );
-
-        AppendLog(
-            "HOUSE TEST\n" +
-            $"Property: {space.SpaceName}\n" +
-            $"Houses: {before} → {after}\n" +
-            $"RESULT: {(success ? "SUCCESS" : "BLOCKED")}"
+                  "The real building rules rejected it."
         );
 
         RefreshStatus();
     }
 
     // ============================================================
-    // HOTEL TEST
+    // HOTEL
     // ============================================================
 
-    public void AddHotelToSelected()
+    public void AddHotel()
     {
         FindGameManager();
 
-        BoardSpace space =
+        BoardSpace property =
             SelectedSpace;
 
-        if (gameManager == null ||
-            space == null)
+        if (property == null ||
+            gameManager == null)
         {
             SetResult(
                 "HOTEL FAILED\n" +
-                "Missing GameManager or property."
+                "Select a property."
             );
 
             return;
         }
 
-        if (!space.IsProperty)
+        BoardPlayer owner =
+            property.Owner;
+
+        if (owner == null)
+        {
+            SetResult(
+                "HOTEL FAILED\n" +
+                "Property has no owner."
+            );
+
+            return;
+        }
+
+        if (gameManager.CurrentPlayer != owner ||
+            owner.CurrentSpaceIndex != property.BoardIndex)
         {
             SetResult(
                 "HOTEL BLOCKED\n" +
-                "Hotels only apply to normal properties."
+                "Owner must be standing on the property."
             );
 
             return;
         }
 
         bool before =
-            space.HasHotel;
+            property.HasHotel;
 
         bool success =
             gameManager.BuildHotel(
-                space
+                property
             );
 
         bool after =
-            space.HasHotel;
+            property.HasHotel;
 
         SetResult(
             success
                 ? $"HOTEL BUILT\n" +
-                  $"{space.SpaceName}\n" +
+                  $"{property.SpaceName}\n" +
                   $"Hotel: {(before ? "YES" : "NO")} → {(after ? "YES" : "NO")}"
                 : "HOTEL BLOCKED\n" +
-                  "The real building rules rejected the action."
-        );
-
-        AppendLog(
-            "HOTEL TEST\n" +
-            $"Property: {space.SpaceName}\n" +
-            $"Hotel: {before} → {after}\n" +
-            $"RESULT: {(success ? "SUCCESS" : "BLOCKED")}"
+                  "The real building rules rejected it."
         );
 
         RefreshStatus();
     }
 
     // ============================================================
-    // RENT TEST
+    // REAL RENT TEST
     // ============================================================
 
-    public void TestRent()
+    public void MovePayerAndTestRent()
     {
         FindGameManager();
 
-        BoardSpace space =
+        BoardSpace property =
             SelectedSpace;
 
-        if (gameManager == null ||
-            space == null)
-        {
-            SetResult(
-                "RENT TEST FAILED\n" +
-                "Missing GameManager or property."
-            );
-
-            return;
-        }
-
-        BoardPlayer actualPayer =
-            gameManager.CurrentPlayer;
-
-        BoardPlayer actualOwner =
-            space.Owner;
-
-        BoardPlayer selectedOwner =
-            SelectedPlayer(
-                selectedOwnerIndex
-            );
-
-        BoardPlayer selectedPayer =
+        BoardPlayer payer =
             SelectedPlayer(
                 selectedPayerIndex
             );
 
-        if (actualOwner == null)
+        if (property == null ||
+            payer == null ||
+            gameManager == null)
         {
             SetResult(
-                "RENT BLOCKED\n" +
-                "This property is owned by the BANK.\n" +
-                "Purchase it first."
+                "RENT FAILED\n" +
+                "Missing property, payer, or GameManager."
             );
 
             return;
         }
 
-        if (selectedOwner != actualOwner)
+        if (property.Owner == null)
         {
             SetResult(
                 "RENT BLOCKED\n" +
-                $"Selected owner: {GetPlayerName(selectedOwner)}\n" +
-                $"Actual owner: {actualOwner.PlayerName}"
+                "Property is owned by the BANK."
             );
 
             return;
         }
 
-        if (actualPayer == null)
+        if (property.Owner == payer)
         {
             SetResult(
                 "RENT BLOCKED\n" +
-                "No current player."
+                "Payer cannot be the owner."
             );
 
             return;
         }
 
-        if (selectedPayer != actualPayer)
+        if (busy)
         {
             SetResult(
-                "RENT BLOCKED\n" +
-                $"Selected payer: {GetPlayerName(selectedPayer)}\n" +
-                $"Current player: {actualPayer.PlayerName}"
+                "WAIT\n" +
+                "Player is still moving."
             );
 
             return;
         }
 
-        if (actualPayer == actualOwner)
+        if (!gameManager.BeginRentTesterTurn(
+                payer))
         {
             SetResult(
-                "RENT BLOCKED\n" +
-                "Owner and payer must be different."
+                "RENT FAILED\n" +
+                "Could not make payer the current player."
             );
 
             return;
         }
 
-        if (space.IsUtility)
+        if (property.IsUtility)
         {
             gameManager.SetLastDiceRoll(
                 utilityDiceRoll
             );
         }
 
-        int rentBefore =
-            GetActualRentValue(
-                space
-            );
-
         int payerBefore =
-            actualPayer.Money;
+            payer.Money;
 
         int ownerBefore =
-            actualOwner.Money;
+            property.Owner.Money;
 
-        bool success =
-            gameManager.PayRent(
-                space
+        int rentBefore =
+            GetActualRent(
+                property
             );
 
+        busy = true;
+
+        SetResult(
+            $"MOVING PAYER\n" +
+            $"{payer.PlayerName}\n" +
+            $"→ {property.SpaceName}\n\n" +
+            $"Expected rent: ${rentBefore:N0}M"
+        );
+
+        StartCoroutine(
+            MovePayerForRent(
+                payer,
+                property,
+                payerBefore,
+                ownerBefore
+            )
+        );
+    }
+
+    private IEnumerator MovePayerForRent(
+        BoardPlayer payer,
+        BoardSpace property,
+        int payerBefore,
+        int ownerBefore)
+    {
+        payer.MoveToSpaceForRentTest(
+            property.BoardIndex,
+            true
+        );
+
+        while (payer != null &&
+               payer.IsMoving)
+        {
+            yield return null;
+        }
+
+        busy = false;
+
         int payerAfter =
-            actualPayer.Money;
+            payer != null
+                ? payer.Money
+                : payerBefore;
 
         int ownerAfter =
-            actualOwner.Money;
+            property.Owner != null
+                ? property.Owner.Money
+                : ownerBefore;
 
         int paid =
             payerBefore -
@@ -538,214 +661,181 @@ public class RentTester : MonoBehaviour
             ownerAfter -
             ownerBefore;
 
-        bool normalTransfer =
-            paid > 0 &&
-            paid == received;
-
-        bool zeroRent =
-            rentBefore <= 0 &&
-            paid == 0 &&
-            received == 0 &&
-            success;
-
-        bool blockedOrFailed =
-            !success;
-
-        bool pass =
-            normalTransfer ||
-            zeroRent ||
-            blockedOrFailed;
-
-        string transaction;
-
-        if (normalTransfer)
-        {
-            transaction = "PLAYER → PLAYER";
-        }
-        else if (success &&
-                 paid == 0 &&
-                 received > 0)
-        {
-            transaction = "SPECIAL / BANK → OWNER";
-        }
-        else if (zeroRent)
-        {
-            transaction = "NO MONEY TRANSFER";
-        }
-        else
-        {
-            transaction = "FAILED / BANKRUPTCY";
-        }
-
         SetResult(
-            $"RENT TEST {(pass ? "PASS" : "FAIL")}\n\n" +
-            $"{actualPayer.PlayerName} → {actualOwner.PlayerName}\n" +
-            $"Rent: ${rentBefore:N0}M\n" +
-            $"Paid: ${paid:N0}M\n" +
-            $"Received: ${received:N0}M\n" +
-            $"Result: {transaction}"
-        );
-
-        AppendLog(
-            "RENT TEST\n" +
-            $"Property: {space.SpaceName}\n" +
-            $"Type: {GetTypeName(space)}\n" +
-            $"Houses: {space.Houses}/4\n" +
-            $"Hotel: {(space.HasHotel ? "YES" : "NO")}\n" +
-            $"Mortgaged: {(space.IsMortgaged ? "YES" : "NO")}\n" +
-            $"Rent: ${rentBefore:N0}M\n" +
-            $"Payer: {actualPayer.PlayerName}\n" +
-            $"Payer balance: ${payerBefore:N0}M → ${payerAfter:N0}M\n" +
-            $"Owner: {actualOwner.PlayerName}\n" +
-            $"Owner balance: ${ownerBefore:N0}M → ${ownerAfter:N0}M\n" +
-            $"Actual paid: ${paid:N0}M\n" +
-            $"Actual received: ${received:N0}M\n" +
-            $"Transaction: {transaction}\n" +
-            $"PayRent(): {(success ? "SUCCESS" : "FAILED")}\n" +
-            $"RESULT: {(pass ? "PASS" : "FAIL")}"
+            $"RENT TEST COMPLETE\n\n" +
+            $"{payer.PlayerName} → {property.Owner.PlayerName}\n" +
+            $"PAID: ${paid:N0}M\n" +
+            $"RECEIVED: ${received:N0}M\n\n" +
+            $"TRANSFER: {(paid == received ? "PASS" : "CHECK")}"
         );
 
         RefreshStatus();
     }
 
     // ============================================================
-    // STATUS
+    // MOVEMENT HELPERS
+    // ============================================================
+
+    private bool PrepareMovement(
+        BoardPlayer player,
+        BoardSpace property,
+        string role)
+    {
+        FindGameManager();
+
+        if (gameManager == null ||
+            player == null ||
+            property == null)
+        {
+            SetResult(
+                $"MOVE {role} FAILED\n" +
+                "Missing required reference."
+            );
+
+            return false;
+        }
+
+        if (busy)
+        {
+            SetResult(
+                "WAIT\n" +
+                "Another tester movement is running."
+            );
+
+            return false;
+        }
+
+        if (!gameManager.BeginRentTesterTurn(
+                player))
+        {
+            SetResult(
+                $"MOVE {role} FAILED\n" +
+                "Could not make player the current player."
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private IEnumerator WaitForMovement(
+        BoardPlayer player,
+        string unused)
+    {
+        while (player != null &&
+               player.IsMoving)
+        {
+            yield return null;
+        }
+
+        busy = false;
+
+        RefreshStatus();
+    }
+
+    // ============================================================
+    // STATUS UI
     // ============================================================
 
     public void RefreshStatus()
     {
         FindGameManager();
 
-        BoardSpace space =
+        BoardSpace property =
             SelectedSpace;
 
-        if (selectedPropertyText != null)
+        if (propertyText != null)
         {
-            selectedPropertyText.text =
+            propertyText.text =
                 BuildPropertyText(
-                    space
+                    property
                 );
         }
 
-        if (rentReferenceText != null)
+        if (rentText != null)
         {
-            rentReferenceText.text =
-                BuildRentReferenceText(
-                    space
+            rentText.text =
+                BuildRentText(
+                    property
                 );
         }
 
-        if (playerSetupText != null)
+        if (setupText != null)
         {
-            playerSetupText.text =
-                BuildPlayerSetupText();
+            setupText.text =
+                BuildSetupText(
+                    property
+                );
         }
     }
 
     private string BuildPropertyText(
-        BoardSpace space)
+        BoardSpace property)
     {
-        if (space == null)
-        {
-            return
-                "NO PROPERTY SELECTED";
-        }
+        if (property == null)
+            return "NO PROPERTY SELECTED";
 
         string owner =
-            space.Owner != null
-                ? space.Owner.PlayerName
+            property.Owner != null
+                ? property.Owner.PlayerName
                 : "BANK";
 
-        string group =
-            space.PropertyGroup != null
-                ? space.PropertyGroup.GroupName
-                : "NONE";
-
-        string type =
-            GetTypeName(
-                space
-            );
-
-        string text =
-            $"{space.SpaceName}\n" +
-            $"TYPE: {type}\n" +
-            $"PRICE: ${space.PurchasePrice:N0}M\n" +
-            $"CURRENT RENT: ${GetActualRentValue(space):N0}M\n" +
+        return
+            $"{property.SpaceName}\n" +
+            $"TYPE: {GetTypeName(property)}\n" +
+            $"PRICE: ${property.PurchasePrice:N0}M\n" +
             $"OWNER: {owner}\n" +
-            $"HOUSES: {space.Houses}/4\n" +
-            $"HOTEL: {(space.HasHotel ? "YES" : "NO")}\n" +
-            $"MORTGAGED: {(space.IsMortgaged ? "YES" : "NO")}\n" +
-            $"GROUP: {group}";
-
-        if (space.IsRailroad)
-        {
-            text +=
-                $"\nOWNED AIRPORTS: " +
-                $"{CountOwnedSpaces(space.Owner, true, false)}";
-        }
-
-        if (space.IsUtility)
-        {
-            text +=
-                $"\nUTILITY DICE: {utilityDiceRoll}\n" +
-                $"OWNED UTILITIES: " +
-                $"{CountOwnedSpaces(space.Owner, false, true)}";
-        }
-
-        return text;
+            $"CURRENT RENT: ${GetActualRent(property):N0}M\n" +
+            $"HOUSES: {property.Houses}/4\n" +
+            $"HOTEL: {(property.HasHotel ? "YES" : "NO")}\n" +
+            $"MORTGAGED: {(property.IsMortgaged ? "YES" : "NO")}";
     }
 
-    private string BuildRentReferenceText(
-        BoardSpace space)
+    private string BuildRentText(
+        BoardSpace property)
     {
-        if (space == null)
+        if (property == null)
             return "RENT";
 
-        if (space.IsUtility)
+        if (property.IsUtility)
         {
             return
-                "RENT\n" +
-                $"DICE ROLL: {utilityDiceRoll}\n" +
-                $"UTILITY RENT: " +
-                $"${space.GetUtilityRent(utilityDiceRoll):N0}M\n\n" +
-                "Uses the real utility rent system.";
+                $"UTILITY RENT\n" +
+                $"DICE: {utilityDiceRoll}\n" +
+                $"CURRENT: " +
+                $"${property.GetUtilityRent(utilityDiceRoll):N0}M";
         }
 
-        if (space.IsRailroad)
+        if (property.IsRailroad)
         {
             return
-                "RENT\n" +
-                $"AIRPORT RENT: ${space.GetRent():N0}M\n\n" +
-                "Uses the real airport rent system.";
+                "AIRPORT RENT\n" +
+                $"CURRENT: ${property.GetRent():N0}M";
         }
 
         PropertyEconomy economy =
             PropertyEconomy.FromPurchasePrice(
-                space.PurchasePrice
+                property.PurchasePrice
             );
 
         return
-            "RENT REFERENCE\n" +
+            "RENT LEVELS\n" +
             $"BASE: ${economy.baseRent:N0}M\n" +
             $"1 HOUSE: ${economy.houseRent:N0}M\n" +
             $"2 HOUSES: ${economy.twoHouseRent:N0}M\n" +
             $"3 HOUSES: ${economy.threeHouseRent:N0}M\n" +
             $"4 HOUSES: ${economy.fourHouseRent:N0}M\n" +
             $"HOTEL: ${economy.hotelRent:N0}M\n\n" +
-            $"CURRENT REAL RENT: " +
-            $"${space.GetRent():N0}M";
+            $"CURRENT: ${property.GetRent():N0}M";
     }
 
-    private string BuildPlayerSetupText()
+    private string BuildSetupText(
+        BoardSpace property)
     {
         BoardPlayer buyer =
             SelectedPlayer(
                 selectedBuyerIndex
-            );
-
-        BoardPlayer owner =
-            SelectedPlayer(
-                selectedOwnerIndex
             );
 
         BoardPlayer payer =
@@ -753,23 +843,27 @@ public class RentTester : MonoBehaviour
                 selectedPayerIndex
             );
 
-        string current =
-            gameManager != null &&
-            gameManager.CurrentPlayer != null
-                ? gameManager.CurrentPlayer.PlayerName
-                : "NONE";
+        BoardPlayer owner =
+            property != null
+                ? property.Owner
+                : SelectedPlayer(
+                    selectedOwnerIndex
+                );
+
+        BoardPlayer current =
+            gameManager != null
+                ? gameManager.CurrentPlayer
+                : null;
 
         return
-            "PLAYERS\n" +
             $"BUYER: {GetPlayerName(buyer)}\n" +
             $"OWNER: {GetPlayerName(owner)}\n" +
             $"PAYER: {GetPlayerName(payer)}\n" +
-            $"CURRENT PLAYER: {current}\n\n" +
-            "Purchase and rent always use the real game APIs.";
+            $"CURRENT: {GetPlayerName(current)}";
     }
 
     // ============================================================
-    // HELPERS
+    // LIST / PLAYERS
     // ============================================================
 
     private BoardSpace SelectedSpace
@@ -798,16 +892,49 @@ public class RentTester : MonoBehaviour
             return null;
         }
 
-        int safeIndex =
+        int safe =
             Mathf.Clamp(
                 index,
                 0,
                 gameManager.Players.Length - 1
             );
 
-        return gameManager.Players[
-            safeIndex
-        ];
+        return gameManager.Players[safe];
+    }
+
+    private int GetPlayerIndex(
+        BoardPlayer player)
+    {
+        if (gameManager == null ||
+            gameManager.Players == null)
+        {
+            return 0;
+        }
+
+        for (int i = 0;
+             i < gameManager.Players.Length;
+             i++)
+        {
+            if (gameManager.Players[i] == player)
+                return i;
+        }
+
+        return 0;
+    }
+
+    private int FindDifferentPlayer(
+        int ownerIndex)
+    {
+        if (gameManager == null ||
+            gameManager.Players == null ||
+            gameManager.Players.Length < 2)
+        {
+            return ownerIndex;
+        }
+
+        return
+            (ownerIndex + 1) %
+            gameManager.Players.Length;
     }
 
     private int NextPlayerIndex(
@@ -825,132 +952,42 @@ public class RentTester : MonoBehaviour
             gameManager.Players.Length;
     }
 
-    private int GetActualRentValue(
-        BoardSpace space)
+    private int GetActualRent(
+        BoardSpace property)
     {
-        if (space == null)
+        if (property == null)
             return 0;
 
-        if (space.IsUtility)
+        if (property.IsUtility)
         {
-            return space.GetUtilityRent(
+            return property.GetUtilityRent(
                 utilityDiceRoll
             );
         }
 
-        return space.GetRent();
-    }
-
-    private int CountOwnedSpaces(
-        BoardPlayer owner,
-        bool airports,
-        bool utilities)
-    {
-        if (owner == null)
-            return 0;
-
-        int count = 0;
-
-        foreach (BoardSpace space in rentableSpaces)
-        {
-            if (space == null ||
-                space.Owner != owner)
-            {
-                continue;
-            }
-
-            if ((airports && space.IsRailroad) ||
-                (utilities && space.IsUtility))
-            {
-                count++;
-            }
-        }
-
-        return count;
+        return property.GetRent();
     }
 
     private string GetTypeName(
-        BoardSpace space)
+        BoardSpace property)
     {
-        if (space == null)
+        if (property == null)
             return "UNKNOWN";
 
-        if (space.IsRailroad)
+        if (property.IsRailroad)
             return "AIRPORT";
 
-        if (space.IsUtility)
+        if (property.IsUtility)
             return "UTILITY";
 
         return "PROPERTY";
     }
 
-    private string GetPlayerName(
-        BoardPlayer player)
-    {
-        return player != null
-            ? player.PlayerName
-            : "NONE";
-    }
-
-    private void FindGameManager()
-    {
-        if (gameManager == null)
-        {
-            gameManager =
-                FindFirstObjectByType<GameManager>(
-                    FindObjectsInactive.Include
-                );
-        }
-    }
-
     // ============================================================
-    // PROPERTY LIST UI
+    // UI CREATION
     // ============================================================
 
-    private void RebuildPropertyList()
-    {
-        if (propertyListContent == null)
-            return;
-
-        for (int i =
-             propertyListContent.childCount - 1;
-             i >= 0;
-             i--)
-        {
-            Destroy(
-                propertyListContent.GetChild(i).gameObject
-            );
-        }
-
-        for (int i = 0;
-             i < rentableSpaces.Count;
-             i++)
-        {
-            BoardSpace space =
-                rentableSpaces[i];
-
-            int index = i;
-
-            Button button =
-                CreateButton(
-                    propertyListContent,
-                    $"{space.BoardIndex}  {space.SpaceName}",
-                    17f,
-                    42f
-                );
-
-            button.onClick.AddListener(
-                () =>
-                    SelectProperty(index)
-            );
-        }
-    }
-
-    // ============================================================
-    // MAIN UI
-    // ============================================================
-
-    private void BuildTesterUI()
+    private void BuildUI()
     {
         canvasObject =
             new GameObject(
@@ -988,78 +1025,47 @@ public class RentTester : MonoBehaviour
             0.5f;
 
         panel =
-            new GameObject(
-                "RentTesterPanel",
-                typeof(RectTransform),
-                typeof(Image)
-            );
-
-        panel.transform.SetParent(
-            canvas.transform,
-            false
-        );
-
-        RectTransform panelRect =
-            panel.GetComponent<RectTransform>();
-
-        panelRect.anchorMin =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        panelRect.anchorMax =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        panelRect.pivot =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        panelRect.anchoredPosition =
-            Vector2.zero;
-
-        panelRect.sizeDelta =
-            new Vector2(
-                1200f,
-                760f
-            );
-
-        panel.GetComponent<Image>().color =
-            new Color(
-                0.025f,
-                0.045f,
-                0.075f,
-                0.99f
-            );
-
-        BuildHeader(panel.transform);
-        BuildLeftPanel(panel.transform);
-        BuildRightPanel(panel.transform);
-        BuildBottomBar(panel.transform);
-    }
-
-    // ============================================================
-    // HEADER
-    // ============================================================
-
-    private void BuildHeader(
-        Transform parent)
-    {
-        GameObject header =
             CreateFixedPanel(
-                parent,
-                "Header",
+                canvas.transform,
+                "RentTesterPanel",
                 new Vector2(
-                    0.03f,
-                    0.89f
+                    0.5f,
+                    0.5f
                 ),
                 new Vector2(
-                    0.97f,
+                    0.5f,
+                    0.5f
+                ),
+                new Vector2(
+                    1250f,
+                    760f
+                ),
+                new Color(
+                    0.025f,
+                    0.045f,
+                    0.075f,
+                    0.99f
+                )
+            );
+
+        BuildHeader();
+        BuildPropertyList();
+        BuildInformation();
+        BuildBottom();
+    }
+
+    private void BuildHeader()
+    {
+        GameObject header =
+            CreateAnchoredPanel(
+                panel.transform,
+                "Header",
+                new Vector2(
+                    0.02f,
+                    0.90f
+                ),
+                new Vector2(
+                    0.98f,
                     0.97f
                 ),
                 new Color(
@@ -1076,35 +1082,28 @@ public class RentTester : MonoBehaviour
                 "RENT SYSTEM TESTER",
                 30f,
                 TextAlignmentOptions.Center,
-                Color.white
+                Color.white,
+                Vector2.zero,
+                Vector2.one
             );
-
-        AnchorFull(
-            title.rectTransform
-        );
 
         title.fontStyle =
             FontStyles.Bold;
     }
 
-    // ============================================================
-    // LEFT PANEL
-    // ============================================================
-
-    private void BuildLeftPanel(
-        Transform parent)
+    private void BuildPropertyList()
     {
         GameObject left =
-            CreateFixedPanel(
-                parent,
-                "PropertyPanel",
+            CreateAnchoredPanel(
+                panel.transform,
+                "Properties",
                 new Vector2(
-                    0.03f,
+                    0.02f,
                     0.12f
                 ),
                 new Vector2(
-                    0.33f,
-                    0.87f
+                    0.30f,
+                    0.88f
                 ),
                 new Color(
                     0.045f,
@@ -1121,18 +1120,18 @@ public class RentTester : MonoBehaviour
             TextAlignmentOptions.Center,
             Color.white,
             new Vector2(
-                0.03f,
+                0.04f,
                 0.92f
             ),
             new Vector2(
-                0.97f,
+                0.96f,
                 0.99f
             )
         );
 
         GameObject viewport =
             new GameObject(
-                "PropertyViewport",
+                "Viewport",
                 typeof(RectTransform),
                 typeof(Image),
                 typeof(Mask),
@@ -1165,10 +1164,7 @@ public class RentTester : MonoBehaviour
         viewportRect.offsetMax =
             Vector2.zero;
 
-        Image image =
-            viewport.GetComponent<Image>();
-
-        image.color =
+        viewport.GetComponent<Image>().color =
             new Color(
                 0.02f,
                 0.035f,
@@ -1176,15 +1172,13 @@ public class RentTester : MonoBehaviour
                 1f
             );
 
-        Mask mask =
-            viewport.GetComponent<Mask>();
-
-        mask.showMaskGraphic =
+        viewport.GetComponent<Mask>()
+            .showMaskGraphic =
             true;
 
         GameObject content =
             new GameObject(
-                "PropertyContent",
+                "Content",
                 typeof(RectTransform),
                 typeof(VerticalLayoutGroup),
                 typeof(ContentSizeFitter)
@@ -1227,10 +1221,10 @@ public class RentTester : MonoBehaviour
 
         layout.padding =
             new RectOffset(
-                8,
-                8,
-                8,
-                8
+                7,
+                7,
+                7,
+                7
             );
 
         layout.spacing =
@@ -1251,10 +1245,8 @@ public class RentTester : MonoBehaviour
         layout.childForceExpandHeight =
             false;
 
-        ContentSizeFitter fitter =
-            content.GetComponent<ContentSizeFitter>();
-
-        fitter.verticalFit =
+        content.GetComponent<ContentSizeFitter>()
+            .verticalFit =
             ContentSizeFitter.FitMode.PreferredSize;
 
         ScrollRect scroll =
@@ -1275,31 +1267,23 @@ public class RentTester : MonoBehaviour
         scroll.movementType =
             ScrollRect.MovementType.Clamped;
 
-        scroll.scrollSensitivity =
-            40f;
-
         propertyListContent =
-            content.GetComponent<RectTransform>();
+            contentRect;
     }
 
-    // ============================================================
-    // RIGHT PANEL
-    // ============================================================
-
-    private void BuildRightPanel(
-        Transform parent)
+    private void BuildInformation()
     {
         GameObject right =
-            CreateFixedPanel(
-                parent,
-                "InformationPanel",
+            CreateAnchoredPanel(
+                panel.transform,
+                "Information",
                 new Vector2(
-                    0.35f,
+                    0.32f,
                     0.12f
                 ),
                 new Vector2(
-                    0.97f,
-                    0.87f
+                    0.98f,
+                    0.88f
                 ),
                 new Color(
                     0.045f,
@@ -1309,17 +1293,14 @@ public class RentTester : MonoBehaviour
                 )
             );
 
-        // --------------------------------------------------------
-        // Property information
-        // --------------------------------------------------------
-
-        GameObject propertyInfo =
-            CreateFixedPanel(
+        // Property
+        GameObject property =
+            CreateAnchoredPanel(
                 right.transform,
                 "PropertyInfo",
                 new Vector2(
-                    0.025f,
-                    0.57f
+                    0.02f,
+                    0.52f
                 ),
                 new Vector2(
                     0.49f,
@@ -1334,52 +1315,49 @@ public class RentTester : MonoBehaviour
             );
 
         CreateAnchoredText(
-            propertyInfo.transform,
+            property.transform,
             "PROPERTY",
             20f,
             TextAlignmentOptions.Center,
             Color.white,
             new Vector2(
                 0.05f,
-                0.87f
+                0.88f
             ),
             new Vector2(
                 0.95f,
-                0.97f
+                0.98f
             )
         );
 
-        selectedPropertyText =
+        propertyText =
             CreateAnchoredText(
-                propertyInfo.transform,
+                property.transform,
                 "",
                 18f,
                 TextAlignmentOptions.TopLeft,
                 Color.white,
                 new Vector2(
-                    0.07f,
+                    0.08f,
                     0.08f
                 ),
                 new Vector2(
-                    0.93f,
-                    0.86f
+                    0.92f,
+                    0.87f
                 )
             );
 
-        // --------------------------------------------------------
-        // Rent reference
-        // --------------------------------------------------------
-
-        GameObject rentInfo =
-            CreateFixedPanel(
+        // Rent
+        GameObject rent =
+            CreateAnchoredPanel(
                 right.transform,
                 "RentInfo",
                 new Vector2(
                     0.51f,
-                    0.57f
+                    0.52f
                 ),
                 new Vector2(
-                    0.975f,
+                    0.98f,
                     0.97f
                 ),
                 new Color(
@@ -1391,24 +1369,24 @@ public class RentTester : MonoBehaviour
             );
 
         CreateAnchoredText(
-            rentInfo.transform,
+            rent.transform,
             "RENT",
             20f,
             TextAlignmentOptions.Center,
             Color.white,
             new Vector2(
                 0.05f,
-                0.87f
+                0.88f
             ),
             new Vector2(
                 0.95f,
-                0.97f
+                0.98f
             )
         );
 
-        rentReferenceText =
+        rentText =
             CreateAnchoredText(
-                rentInfo.transform,
+                rent.transform,
                 "",
                 17f,
                 TextAlignmentOptions.TopLeft,
@@ -1419,25 +1397,22 @@ public class RentTester : MonoBehaviour
                 ),
                 new Vector2(
                     0.92f,
-                    0.86f
+                    0.87f
                 )
             );
 
-        // --------------------------------------------------------
-        // Player setup
-        // --------------------------------------------------------
-
+        // Setup
         GameObject setup =
-            CreateFixedPanel(
+            CreateAnchoredPanel(
                 right.transform,
-                "PlayerSetup",
+                "Setup",
                 new Vector2(
-                    0.025f,
-                    0.30f
+                    0.02f,
+                    0.05f
                 ),
                 new Vector2(
-                    0.975f,
-                    0.55f
+                    0.98f,
+                    0.48f
                 ),
                 new Color(
                     0.025f,
@@ -1455,352 +1430,290 @@ public class RentTester : MonoBehaviour
             Color.white,
             new Vector2(
                 0.03f,
-                0.78f
+                0.86f
             ),
             new Vector2(
                 0.97f,
-                0.96f
+                0.98f
             )
         );
 
-        playerSetupText =
+        setupText =
             CreateAnchoredText(
                 setup.transform,
                 "",
-                16f,
+                15f,
                 TextAlignmentOptions.TopLeft,
                 Color.white,
                 new Vector2(
                     0.04f,
-                    0.08f
+                    0.43f
                 ),
                 new Vector2(
-                    0.28f,
-                    0.76f
+                    0.32f,
+                    0.82f
                 )
             );
 
-        Button nextBuyer =
-            CreateAnchoredButton(
-                setup.transform,
-                "BUYER  →",
-                17f,
-                new Vector2(
-                    0.31f,
-                    0.50f
-                ),
-                new Vector2(
-                    0.47f,
-                    0.72f
-                )
-            );
-
-        nextBuyer.onClick.AddListener(
+        CreateAnchoredButton(
+            setup.transform,
+            "BUYER →",
+            15f,
+            new Vector2(
+                0.34f,
+                0.64f
+            ),
+            new Vector2(
+                0.45f,
+                0.81f
+            )
+        ).onClick.AddListener(
             NextBuyer
         );
 
-        Button purchase =
-            CreateAnchoredButton(
-                setup.transform,
-                "PURCHASE",
-                17f,
-                new Vector2(
-                    0.50f,
-                    0.50f
-                ),
-                new Vector2(
-                    0.70f,
-                    0.72f
-                )
-            );
+        CreateAnchoredButton(
+            setup.transform,
+            "MOVE BUYER",
+            15f,
+            new Vector2(
+                0.47f,
+                0.64f
+            ),
+            new Vector2(
+                0.61f,
+                0.81f
+            )
+        ).onClick.AddListener(
+            MoveBuyerHere
+        );
 
-        purchase.onClick.AddListener(
+        CreateAnchoredButton(
+            setup.transform,
+            "PURCHASE",
+            15f,
+            new Vector2(
+                0.63f,
+                0.64f
+            ),
+            new Vector2(
+                0.76f,
+                0.81f
+            )
+        ).onClick.AddListener(
             PurchaseSelected
         );
 
-        Button nextOwner =
-            CreateAnchoredButton(
-                setup.transform,
-                "OWNER  →",
-                17f,
-                new Vector2(
-                    0.31f,
-                    0.24f
-                ),
-                new Vector2(
-                    0.47f,
-                    0.46f
-                )
-            );
+        CreateAnchoredButton(
+            setup.transform,
+            "MOVE OWNER",
+            15f,
+            new Vector2(
+                0.34f,
+                0.42f
+            ),
+            new Vector2(
+                0.48f,
+                0.59f
+            )
+        ).onClick.AddListener(
+            MoveOwnerHere
+        );
 
-        nextOwner.onClick.AddListener(
+        CreateAnchoredButton(
+            setup.transform,
+            "ADD HOUSE",
+            15f,
+            new Vector2(
+                0.50f,
+                0.42f
+            ),
+            new Vector2(
+                0.64f,
+                0.59f
+            )
+        ).onClick.AddListener(
+            AddHouse
+        );
+
+        CreateAnchoredButton(
+            setup.transform,
+            "ADD HOTEL",
+            15f,
+            new Vector2(
+                0.66f,
+                0.42f
+            ),
+            new Vector2(
+                0.80f,
+                0.59f
+            )
+        ).onClick.AddListener(
+            AddHotel
+        );
+
+        CreateAnchoredButton(
+            setup.transform,
+            "OWNER →",
+            15f,
+            new Vector2(
+                0.34f,
+                0.20f
+            ),
+            new Vector2(
+                0.45f,
+                0.37f
+            )
+        ).onClick.AddListener(
             NextOwner
         );
 
-        Button nextPayer =
-            CreateAnchoredButton(
-                setup.transform,
-                "PAYER  →",
-                17f,
-                new Vector2(
-                    0.50f,
-                    0.24f
-                ),
-                new Vector2(
-                    0.70f,
-                    0.46f
-                )
-            );
-
-        nextPayer.onClick.AddListener(
+        CreateAnchoredButton(
+            setup.transform,
+            "PAYER →",
+            15f,
+            new Vector2(
+                0.47f,
+                0.20f
+            ),
+            new Vector2(
+                0.58f,
+                0.37f
+            )
+        ).onClick.AddListener(
             NextPayer
         );
 
-        // --------------------------------------------------------
-        // Development / rent controls
-        // --------------------------------------------------------
-
-        Button addHouse =
-            CreateAnchoredButton(
-                setup.transform,
-                "ADD HOUSE",
-                16f,
-                new Vector2(
-                    0.72f,
-                    0.50f
-                ),
-                new Vector2(
-                    0.86f,
-                    0.72f
-                )
-            );
-
-        addHouse.onClick.AddListener(
-            AddHouseToSelected
-        );
-
-        Button addHotel =
-            CreateAnchoredButton(
-                setup.transform,
-                "ADD HOTEL",
-                16f,
-                new Vector2(
-                    0.87f,
-                    0.50f
-                ),
-                new Vector2(
-                    0.99f,
-                    0.72f
-                )
-            );
-
-        addHotel.onClick.AddListener(
-            AddHotelToSelected
-        );
-
-        Button diceDown =
-            CreateAnchoredButton(
-                setup.transform,
-                "DICE −",
-                16f,
-                new Vector2(
-                    0.72f,
-                    0.24f
-                ),
-                new Vector2(
-                    0.82f,
-                    0.46f
-                )
-            );
-
-        diceDown.onClick.AddListener(
+        CreateAnchoredButton(
+            setup.transform,
+            "DICE −",
+            15f,
+            new Vector2(
+                0.60f,
+                0.20f
+            ),
+            new Vector2(
+                0.69f,
+                0.37f
+            )
+        ).onClick.AddListener(
             DecreaseUtilityDice
         );
 
-        Button diceUp =
-            CreateAnchoredButton(
-                setup.transform,
-                "DICE +",
-                16f,
-                new Vector2(
-                    0.83f,
-                    0.24f
-                ),
-                new Vector2(
-                    0.93f,
-                    0.46f
-                )
-            );
-
-        diceUp.onClick.AddListener(
+        CreateAnchoredButton(
+            setup.transform,
+            "DICE +",
+            15f,
+            new Vector2(
+                0.71f,
+                0.20f
+            ),
+            new Vector2(
+                0.80f,
+                0.37f
+            )
+        ).onClick.AddListener(
             IncreaseUtilityDice
         );
 
-        Button testRent =
-            CreateAnchoredButton(
-                setup.transform,
-                "TEST RENT",
-                16f,
-                new Vector2(
-                    0.72f,
-                    0.08f
-                ),
-                new Vector2(
-                    0.93f,
-                    0.20f
-                )
-            );
-
-        testRent.onClick.AddListener(
-            TestRent
+        CreateAnchoredButton(
+            setup.transform,
+            "RENT → MOVE",
+            15f,
+            new Vector2(
+                0.82f,
+                0.20f
+            ),
+            new Vector2(
+                0.97f,
+                0.37f
+            )
+        ).onClick.AddListener(
+            MovePayerAndTestRent
         );
     }
 
-    // ============================================================
-    // RESULT AREA
-    // ============================================================
-
-    private void BuildBottomBar(
-        Transform parent)
+    private void BuildBottom()
     {
-        GameObject result =
-            CreateFixedPanel(
-                parent,
-                "ResultPanel",
+        GameObject bottom =
+            CreateAnchoredPanel(
+                panel.transform,
+                "Bottom",
                 new Vector2(
-                    0.35f,
+                    0.02f,
                     0.02f
                 ),
                 new Vector2(
-                    0.72f,
+                    0.98f,
                     0.095f
                 ),
                 new Color(
-                    0.025f,
-                    0.045f,
-                    0.075f,
+                    0.02f,
+                    0.035f,
+                    0.055f,
                     1f
                 )
             );
 
-        CreateAnchoredText(
-            result.transform,
-            "RESULT",
-            17f,
-            TextAlignmentOptions.Left,
-            Color.white,
-            new Vector2(
-                0.02f,
-                0.10f
-            ),
-            new Vector2(
-                0.14f,
-                0.90f
-            )
-        );
-
         resultText =
             CreateAnchoredText(
-                result.transform,
-                "No test run yet.",
+                bottom.transform,
+                "No test yet.",
                 15f,
                 TextAlignmentOptions.Left,
                 Color.white,
                 new Vector2(
-                    0.15f,
+                    0.01f,
                     0.08f
                 ),
                 new Vector2(
-                    0.98f,
-                    0.92f
-                )
-            );
-
-        GameObject log =
-            CreateFixedPanel(
-                parent,
-                "LogPanel",
-                new Vector2(
-                    0.73f,
-                    0.02f
-                ),
-                new Vector2(
-                    0.97f,
-                    0.095f
-                ),
-                new Color(
-                    0.015f,
-                    0.025f,
-                    0.045f,
-                    1f
-                )
-            );
-
-        logText =
-            CreateAnchoredText(
-                log.transform,
-                "Log: no tests yet.",
-                12f,
-                TextAlignmentOptions.TopLeft,
-                new Color(
-                    0.75f,
-                    0.80f,
-                    0.88f,
-                    1f
-                ),
-                new Vector2(
-                    0.04f,
-                    0.08f
-                ),
-                new Vector2(
-                    0.96f,
+                    0.78f,
                     0.92f
                 )
             );
 
         CreateAnchoredButton(
-            parent,
+            bottom.transform,
             "REFRESH",
-            15f,
+            14f,
             new Vector2(
-                0.03f,
-                0.035f
+                0.79f,
+                0.12f
             ),
             new Vector2(
-                0.13f,
-                0.085f
+                0.85f,
+                0.88f
             )
         ).onClick.AddListener(
             RefreshProperties
         );
 
         CreateAnchoredButton(
-            parent,
+            bottom.transform,
             "RESET",
-            15f,
+            14f,
             new Vector2(
-                0.14f,
-                0.035f
+                0.86f,
+                0.12f
             ),
             new Vector2(
-                0.24f,
-                0.085f
+                0.92f,
+                0.88f
             )
         ).onClick.AddListener(
             ResetTestView
         );
 
         CreateAnchoredButton(
-            parent,
-            "CLOSE  (F5)",
-            15f,
+            bottom.transform,
+            "F5 CLOSE",
+            14f,
             new Vector2(
-                0.25f,
-                0.035f
+                0.93f,
+                0.12f
             ),
             new Vector2(
-                0.33f,
-                0.085f
+                0.99f,
+                0.88f
             )
         ).onClick.AddListener(
             () => SetVisible(false)
@@ -1808,19 +1721,63 @@ public class RentTester : MonoBehaviour
     }
 
     // ============================================================
-    // FIXED UI HELPERS
+    // UI HELPERS
     // ============================================================
 
     private GameObject CreateFixedPanel(
         Transform parent,
-        string objectName,
+        string name,
+        Vector2 anchor,
+        Vector2 pivot,
+        Vector2 size,
+        Color color)
+    {
+        GameObject obj =
+            new GameObject(
+                name,
+                typeof(RectTransform),
+                typeof(Image)
+            );
+
+        obj.transform.SetParent(
+            parent,
+            false
+        );
+
+        RectTransform rect =
+            obj.GetComponent<RectTransform>();
+
+        rect.anchorMin =
+            anchor;
+
+        rect.anchorMax =
+            anchor;
+
+        rect.pivot =
+            pivot;
+
+        rect.anchoredPosition =
+            Vector2.zero;
+
+        rect.sizeDelta =
+            size;
+
+        obj.GetComponent<Image>().color =
+            color;
+
+        return obj;
+    }
+
+    private GameObject CreateAnchoredPanel(
+        Transform parent,
+        string name,
         Vector2 anchorMin,
         Vector2 anchorMax,
         Color color)
     {
         GameObject obj =
             new GameObject(
-                objectName,
+                name,
                 typeof(RectTransform),
                 typeof(Image)
             );
@@ -1857,8 +1814,8 @@ public class RentTester : MonoBehaviour
         float fontSize,
         TextAlignmentOptions alignment,
         Color color,
-        Vector2 anchorMin = default,
-        Vector2 anchorMax = default)
+        Vector2 anchorMin,
+        Vector2 anchorMax)
     {
         GameObject obj =
             new GameObject(
@@ -1901,25 +1858,17 @@ public class RentTester : MonoBehaviour
         RectTransform rect =
             text.rectTransform;
 
-        if (anchorMin == default &&
-            anchorMax == default)
-        {
-            AnchorFull(rect);
-        }
-        else
-        {
-            rect.anchorMin =
-                anchorMin;
+        rect.anchorMin =
+            anchorMin;
 
-            rect.anchorMax =
-                anchorMax;
+        rect.anchorMax =
+            anchorMax;
 
-            rect.offsetMin =
-                Vector2.zero;
+        rect.offsetMin =
+            Vector2.zero;
 
-            rect.offsetMax =
-                Vector2.zero;
-        }
+        rect.offsetMax =
+            Vector2.zero;
 
         return text;
     }
@@ -2000,6 +1949,203 @@ public class RentTester : MonoBehaviour
                 1f
             );
 
+        button.colors =
+            colors;
+
+        TMP_Text text =
+            CreateAnchoredText(
+                obj.transform,
+                label,
+                fontSize,
+                TextAlignmentOptions.Center,
+                Color.white,
+                Vector2.zero,
+                Vector2.one
+            );
+
+        text.fontStyle =
+            FontStyles.Bold;
+
+        return button;
+    }
+
+    // ============================================================
+    // MISSING HELPERS
+    // ============================================================
+
+    private void FindGameManager()
+    {
+        if (gameManager != null)
+            return;
+
+        gameManager =
+            FindFirstObjectByType<GameManager>(
+                FindObjectsInactive.Include
+            );
+    }
+
+    private bool IsVisible()
+    {
+        return panel != null &&
+               panel.activeSelf;
+    }
+
+    private void SetVisible(bool visible)
+    {
+        if (panel == null)
+            return;
+
+        panel.SetActive(visible);
+
+        if (visible)
+            RefreshStatus();
+    }
+
+    private void SetResult(string message)
+    {
+        if (resultText == null)
+            return;
+
+        resultText.text =
+            message ?? string.Empty;
+    }
+
+    private string GetPlayerName(BoardPlayer player)
+    {
+        return player != null
+            ? player.PlayerName
+            : "NONE";
+    }
+
+    private void DecreaseUtilityDice()
+    {
+        utilityDiceRoll =
+            Mathf.Clamp(
+                utilityDiceRoll - 1,
+                2,
+                12
+            );
+
+        RefreshStatus();
+    }
+
+    private void IncreaseUtilityDice()
+    {
+        utilityDiceRoll =
+            Mathf.Clamp(
+                utilityDiceRoll + 1,
+                2,
+                12
+            );
+
+        RefreshStatus();
+    }
+
+    private void RebuildPropertyList()
+    {
+        if (propertyListContent == null)
+            return;
+
+        for (int i =
+             propertyListContent.childCount - 1;
+             i >= 0;
+             i--)
+        {
+            Destroy(
+                propertyListContent.GetChild(i).gameObject
+            );
+        }
+
+        for (int i = 0;
+             i < rentableSpaces.Count;
+             i++)
+        {
+            BoardSpace space =
+                rentableSpaces[i];
+
+            int index = i;
+
+            Button button =
+                CreateButton(
+                    propertyListContent,
+                    $"{space.BoardIndex}  {space.SpaceName}",
+                    17f,
+                    42f
+                );
+
+            button.onClick.AddListener(
+                () =>
+                    SelectProperty(index)
+            );
+        }
+    }
+
+    private Button CreateButton(
+        Transform parent,
+        string label,
+        float fontSize,
+        float height)
+    {
+        GameObject buttonObject =
+            new GameObject(
+                label + "Button",
+                typeof(RectTransform),
+                typeof(Image),
+                typeof(Button)
+            );
+
+        buttonObject.transform.SetParent(
+            parent,
+            false
+        );
+
+        LayoutElement layout =
+            buttonObject.AddComponent<LayoutElement>();
+
+        layout.preferredHeight =
+            height;
+
+        Image image =
+            buttonObject.GetComponent<Image>();
+
+        image.color =
+            new Color(
+                0.10f,
+                0.30f,
+                0.58f,
+                1f
+            );
+
+        Button button =
+            buttonObject.GetComponent<Button>();
+
+        ColorBlock colors =
+            button.colors;
+
+        colors.normalColor =
+            new Color(
+                0.10f,
+                0.30f,
+                0.58f,
+                1f
+            );
+
+        colors.highlightedColor =
+            new Color(
+                0.17f,
+                0.42f,
+                0.72f,
+                1f
+            );
+
+        colors.pressedColor =
+            new Color(
+                0.07f,
+                0.20f,
+                0.40f,
+                1f
+            );
+
         colors.disabledColor =
             new Color(
                 0.10f,
@@ -2014,70 +2160,19 @@ public class RentTester : MonoBehaviour
         button.colors =
             colors;
 
-        TMP_Text text =
-            CreateAnchoredText(
-                obj.transform,
-                label,
-                fontSize,
-                TextAlignmentOptions.Center,
-                Color.white
-            );
-
-        text.fontStyle =
-            FontStyles.Bold;
-
-        return button;
-    }
-
-    private Button CreateButton(
-        Transform parent,
-        string label,
-        float fontSize,
-        float height)
-    {
-        GameObject obj =
-            new GameObject(
-                label + "Button",
-                typeof(RectTransform),
-                typeof(Image),
-                typeof(Button)
-            );
-
-        obj.transform.SetParent(
-            parent,
-            false
-        );
-
-        LayoutElement layout =
-            obj.AddComponent<LayoutElement>();
-
-        layout.preferredHeight =
-            height;
-
-        Image image =
-            obj.GetComponent<Image>();
-
-        image.color =
-            new Color(
-                0.10f,
-                0.30f,
-                0.58f,
-                1f
-            );
-
-        Button button =
-            obj.GetComponent<Button>();
-
-        TMP_Text text =
+        GameObject textObject =
             new GameObject(
                 "Text",
                 typeof(RectTransform)
-            ).AddComponent<TextMeshProUGUI>();
+            );
 
-        text.transform.SetParent(
-            obj.transform,
+        textObject.transform.SetParent(
+            buttonObject.transform,
             false
         );
+
+        TextMeshProUGUI text =
+            textObject.AddComponent<TextMeshProUGUI>();
 
         text.text =
             label;
@@ -2097,108 +2192,48 @@ public class RentTester : MonoBehaviour
         text.textWrappingMode =
             TextWrappingModes.NoWrap;
 
+        text.overflowMode =
+            TextOverflowModes.Ellipsis;
+
         text.raycastTarget =
             false;
 
-        AnchorFull(
-            text.rectTransform
-        );
+        RectTransform textRect =
+            text.rectTransform;
+
+        textRect.anchorMin =
+            Vector2.zero;
+
+        textRect.anchorMax =
+            Vector2.one;
+
+        textRect.offsetMin =
+            Vector2.zero;
+
+        textRect.offsetMax =
+            Vector2.zero;
 
         return button;
     }
 
-    private void AnchorFull(
-        RectTransform rect)
-    {
-        rect.anchorMin =
-            Vector2.zero;
-
-        rect.anchorMax =
-            Vector2.one;
-
-        rect.offsetMin =
-            Vector2.zero;
-
-        rect.offsetMax =
-            Vector2.zero;
-    }
-
-    // ============================================================
-    // RESULT / LOG
-    // ============================================================
-
-    private void SetResult(
-        string message)
-    {
-        if (resultText != null)
-        {
-            resultText.text =
-                message;
-        }
-    }
-
-    private void AppendLog(
-        string entry)
-    {
-        if (logText == null)
-            return;
-
-        logText.text =
-            entry +
-            "\n\n" +
-            logText.text;
-    }
-
-    // ============================================================
-    // VISIBILITY
-    // ============================================================
-
-    private bool IsVisible()
-    {
-        return panel != null &&
-               panel.activeSelf;
-    }
-
-    private void SetVisible(
-        bool visible)
-    {
-        if (panel != null)
-        {
-            panel.SetActive(
-                visible
-            );
-        }
-
-        if (visible)
-        {
-            RefreshStatus();
-        }
-    }
-
-    // ============================================================
-    // RESET
-    // ============================================================
-
-    public void ResetTestView()
+    private void ResetTestView()
     {
         selectedPropertyIndex = 0;
         selectedBuyerIndex = 0;
         selectedOwnerIndex = 0;
         selectedPayerIndex = 0;
+
         utilityDiceRoll = 7;
+        busy = false;
 
         SetResult(
-            "RESET\nNo gameplay state was changed."
+            "RESET\n" +
+            "Tester view reset."
         );
-
-        if (logText != null)
-        {
-            logText.text =
-                "Log: reset.";
-        }
 
         RefreshStatus();
     }
+
 }
 
 #endif

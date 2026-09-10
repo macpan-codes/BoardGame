@@ -828,4 +828,75 @@ public class BoardPlayer : MonoBehaviour
         bankrupt =
             money <= 0;
     }
+
+
+
+
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+
+    // ============================================================
+    // RENT TESTER SUPPORT — DEVELOPMENT ONLY
+    // ============================================================
+
+    public void MoveToSpaceForRentTest(
+        int targetIndex,
+        bool triggerLanding)
+    {
+        if (isMoving ||
+            bankrupt)
+        {
+            return;
+        }
+
+        GameManager gameManager =
+            FindFirstObjectByType<GameManager>();
+
+        if (gameManager == null ||
+            !gameManager.IsPlayerTurn(this))
+        {
+            return;
+        }
+
+        targetIndex =
+            Mathf.Clamp(
+                targetIndex,
+                0,
+                BoardSize - 1
+            );
+
+        int steps;
+
+        if (targetIndex >= currentSpaceIndex)
+        {
+            steps =
+                targetIndex -
+                currentSpaceIndex;
+        }
+        else
+        {
+            steps =
+                (BoardSize - currentSpaceIndex) +
+                targetIndex;
+        }
+
+        if (steps == 0)
+        {
+            if (triggerLanding)
+            {
+                LandOnCurrentSpace();
+            }
+
+            return;
+        }
+
+        MoveBySteps(
+            steps,
+            triggerLanding
+        );
+    }
+
+    #endif
+
+
+
 }

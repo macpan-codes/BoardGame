@@ -1532,6 +1532,57 @@ public class GameManager : MonoBehaviour
 
         return success;
     }
+
+
+
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+
+// ============================================================
+// RENT TESTER SUPPORT — DEVELOPMENT ONLY
+// ============================================================
+
+public bool BeginRentTesterTurn(BoardPlayer player)
+{
+    if (player == null)
+        return false;
+
+    if (players == null ||
+        players.Length == 0)
+    {
+        return false;
+    }
+
+    int index =
+        System.Array.IndexOf(
+            players,
+            player
+        );
+
+    if (index < 0)
+        return false;
+
+    currentPlayerIndex = index;
+
+    // The tester needs a valid active turn so that
+    // the real BuySpace / BuildHouse / BuildHotel /
+    // MoveBySteps validation accepts this player.
+    isTurnActive = true;
+
+    waitingForPlayerAction = false;
+
+    currentPhase =
+        GamePhase.WaitingToRoll;
+
+    consecutiveDoubles = 0;
+    lastDiceRoll = 0;
+
+    return true;
+}
+
+#endif
+
+
 }
 
 // ================================================================
