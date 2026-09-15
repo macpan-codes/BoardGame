@@ -18,6 +18,17 @@ public class BoardPlayer : MonoBehaviour
     [Header("Player Appearance")]
     [SerializeField] private Color tokenColor = Color.red;
 
+    [SerializeField] private Image tokenImage;
+
+    [Tooltip("Index 0 = Player 1, Index 1 = Player 2 ... Index 5 = Player 6")]
+    [SerializeField] private Sprite[] playerTokenSprites = new Sprite[6];
+
+    [Header("Token Size")]
+    [SerializeField] private float tokenSize = 80f;
+
+    private const int TokenCount = 6;
+    private static Sprite[] sharedPlayerTokenSprites;
+
     public Color TokenColor =>
         tokenColor;
 
@@ -112,38 +123,121 @@ public class BoardPlayer : MonoBehaviour
     }
 
     // ============================================================
-    // TOKEN COLOR
+    // TOKEN VISUAL
     // ============================================================
 
     private void ApplyTokenColor()
     {
-        SpriteRenderer[] renderers =
-            GetComponentsInChildren<SpriteRenderer>(
-                true
-            );
+        EnsureTokenImage();
 
-        foreach (SpriteRenderer renderer in renderers)
+        if (tokenImage == null)
+            return;
+
+        Sprite[] sprites =
+            ResolvePlayerTokenSprites();
+
+        if (!HasCompleteTokenSet(sprites))
         {
-            if (renderer == null)
-                continue;
-
-            renderer.color =
-                tokenColor;
+            Debug.LogWarning(
+                $"BoardPlayer: A complete 6-sprite token set could not be found for {PlayerName}. " +
+                "Assign all six sprites to one BoardPlayer template (Player 1 recommended)."
+            );
+            return;
         }
 
-        Image[] images =
-            GetComponentsInChildren<Image>(
-                true
+        int index = playerNumber - 1;
+
+        if (index < 0 || index >= TokenCount)
+            return;
+
+        Sprite selectedSprite =
+            sprites[index];
+
+        if (selectedSprite == null)
+            return;
+
+        tokenImage.sprite = selectedSprite;
+        tokenImage.color = Color.white;
+        tokenImage.preserveAspect = true;
+        tokenImage.type = Image.Type.Simple;
+
+        RectTransform tokenRect =
+            tokenImage.rectTransform;
+
+        if (tokenRect != null)
+        {
+            float size =
+                Mathf.Max(1f, tokenSize);
+
+            tokenRect.sizeDelta =
+                new Vector2(
+                    size,
+                    size
+                );
+        }
+    }
+
+    private void EnsureTokenImage()
+    {
+        if (tokenImage != null)
+            return;
+
+        tokenImage =
+            GetComponent<Image>();
+    }
+
+    private Sprite[] ResolvePlayerTokenSprites()
+    {
+        if (HasCompleteTokenSet(sharedPlayerTokenSprites))
+            return sharedPlayerTokenSprites;
+
+        if (HasCompleteTokenSet(playerTokenSprites))
+        {
+            sharedPlayerTokenSprites =
+                playerTokenSprites;
+
+            return sharedPlayerTokenSprites;
+        }
+
+        BoardPlayer[] allPlayers =
+            FindObjectsByType<BoardPlayer>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
             );
 
-        foreach (Image image in images)
+        foreach (BoardPlayer player in allPlayers)
         {
-            if (image == null)
+            if (player == null)
                 continue;
 
-            image.color =
-                tokenColor;
+            if (!HasCompleteTokenSet(player.playerTokenSprites))
+                continue;
+
+            sharedPlayerTokenSprites =
+                player.playerTokenSprites;
+
+            return sharedPlayerTokenSprites;
         }
+
+        return playerTokenSprites;
+    }
+
+    private bool HasCompleteTokenSet(
+        Sprite[] sprites)
+    {
+        if (sprites == null ||
+            sprites.Length < TokenCount)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < TokenCount; i++)
+        {
+            if (sprites[i] == null)
+                return false;
+        }
+
+        return true;
     }
 
     // ============================================================
@@ -816,7 +910,7 @@ public class BoardPlayer : MonoBehaviour
 
         return true;
     }
-
+                
     public void SetMoney(int amount)
     {
         money =
@@ -828,8 +922,6 @@ public class BoardPlayer : MonoBehaviour
         bankrupt =
             money <= 0;
     }
-
-
 
 
     #if UNITY_EDITOR || DEVELOPMENT_BUILD
