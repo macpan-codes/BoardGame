@@ -1,0 +1,2314 @@
+fileFormatVersion: 2
+guid: 66ec3fa48d6e90a40bd5edc1f1e5919e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3590734136641233427
+    second: redbutton_0
+  - first:
+      213: 2944835757462158528
+    second: redbutton_1
+  - first:
+      213: -3650102352812690430
+    second: redbutton_2
+  - first:
+      213: -1634976385968044525
+    second: redbutton_3
+  - first:
+      213: 4512661331983729442
+    second: redbutton_4
+  - first:
+      213: 4969497398050289281
+    second: redbutton_5
+  - first:
+      213: 5574296700837180078
+    second: redbutton_6
+  - first:
+      213: -2105172087378416004
+    second: redbutton_7
+  - first:
+      213: -3917107086054401426
+    second: redbutton_8
+  - first:
+      213: 227574293888836338
+    second: redbutton_9
+  - first:
+      213: -4572177983801145626
+    second: redbutton_10
+  - first:
+      213: -6093579988203658229
+    second: redbutton_11
+  - first:
+      213: -1790983872879427071
+    second: redbutton_12
+  - first:
+      213: 8910968351172419126
+    second: redbutton_13
+  - first:
+      213: -8627366600485829213
+    second: redbutton_14
+  - first:
+      213: 5770615752050719645
+    second: redbutton_15
+  - first:
+      213: 3617817241364616134
+    second: redbutton_16
+  - first:
+      213: -6833045556448117108
+    second: redbutton_17
+  - first:
+      213: 7817752942752507954
+    second: redbutton_18
+  - first:
+      213: 7779098584077705288
+    second: redbutton_19
+  - first:
+      213: 5996013493486919942
+    second: redbutton_20
+  - first:
+      213: -3613682683050980717
+    second: redbutton_21
+  - first:
+      213: -4785092213439038254
+    second: redbutton_22
+  - first:
+      213: -3638826706700229022
+    second: redbutton_23
+  - first:
+      213: 1272255604984694305
+    second: redbutton_24
+  - first:
+      213: 8401466852110840408
+    second: redbutton_25
+  - first:
+      213: -3799334853433212966
+    second: redbutton_26
+  - first:
+      213: 4615667219724554075
+    second: redbutton_27
+  - first:
+      213: -7367625578214950934
+    second: redbutton_28
+  - first:
+      213: 8923218915493268050
+    second: redbutton_29
+  - first:
+      213: 662213399491938724
+    second: redbutton_30
+  - first:
+      213: 3623746496274841830
+    second: redbutton_31
+  - first:
+      213: 7848336730950637122
+    second: redbutton_32
+  - first:
+      213: 3350817346718847741
+    second: redbutton_33
+  - first:
+      213: -5871573154616359168
+    second: redbutton_34
+  - first:
+      213: -5910927727956825346
+    second: redbutton_35
+  - first:
+      213: -7191594544805827038
+    second: redbutton_36
+  - first:
+      213: -438069558464307268
+    second: redbutton_37
+  - first:
+      213: 5681469139215138121
+    second: redbutton_38
+  - first:
+      213: -1892025127802708560
+    second: redbutton_39
+  - first:
+      213: 8781482208644274614
+    second: redbutton_40
+  - first:
+      213: -1916507142491021054
+    second: redbutton_41
+  - first:
+      213: 2503966487438538893
+    second: redbutton_42
+  - first:
+      213: 1550611624105052174
+    second: redbutton_43
+  - first:
+      213: 5338008952093656961
+    second: redbutton_44
+  - first:
+      213: 3108126631251530947
+    second: redbutton_45
+  - first:
+      213: -2428087521023674674
+    second: redbutton_46
+  - first:
+      213: -6117096112050299375
+    second: redbutton_47
+  - first:
+      213: 5680140451590935544
+    second: redbutton_48
+  - first:
+      213: -5764423118688212548
+    second: redbutton_49
+  - first:
+      213: -5994909916622798258
+    second: redbutton_50
+  - first:
+      213: -8088552199412333999
+    second: redbutton_51
+  - first:
+      213: 4345502395082789309
+    second: redbutton_52
+  - first:
+      213: -8281423911252725478
+    second: redbutton_53
+  - first:
+      213: 8003061093366078645
+    second: redbutton_54
+  - first:
+      213: 3636876325171360627
+    second: redbutton_55
+  - first:
+      213: -6733042060096034141
+    second: redbutton_56
+  - first:
+      213: -34012831477266367
+    second: redbutton_57
+  - first:
+      213: 2429915605109655763
+    second: redbutton_58
+  - first:
+      213: 9090986846612019090
+    second: redbutton_59
+  - first:
+      213: 6072723391991936977
+    second: redbutton_60
+  - first:
+      213: 8960526305620014569
+    second: redbutton_61
+  - first:
+      213: 8664421472428865323
+    second: redbutton_62
+  - first:
+      213: -4629109642142666369
+    second: redbutton_63
+  - first:
+      213: 9199585907845122142
+    second: redbutton_64
+  - first:
+      213: -1579935956197043209
+    second: redbutton_65
+  - first:
+      213: -7557645499855901866
+    second: redbutton_66
+  - first:
+      213: 3260075691539137028
+    second: redbutton_67
+  - first:
+      213: 950509903780471194
+    second: redbutton_68
+  - first:
+      213: 28582914769784320
+    second: redbutton_69
+  - first:
+      213: -3457603400371956760
+    second: redbutton_70
+  - first:
+      213: -4617387040204436008
+    second: redbutton_71
+  - first:
+      213: -7858104552612075435
+    second: redbutton_72
+  - first:
+      213: -2386921241321111742
+    second: redbutton_73
+  - first:
+      213: -781396873892438054
+    second: redbutton_74
+  - first:
+      213: -6797216827977277502
+    second: redbutton_75
+  - first:
+      213: 4929458144614185268
+    second: redbutton_76
+  - first:
+      213: -4446709809561831786
+    second: redbutton_77
+  - first:
+      213: -3346483040632695043
+    second: redbutton_78
+  - first:
+      213: 7131152645412656528
+    second: redbutton_79
+  - first:
+      213: 8687269185721685677
+    second: redbutton_80
+  - first:
+      213: 5860907148538618271
+    second: redbutton_81
+  - first:
+      213: -8719699987455590586
+    second: redbutton_82
+  - first:
+      213: 7585924369341231388
+    second: redbutton_83
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: redbutton_0
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 794
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 312ae593ca9d4d130800000000000000
+      internalID: 3590734136641233427
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_1
+      rect:
+        serializedVersion: 2
+        x: 693
+        y: 793
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cc766dd4882ed820800000000000000
+      internalID: 2944835757462158528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_2
+      rect:
+        serializedVersion: 2
+        x: 1064
+        y: 771
+        width: 17
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20438cacf3b385dc0800000000000000
+      internalID: -3650102352812690430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_3
+      rect:
+        serializedVersion: 2
+        x: 1410
+        y: 747
+        width: 66
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3160932b3a56f49e0800000000000000
+      internalID: -1634976385968044525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_4
+      rect:
+        serializedVersion: 2
+        x: 1684
+        y: 807
+        width: 15
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2230884829130ae30800000000000000
+      internalID: 4512661331983729442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_5
+      rect:
+        serializedVersion: 2
+        x: 1698
+        y: 806
+        width: 12
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 186f303dd8337f440800000000000000
+      internalID: 4969497398050289281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_6
+      rect:
+        serializedVersion: 2
+        x: 1725
+        y: 807
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea23806c051eb5d40800000000000000
+      internalID: 5574296700837180078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_7
+      rect:
+        serializedVersion: 2
+        x: 1725
+        y: 801
+        width: 21
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7eedb4e32de8c2e0800000000000000
+      internalID: -2105172087378416004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_8
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 761
+        width: 104
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6adf84ebd3a3a9c0800000000000000
+      internalID: -3917107086054401426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_9
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 23
+        width: 1841
+        height: 731
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f221435d91882300800000000000000
+      internalID: 227574293888836338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_10
+      rect:
+        serializedVersion: 2
+        x: 197
+        y: 755
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e6cba1295c5c80c0800000000000000
+      internalID: -4572177983801145626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_11
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 753
+        width: 120
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0421b039414f6ba0800000000000000
+      internalID: -6093579988203658229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_12
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 787
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 102819a18a52527e0800000000000000
+      internalID: -1790983872879427071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_13
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 753
+        width: 36
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63e5168c08e1aab70800000000000000
+      internalID: 8910968351172419126
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_14
+      rect:
+        serializedVersion: 2
+        x: 369
+        y: 722
+        width: 33
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a509fe59cf654880800000000000000
+      internalID: -8627366600485829213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_15
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 753
+        width: 17
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9bb144d378551050800000000000000
+      internalID: 5770615752050719645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_16
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 757
+        width: 15
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c352ddec91153230800000000000000
+      internalID: 3617817241364616134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_17
+      rect:
+        serializedVersion: 2
+        x: 584
+        y: 753
+        width: 30
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8e39d9f4452c21a0800000000000000
+      internalID: -6833045556448117108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_18
+      rect:
+        serializedVersion: 2
+        x: 612
+        y: 763
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 238278691ec3e7c60800000000000000
+      internalID: 7817752942752507954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_19
+      rect:
+        serializedVersion: 2
+        x: 618
+        y: 745
+        width: 29
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84022b062f8e4fb60800000000000000
+      internalID: 7779098584077705288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_20
+      rect:
+        serializedVersion: 2
+        x: 620
+        y: 771
+        width: 26
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 601acbb018e163350800000000000000
+      internalID: 5996013493486919942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_21
+      rect:
+        serializedVersion: 2
+        x: 651
+        y: 725
+        width: 45
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39a04c1febe99ddc0800000000000000
+      internalID: -3613682683050980717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_22
+      rect:
+        serializedVersion: 2
+        x: 725
+        y: 737
+        width: 50
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2dc7a700cffe79db0800000000000000
+      internalID: -4785092213439038254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_23
+      rect:
+        serializedVersion: 2
+        x: 780
+        y: 757
+        width: 57
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 266adebb36a408dc0800000000000000
+      internalID: -3638826706700229022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_24
+      rect:
+        serializedVersion: 2
+        x: 874
+        y: 753
+        width: 90
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 126cc966bb5f7a110800000000000000
+      internalID: 1272255604984694305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_25
+      rect:
+        serializedVersion: 2
+        x: 981
+        y: 743
+        width: 33
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8523940d691089470800000000000000
+      internalID: 8401466852110840408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_26
+      rect:
+        serializedVersion: 2
+        x: 1056
+        y: 753
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adf3a5e941d064bc0800000000000000
+      internalID: -3799334853433212966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_27
+      rect:
+        serializedVersion: 2
+        x: 1100
+        y: 755
+        width: 13
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5fc819a1e42e0040800000000000000
+      internalID: 4615667219724554075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_28
+      rect:
+        serializedVersion: 2
+        x: 1128
+        y: 757
+        width: 102
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae77a6c629fe0c990800000000000000
+      internalID: -7367625578214950934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_29
+      rect:
+        serializedVersion: 2
+        x: 1265
+        y: 755
+        width: 88
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25ac50f8354a5db70800000000000000
+      internalID: 8923218915493268050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_30
+      rect:
+        serializedVersion: 2
+        x: 1352
+        y: 754
+        width: 45
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a9883a0497a03900800000000000000
+      internalID: 662213399491938724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_31
+      rect:
+        serializedVersion: 2
+        x: 1384
+        y: 739
+        width: 21
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e0478a2d322a4230800000000000000
+      internalID: 3623746496274841830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_32
+      rect:
+        serializedVersion: 2
+        x: 1408
+        y: 789
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24696fdaca4eaec60800000000000000
+      internalID: 7848336730950637122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_33
+      rect:
+        serializedVersion: 2
+        x: 1491
+        y: 761
+        width: 100
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df2d46a9f9e708e20800000000000000
+      internalID: 3350817346718847741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_34
+      rect:
+        serializedVersion: 2
+        x: 1553
+        y: 755
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0074f56235bf38ea0800000000000000
+      internalID: -5871573154616359168
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_35
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 753
+        width: 55
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efa60228c8a28fda0800000000000000
+      internalID: -5910927727956825346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_36
+      rect:
+        serializedVersion: 2
+        x: 1692
+        y: 787
+        width: 16
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22e263c3dd2523c90800000000000000
+      internalID: -7191594544805827038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_37
+      rect:
+        serializedVersion: 2
+        x: 1716
+        y: 787
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbf92dcbe0aabe9f0800000000000000
+      internalID: -438069558464307268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_38
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 726
+        width: 7
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94d33459412a8de40800000000000000
+      internalID: 5681469139215138121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_39
+      rect:
+        serializedVersion: 2
+        x: 602
+        y: 732
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0bdd43fab2d2eb5e0800000000000000
+      internalID: -1892025127802708560
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_40
+      rect:
+        serializedVersion: 2
+        x: 617
+        y: 728
+        width: 13
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b997afda871ed970800000000000000
+      internalID: 8781482208644274614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_41
+      rect:
+        serializedVersion: 2
+        x: 1118
+        y: 735
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 201e25278e23765e0800000000000000
+      internalID: -1916507142491021054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_42
+      rect:
+        serializedVersion: 2
+        x: 1207
+        y: 730
+        width: 17
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d88b145f040efb220800000000000000
+      internalID: 2503966487438538893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_43
+      rect:
+        serializedVersion: 2
+        x: 1344
+        y: 734
+        width: 9
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e088f5f7e01e48510800000000000000
+      internalID: 1550611624105052174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_44
+      rect:
+        serializedVersion: 2
+        x: 1430
+        y: 737
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 187c5652cda641a40800000000000000
+      internalID: 5338008952093656961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_45
+      rect:
+        serializedVersion: 2
+        x: 1585
+        y: 737
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c4ddac14b8422b20800000000000000
+      internalID: 3108126631251530947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_46
+      rect:
+        serializedVersion: 2
+        x: 1571
+        y: 730
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec633d1a343bd4ed0800000000000000
+      internalID: -2428087521023674674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_47
+      rect:
+        serializedVersion: 2
+        x: 618
+        y: 696
+        width: 26
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 11e9150fe75bb1ba0800000000000000
+      internalID: -6117096112050299375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_48
+      rect:
+        serializedVersion: 2
+        x: 1144
+        y: 716
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f3976365a9e3de40800000000000000
+      internalID: 5680140451590935544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_49
+      rect:
+        serializedVersion: 2
+        x: 362
+        y: 690
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb92a8bf6b7a000b0800000000000000
+      internalID: -5764423118688212548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_50
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 690
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e424b37713dcdcca0800000000000000
+      internalID: -5994909916622798258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_51
+      rect:
+        serializedVersion: 2
+        x: 739
+        y: 184
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 152c2de21a0bfbf80800000000000000
+      internalID: -8088552199412333999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_52
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 136
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db1d485a7635e4c30800000000000000
+      internalID: 4345502395082789309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_53
+      rect:
+        serializedVersion: 2
+        x: 369
+        y: 111
+        width: 9
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a11fa5f54d8721d80800000000000000
+      internalID: -8281423911252725478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_54
+      rect:
+        serializedVersion: 2
+        x: 377
+        y: 109
+        width: 7
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bc95d199a5901f60800000000000000
+      internalID: 8003061093366078645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_55
+      rect:
+        serializedVersion: 2
+        x: 612
+        y: 113
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 373fdddafb7c87230800000000000000
+      internalID: 3636876325171360627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_56
+      rect:
+        serializedVersion: 2
+        x: 741
+        y: 119
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3aa26366bed6f82a0800000000000000
+      internalID: -6733042060096034141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_57
+      rect:
+        serializedVersion: 2
+        x: 749
+        y: 113
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1480efd8289278ff0800000000000000
+      internalID: -34012831477266367
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_58
+      rect:
+        serializedVersion: 2
+        x: 1102
+        y: 117
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d84dbc5e5bc8b120800000000000000
+      internalID: 2429915605109655763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_59
+      rect:
+        serializedVersion: 2
+        x: 1837
+        y: 119
+        width: 20
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 297de02fe5ca92e70800000000000000
+      internalID: 9090986846612019090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_60
+      rect:
+        serializedVersion: 2
+        x: 637
+        y: 103
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d772e610c5a64450800000000000000
+      internalID: 6072723391991936977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_61
+      rect:
+        serializedVersion: 2
+        x: 731
+        y: 93
+        width: 16
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e53607333f2a5c70800000000000000
+      internalID: 8960526305620014569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_62
+      rect:
+        serializedVersion: 2
+        x: 747
+        y: 109
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b27b3605c653e3870800000000000000
+      internalID: 8664421472428865323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_63
+      rect:
+        serializedVersion: 2
+        x: 1372
+        y: 107
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7130c97e4912cfb0800000000000000
+      internalID: -4629109642142666369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_64
+      rect:
+        serializedVersion: 2
+        x: 1708
+        y: 93
+        width: 24
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e584cc544ae7baf70800000000000000
+      internalID: 9199585907845122142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_65
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 95
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f312036e90f21ae0800000000000000
+      internalID: -1579935956197043209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_66
+      rect:
+        serializedVersion: 2
+        x: 572
+        y: 95
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65b62c2c579dd1790800000000000000
+      internalID: -7557645499855901866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_67
+      rect:
+        serializedVersion: 2
+        x: 1166
+        y: 95
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 402831f919d1e3d20800000000000000
+      internalID: 3260075691539137028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_68
+      rect:
+        serializedVersion: 2
+        x: 1424
+        y: 79
+        width: 14
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a916352b8b3e03d00800000000000000
+      internalID: 950509903780471194
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_69
+      rect:
+        serializedVersion: 2
+        x: 328
+        y: 67
+        width: 16
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00e8f71720c856000800000000000000
+      internalID: 28582914769784320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_70
+      rect:
+        serializedVersion: 2
+        x: 475
+        y: 79
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e395aac6002400d0800000000000000
+      internalID: -3457603400371956760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_71
+      rect:
+        serializedVersion: 2
+        x: 516
+        y: 72
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8dd4f1e63febbefb0800000000000000
+      internalID: -4617387040204436008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_72
+      rect:
+        serializedVersion: 2
+        x: 741
+        y: 71
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5586dad1b8762f290800000000000000
+      internalID: -7858104552612075435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_73
+      rect:
+        serializedVersion: 2
+        x: 747
+        y: 75
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24f783807c3ffded0800000000000000
+      internalID: -2386921241321111742
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_74
+      rect:
+        serializedVersion: 2
+        x: 1023
+        y: 69
+        width: 24
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adf5a07eeabe725f0800000000000000
+      internalID: -781396873892438054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_75
+      rect:
+        serializedVersion: 2
+        x: 1025
+        y: 81
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cf5b13ee4f6ba1a0800000000000000
+      internalID: -6797216827977277502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_76
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 61
+        width: 23
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43972eca014f86440800000000000000
+      internalID: 4929458144614185268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_77
+      rect:
+        serializedVersion: 2
+        x: 1164
+        y: 69
+        width: 23
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69672d5ecfc1a42c0800000000000000
+      internalID: -4446709809561831786
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_78
+      rect:
+        serializedVersion: 2
+        x: 1706
+        y: 79
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df6183ca767ee81d0800000000000000
+      internalID: -3346483040632695043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_79
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 65
+        width: 15
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09598ec6c81f6f260800000000000000
+      internalID: 7131152645412656528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_80
+      rect:
+        serializedVersion: 2
+        x: 1724
+        y: 55
+        width: 12
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da6532b1c416f8870800000000000000
+      internalID: 8687269185721685677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_81
+      rect:
+        serializedVersion: 2
+        x: 1739
+        y: 62
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f91213acfff165150800000000000000
+      internalID: 5860907148538618271
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_82
+      rect:
+        serializedVersion: 2
+        x: 1747
+        y: 64
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64f3bb37f076df680800000000000000
+      internalID: -8719699987455590586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: redbutton_83
+      rect:
+        serializedVersion: 2
+        x: 604
+        y: 47
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c11309f950e964960800000000000000
+      internalID: 7585924369341231388
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      redbutton_0: 3590734136641233427
+      redbutton_1: 2944835757462158528
+      redbutton_10: -4572177983801145626
+      redbutton_11: -6093579988203658229
+      redbutton_12: -1790983872879427071
+      redbutton_13: 8910968351172419126
+      redbutton_14: -8627366600485829213
+      redbutton_15: 5770615752050719645
+      redbutton_16: 3617817241364616134
+      redbutton_17: -6833045556448117108
+      redbutton_18: 7817752942752507954
+      redbutton_19: 7779098584077705288
+      redbutton_2: -3650102352812690430
+      redbutton_20: 5996013493486919942
+      redbutton_21: -3613682683050980717
+      redbutton_22: -4785092213439038254
+      redbutton_23: -3638826706700229022
+      redbutton_24: 1272255604984694305
+      redbutton_25: 8401466852110840408
+      redbutton_26: -3799334853433212966
+      redbutton_27: 4615667219724554075
+      redbutton_28: -7367625578214950934
+      redbutton_29: 8923218915493268050
+      redbutton_3: -1634976385968044525
+      redbutton_30: 662213399491938724
+      redbutton_31: 3623746496274841830
+      redbutton_32: 7848336730950637122
+      redbutton_33: 3350817346718847741
+      redbutton_34: -5871573154616359168
+      redbutton_35: -5910927727956825346
+      redbutton_36: -7191594544805827038
+      redbutton_37: -438069558464307268
+      redbutton_38: 5681469139215138121
+      redbutton_39: -1892025127802708560
+      redbutton_4: 4512661331983729442
+      redbutton_40: 8781482208644274614
+      redbutton_41: -1916507142491021054
+      redbutton_42: 2503966487438538893
+      redbutton_43: 1550611624105052174
+      redbutton_44: 5338008952093656961
+      redbutton_45: 3108126631251530947
+      redbutton_46: -2428087521023674674
+      redbutton_47: -6117096112050299375
+      redbutton_48: 5680140451590935544
+      redbutton_49: -5764423118688212548
+      redbutton_5: 4969497398050289281
+      redbutton_50: -5994909916622798258
+      redbutton_51: -8088552199412333999
+      redbutton_52: 4345502395082789309
+      redbutton_53: -8281423911252725478
+      redbutton_54: 8003061093366078645
+      redbutton_55: 3636876325171360627
+      redbutton_56: -6733042060096034141
+      redbutton_57: -34012831477266367
+      redbutton_58: 2429915605109655763
+      redbutton_59: 9090986846612019090
+      redbutton_6: 5574296700837180078
+      redbutton_60: 6072723391991936977
+      redbutton_61: 8960526305620014569
+      redbutton_62: 8664421472428865323
+      redbutton_63: -4629109642142666369
+      redbutton_64: 9199585907845122142
+      redbutton_65: -1579935956197043209
+      redbutton_66: -7557645499855901866
+      redbutton_67: 3260075691539137028
+      redbutton_68: 950509903780471194
+      redbutton_69: 28582914769784320
+      redbutton_7: -2105172087378416004
+      redbutton_70: -3457603400371956760
+      redbutton_71: -4617387040204436008
+      redbutton_72: -7858104552612075435
+      redbutton_73: -2386921241321111742
+      redbutton_74: -781396873892438054
+      redbutton_75: -6797216827977277502
+      redbutton_76: 4929458144614185268
+      redbutton_77: -4446709809561831786
+      redbutton_78: -3346483040632695043
+      redbutton_79: 7131152645412656528
+      redbutton_8: -3917107086054401426
+      redbutton_80: 8687269185721685677
+      redbutton_81: 5860907148538618271
+      redbutton_82: -8719699987455590586
+      redbutton_83: 7585924369341231388
+      redbutton_9: 227574293888836338
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
