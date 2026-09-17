@@ -2,82 +2,53 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Geometry-only controller for the existing 40 BoardSpace objects.
+/// Board = 1000x1000. Four corners are slightly larger; every other
+/// space has exactly the same width and depth. Airports, utilities,
+/// properties and special spaces are geometrically identical.
+/// Gameplay data is never changed.
+/// </summary>
 [ExecuteAlways]
 public class BoardGeometryMaster : MonoBehaviour
 {
-    public enum SpaceKind
-    {
-        Property,
-        Airport,
-        Utility,
-        Special,
-        Corner
-    }
-
     [Serializable]
     public class SpaceGeometry
     {
         [HideInInspector] public int spaceNumber;
         [HideInInspector] public string sceneObjectName;
 
-        public SpaceKind kind = SpaceKind.Property;
-
-        [Min(0.25f)]
-        [Tooltip("Relative width along this side. All nine spaces on the side are fitted exactly.")]
-        public float widthWeight = 1f;
-
-        [Min(20f)]
-        [Tooltip("Depth of the space toward the board center.")]
-        public float depth = 132f;
-
-        [Tooltip("Fine per-space position adjustment. Does not change neighboring widths.")]
+        [Tooltip("Fine position adjustment only. Does not change slot size.")]
         public Vector2 positionOffset = Vector2.zero;
-
-        [Min(60f)]
-        public float cornerWidth = 185f;
-
-        [Min(60f)]
-        public float cornerHeight = 185f;
     }
 
     [Header("MASTER BOARD")]
     [SerializeField, Min(100f)] private float boardSize = 1000f;
 
-    [SerializeField, Min(60f)] private float defaultCornerSize = 185f;
+    [Header("CORNERS")]
+    [SerializeField, Min(60f)] private float cornerSize = 150f;
 
-    [Header("DEFAULT DEPTHS")]
-    [SerializeField, Min(20f)] private float propertyDepth = 132f;
-    [SerializeField, Min(20f)] private float airportDepth = 132f;
-    [SerializeField, Min(20f)] private float utilityDepth = 132f;
-    [SerializeField, Min(20f)] private float specialDepth = 132f;
+    [Header("ALL NORMAL SPACES")]
+    [SerializeField, Min(40f)] private float normalDepth = 140f;
 
-    [Header("40 INDIVIDUAL PROFILES")]
-    [SerializeField] private List<SpaceGeometry> spaces =
-        new List<SpaceGeometry>(40);
+    [Header("40 INDIVIDUAL OFFSETS")]
+    [SerializeField] private List<SpaceGeometry> spaces = new List<SpaceGeometry>(40);
 
-    [Header("LIVE PREVIEW")]
+    [Header("EDITOR")]
     [SerializeField] private bool livePreview = false;
 
     public List<SpaceGeometry> Spaces => spaces;
 
-    public bool LivePreview
-    {
-        get => livePreview;
-        set => livePreview = value;
-    }
-
-#if UNITY_EDITOR
     private void OnValidate()
     {
-        if (Application.isPlaying || !livePreview)
-            return;
-
-        if (spaces == null || spaces.Count != 40)
-            SyncProfiles();
-
-        ApplyLayout();
-    }
+#if UNITY_EDITOR
+        if (!Application.isPlaying && livePreview)
+        {
+            EnsureProfiles();
+            ApplyLayout();
+        }
 #endif
+    }
 
     [ContextMenu("SYNC 40 SPACES")]
     public void SyncProfiles()
@@ -86,15 +57,11 @@ public class BoardGeometryMaster : MonoBehaviour
 
         if (boardSpaces.Length != 40)
         {
-            Debug.LogError(
-                $"BoardGeometryMaster: Expected 40 BoardSpace objects, found {boardSpaces.Length}."
-            );
+            Debug.LogError($"BoardGeometryMaster: Expected exactly 40 BoardSpace objects, found {boardSpaces.Length}.");
             return;
         }
 
-        List<SpaceGeometry> old =
-            spaces ?? new List<SpaceGeometry>();
-
+        List<SpaceGeometry> old = spaces ?? new List<SpaceGeometry>();
         var rebuilt = new List<SpaceGeometry>(40);
 
         foreach (BoardSpace boardSpace in boardSpaces)
@@ -103,7 +70,7 @@ public class BoardGeometryMaster : MonoBehaviour
             SpaceGeometry profile = FindProfileIn(old, number);
 
             if (profile == null)
-                profile = CreateDefaultProfile(boardSpace, number);
+                profile = new SpaceGeometry();
 
             profile.spaceNumber = number;
             profile.sceneObjectName = boardSpace.gameObject.name;
@@ -124,31 +91,116 @@ public class BoardGeometryMaster : MonoBehaviour
 
         if (boardSpaces.Length != 40)
         {
-            Debug.LogError(
-                $"BoardGeometryMaster: Expected 40 BoardSpace objects, found {boardSpaces.Length}."
-            );
+            Debug.LogError($"BoardGeometryMaster: Expected exactly 40 BoardSpace objects, found {boardSpaces.Length}.");
             return;
         }
 
-        if (spaces == null || spaces.Count != 40)
-            SyncProfiles();
+        EnsureProfiles();
 
 #if UNITY_EDITOR
-        UnityEditor.Undo.RecordObjects(
-            GetRects(boardSpaces),
-            "Apply Board Geometry"
-        );
+        UnityEditor.Undo.RecordObjects(GetRects(boardSpaces), "Apply Board Geometry");
 #endif
 
-        LayoutSide(boardSpaces, 0);
-        LayoutSide(boardSpaces, 10);
-        LayoutSide(boardSpaces, 20);
-        LayoutSide(boardSpaces, 30);
+        // This is the intended final proportion.
+        // 1000 board - 150 corner - 150 corner = 700 usable.
+        // 700 / 9 = 77.777... units for EVERY normal space.
+        float usableLength = boardSize - cornerSize * 2f;
+        if (usableLength <= 0f)
+        {
+            Debug.LogError("BoardGeometryMaster: Corner size is too large for the board.");
+            return;
+        }
 
-        PlaceCorner(boardSpaces[0], FindProfile(0));
-        PlaceCorner(boardSpaces[10], FindProfile(10));
-        PlaceCorner(boardSpaces[20], FindProfile(20));
-        PlaceCorner(boardSpaces[30], FindProfile(30));
+        float normalWidth = usableLength / 9f;
+
+        PlaceCorner(boardSpaces[0],  true,  true);
+        PlaceCorner(boardSpaces[10], true,  false);
+        PlaceCorner(boardSpaces[20], false, false);
+        PlaceCorner(boardSpaces[30], false, true);
+
+        // Bottom: 01 -> 09, left to right.
+        for (int number = 1; number <= 9; number++)
+        {
+            float x =
+                -boardSize * 0.5f +
+                cornerSize +
+                normalWidth * (number - 0.5f);
+
+            SetRect(
+                boardSpaces[number],
+                new Vector2(
+                    x,
+                    -boardSize * 0.5f + normalDepth * 0.5f
+                ) + GetOffset(number),
+                new Vector2(
+                    normalWidth,
+                    normalDepth
+                )
+            );
+        }
+
+        // Right: 11 -> 19, bottom to top.
+        for (int number = 11; number <= 19; number++)
+        {
+            float y =
+                -boardSize * 0.5f +
+                cornerSize +
+                normalWidth * ((number - 10) - 0.5f);
+
+            SetRect(
+                boardSpaces[number],
+                new Vector2(
+                    boardSize * 0.5f - normalDepth * 0.5f,
+                    y
+                ) + GetOffset(number),
+                new Vector2(
+                    normalDepth,
+                    normalWidth
+                )
+            );
+        }
+
+        // Top: 21 -> 29, right to left.
+        for (int number = 21; number <= 29; number++)
+        {
+            float x =
+                boardSize * 0.5f -
+                cornerSize -
+                normalWidth * ((number - 20) - 0.5f);
+
+            SetRect(
+                boardSpaces[number],
+                new Vector2(
+                    x,
+                    boardSize * 0.5f - normalDepth * 0.5f
+                ) + GetOffset(number),
+                new Vector2(
+                    normalWidth,
+                    normalDepth
+                )
+            );
+        }
+
+        // Left: 31 -> 39, top to bottom.
+        for (int number = 31; number <= 39; number++)
+        {
+            float y =
+                boardSize * 0.5f -
+                cornerSize -
+                normalWidth * ((number - 30) - 0.5f);
+
+            SetRect(
+                boardSpaces[number],
+                new Vector2(
+                    -boardSize * 0.5f + normalDepth * 0.5f,
+                    y
+                ) + GetOffset(number),
+                new Vector2(
+                    normalDepth,
+                    normalWidth
+                )
+            );
+        }
 
 #if UNITY_EDITOR
         MarkDirty();
@@ -162,17 +214,12 @@ public class BoardGeometryMaster : MonoBehaviour
 
         if (boardSpaces.Length != 40)
         {
-            Debug.LogError(
-                $"BoardGeometryMaster: Expected 40 BoardSpace objects, found {boardSpaces.Length}."
-            );
+            Debug.LogError($"BoardGeometryMaster: Expected exactly 40 BoardSpace objects, found {boardSpaces.Length}.");
             return;
         }
 
 #if UNITY_EDITOR
-        UnityEditor.Undo.RecordObjects(
-            GetRects(boardSpaces),
-            "Restore Board Geometry"
-        );
+        UnityEditor.Undo.RecordObjects(GetRects(boardSpaces), "Restore Board Geometry");
 #endif
 
         const float cell = 81.818184f;
@@ -181,8 +228,7 @@ public class BoardGeometryMaster : MonoBehaviour
         for (int i = 0; i < 40; i++)
         {
             RectTransform rect = GetRect(boardSpaces[i]);
-            if (rect == null)
-                continue;
+            if (rect == null) continue;
 
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -198,305 +244,37 @@ public class BoardGeometryMaster : MonoBehaviour
 #endif
     }
 
-    private void LayoutSide(
-        BoardSpace[] boardSpaces,
-        int startingCorner)
+    private void PlaceCorner(BoardSpace boardSpace, bool bottom, bool left)
     {
-        int endingCorner = (startingCorner + 10) % 40;
+        if (boardSpace == null) return;
 
-        float firstCornerWidth = GetCornerWidth(startingCorner);
-        float secondCornerWidth = GetCornerWidth(endingCorner);
-
-        float usable =
-            boardSize -
-            firstCornerWidth -
-            secondCornerWidth;
-
-        if (usable <= 0f)
-        {
-            Debug.LogError(
-                "BoardGeometryMaster: Corner sizes are too large for the board."
-            );
-            return;
-        }
-
-        float totalWeight = 0f;
-
-        for (int offset = 1; offset <= 9; offset++)
-        {
-            int index = (startingCorner + offset) % 40;
-            SpaceGeometry profile = FindProfile(index);
-
-            totalWeight += profile == null
-                ? 1f
-                : Mathf.Max(0.25f, profile.widthWeight);
-        }
-
-        float current =
-            -boardSize * 0.5f + firstCornerWidth;
-
-        for (int offset = 1; offset <= 9; offset++)
-        {
-            int index = (startingCorner + offset) % 40;
-            SpaceGeometry profile = FindProfile(index);
-
-            if (profile == null)
-                continue;
-
-            float width =
-                usable *
-                Mathf.Max(0.25f, profile.widthWeight) /
-                totalWeight;
-
-            float center = current + width * 0.5f;
-            Vector2 position =
-                GetSidePosition(startingCorner, center);
-
-            position += profile.positionOffset;
-
-            Vector2 size =
-                startingCorner == 0 || startingCorner == 20
-                    ? new Vector2(width, Mathf.Max(20f, profile.depth))
-                    : new Vector2(Mathf.Max(20f, profile.depth), width);
-
-            SetRect(
-                boardSpaces[index],
-                position,
-                size
-            );
-
-            current += width;
-        }
-    }
-
-    private Vector2 GetSidePosition(
-        int startingCorner,
-        float center)
-    {
         float half = boardSize * 0.5f;
 
-        switch (startingCorner)
-        {
-            case 0:
-                return new Vector2(
-                    center,
-                    -half + GetCornerHeight(0) * 0.5f
-                );
+        Vector2 position = new Vector2(
+            left ? -half + cornerSize * 0.5f : half - cornerSize * 0.5f,
+            bottom ? -half + cornerSize * 0.5f : half - cornerSize * 0.5f
+        );
 
-            case 10:
-                return new Vector2(
-                    half - GetCornerWidth(10) * 0.5f,
-                    center
-                );
-
-            case 20:
-                return new Vector2(
-                    -center,
-                    half - GetCornerHeight(20) * 0.5f
-                );
-
-            case 30:
-                return new Vector2(
-                    -half + GetCornerWidth(30) * 0.5f,
-                    -center
-                );
-
-            default:
-                return Vector2.zero;
-        }
-    }
-
-    private void PlaceCorner(
-        BoardSpace boardSpace,
-        SpaceGeometry profile)
-    {
-        if (boardSpace == null || profile == null)
-            return;
-
-        float half = boardSize * 0.5f;
-        float width = Mathf.Max(60f, profile.cornerWidth);
-        float height = Mathf.Max(60f, profile.cornerHeight);
-
-        float x = half - width * 0.5f;
-        float y = half - height * 0.5f;
-
-        Vector2 position;
-
-        switch (profile.spaceNumber)
-        {
-            case 0:
-                position = new Vector2(-x, -y);
-                break;
-            case 10:
-                position = new Vector2(x, -y);
-                break;
-            case 20:
-                position = new Vector2(x, y);
-                break;
-            case 30:
-                position = new Vector2(-x, y);
-                break;
-            default:
-                position = Vector2.zero;
-                break;
-        }
-
-        position += profile.positionOffset;
+        int number = GetSpaceNumber(boardSpace);
+        position += GetOffset(number);
 
         SetRect(
             boardSpace,
             position,
-            new Vector2(width, height)
+            new Vector2(cornerSize, cornerSize)
         );
     }
 
-    private SpaceGeometry CreateDefaultProfile(
-        BoardSpace boardSpace,
-        int number)
+    private Vector2 GetOffset(int number)
     {
-        SpaceKind kind = DetectKind(boardSpace);
-
-        return new SpaceGeometry
-        {
-            spaceNumber = number,
-            sceneObjectName = boardSpace != null
-                ? boardSpace.gameObject.name
-                : string.Empty,
-            kind = kind,
-            widthWeight =
-                kind == SpaceKind.Airport ||
-                kind == SpaceKind.Utility
-                    ? 1.15f
-                    : kind == SpaceKind.Special
-                        ? 1.08f
-                        : 1f,
-            depth = GetDefaultDepth(kind),
-            positionOffset = Vector2.zero,
-            cornerWidth = defaultCornerSize,
-            cornerHeight = defaultCornerSize
-        };
+        SpaceGeometry profile = FindProfile(number);
+        return profile == null ? Vector2.zero : profile.positionOffset;
     }
 
-    private float GetDefaultDepth(SpaceKind kind)
+    private void SetRect(BoardSpace boardSpace, Vector2 position, Vector2 size)
     {
-        switch (kind)
-        {
-            case SpaceKind.Airport:
-                return airportDepth;
-            case SpaceKind.Utility:
-                return utilityDepth;
-            case SpaceKind.Special:
-                return specialDepth;
-            default:
-                return propertyDepth;
-        }
-    }
-
-    private SpaceKind DetectKind(BoardSpace boardSpace)
-    {
-        if (boardSpace == null)
-            return SpaceKind.Property;
-
-        int number = GetSpaceNumber(boardSpace);
-
-        if (number == 0 || number == 10 || number == 20 || number == 30)
-            return SpaceKind.Corner;
-
-        if (number == 5 || number == 15 || number == 25 || number == 35)
-            return SpaceKind.Airport;
-
-        if (number == 2 || number == 12 || number == 28 || number == 36)
-            return SpaceKind.Utility;
-
-        if (number == 4 || number == 7 || number == 17 ||
-            number == 22 || number == 33 || number == 38)
-            return SpaceKind.Special;
-
-        return SpaceKind.Property;
-    }
-
-    private BoardSpace[] GetBoardSpaces()
-    {
-        BoardSpace[] boardSpaces =
-            GetComponentsInChildren<BoardSpace>(true);
-
-        Array.Sort(
-            boardSpaces,
-            CompareSpaces
-        );
-
-        return boardSpaces;
-    }
-
-    private int CompareSpaces(
-        BoardSpace a,
-        BoardSpace b)
-    {
-        return GetSpaceNumber(a)
-            .CompareTo(GetSpaceNumber(b));
-    }
-
-    private int GetSpaceNumber(BoardSpace boardSpace)
-    {
-        if (boardSpace == null)
-            return 999;
-
-        string name = boardSpace.gameObject.name;
-
-        if (!name.StartsWith(
-                "Space_",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return 999;
-        }
-
-        return int.TryParse(
-            name.Substring(6),
-            out int number
-        )
-            ? number
-            : 999;
-    }
-
-    private SpaceGeometry FindProfile(int number)
-    {
-        return FindProfileIn(spaces, number);
-    }
-
-    private SpaceGeometry FindProfileIn(
-        List<SpaceGeometry> list,
-        int number)
-    {
-        if (list == null)
-            return null;
-
-        foreach (SpaceGeometry profile in list)
-        {
-            if (profile != null &&
-                profile.spaceNumber == number)
-            {
-                return profile;
-            }
-        }
-
-        return null;
-    }
-
-    private RectTransform GetRect(BoardSpace space)
-    {
-        return space == null
-            ? null
-            : space.GetComponent<RectTransform>();
-    }
-
-    private void SetRect(
-        BoardSpace space,
-        Vector2 position,
-        Vector2 size)
-    {
-        RectTransform rect = GetRect(space);
-        if (rect == null)
-            return;
+        RectTransform rect = GetRect(boardSpace);
+        if (rect == null) return;
 
         rect.anchorMin = new Vector2(0.5f, 0.5f);
         rect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -507,26 +285,63 @@ public class BoardGeometryMaster : MonoBehaviour
         rect.localScale = Vector3.one;
     }
 
-    private float GetCornerWidth(int number)
+    private void EnsureProfiles()
     {
-        SpaceGeometry profile = FindProfile(number);
-        return profile == null
-            ? defaultCornerSize
-            : Mathf.Max(60f, profile.cornerWidth);
+        if (spaces == null || spaces.Count != 40)
+            SyncProfiles();
     }
 
-    private float GetCornerHeight(int number)
+    private SpaceGeometry FindProfile(int number)
     {
-        SpaceGeometry profile = FindProfile(number);
-        return profile == null
-            ? defaultCornerSize
-            : Mathf.Max(60f, profile.cornerHeight);
+        return FindProfileIn(spaces, number);
     }
 
-    private Vector2 GetOriginalPosition(
-        int index,
-        float half,
-        float cell)
+    private SpaceGeometry FindProfileIn(List<SpaceGeometry> list, int number)
+    {
+        if (list == null) return null;
+
+        foreach (SpaceGeometry profile in list)
+        {
+            if (profile != null && profile.spaceNumber == number)
+                return profile;
+        }
+
+        return null;
+    }
+
+    private BoardSpace[] GetBoardSpaces()
+    {
+        BoardSpace[] boardSpaces = GetComponentsInChildren<BoardSpace>(true);
+        Array.Sort(boardSpaces, CompareSpaces);
+        return boardSpaces;
+    }
+
+    private int CompareSpaces(BoardSpace a, BoardSpace b)
+    {
+        return GetSpaceNumber(a).CompareTo(GetSpaceNumber(b));
+    }
+
+    private int GetSpaceNumber(BoardSpace boardSpace)
+    {
+        if (boardSpace == null) return 999;
+
+        string name = boardSpace.gameObject.name;
+        if (!name.StartsWith("Space_", StringComparison.OrdinalIgnoreCase))
+            return 999;
+
+        return int.TryParse(name.Substring(6), out int number)
+            ? number
+            : 999;
+    }
+
+    private RectTransform GetRect(BoardSpace boardSpace)
+    {
+        return boardSpace == null
+            ? null
+            : boardSpace.GetComponent<RectTransform>();
+    }
+
+    private Vector2 GetOriginalPosition(int index, float half, float cell)
     {
         if (index == 0) return new Vector2(-half, -half);
         if (index == 10) return new Vector2(half, -half);
@@ -548,11 +363,6 @@ public class BoardGeometryMaster : MonoBehaviour
         return Vector2.zero;
     }
 
-    public void ApplyLayoutFromInspector()
-    {
-        ApplyLayout();
-    }
-
 #if UNITY_EDITOR
     private UnityEngine.Object[] GetRects(BoardSpace[] boardSpaces)
     {
@@ -566,10 +376,8 @@ public class BoardGeometryMaster : MonoBehaviour
 
     private void MarkDirty()
     {
-        EditorUtility.SetDirty(this);
-        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
-            gameObject.scene
-        );
+        UnityEditor.EditorUtility.SetDirty(this);
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
     }
 #endif
 }
