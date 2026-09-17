@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 [ExecuteAlways]
 public class BoardGeometryMaster : MonoBehaviour
@@ -26,28 +23,30 @@ public class BoardGeometryMaster : MonoBehaviour
         public SpaceKind kind = SpaceKind.Property;
 
         [Min(0.25f)]
-        [Tooltip("Relative width along the side. The whole side is fitted exactly.")]
+        [Tooltip("Relative width along this side. All nine spaces on the side are fitted exactly.")]
         public float widthWeight = 1f;
 
         [Min(20f)]
-        [Tooltip("How far the space extends inward toward the center.")]
-        public float depth = 125f;
+        [Tooltip("Depth of the space toward the board center.")]
+        public float depth = 132f;
 
+        [Tooltip("Fine per-space position adjustment. Does not change neighboring widths.")]
         public Vector2 positionOffset = Vector2.zero;
 
         [Min(60f)]
-        public float cornerWidth = 180f;
+        public float cornerWidth = 185f;
 
         [Min(60f)]
-        public float cornerHeight = 180f;
+        public float cornerHeight = 185f;
     }
 
     [Header("MASTER BOARD")]
     [SerializeField, Min(100f)] private float boardSize = 1000f;
-    [SerializeField, Min(60f)] private float defaultCornerSize = 180f;
+
+    [SerializeField, Min(60f)] private float defaultCornerSize = 185f;
 
     [Header("DEFAULT DEPTHS")]
-    [SerializeField, Min(20f)] private float propertyDepth = 125f;
+    [SerializeField, Min(20f)] private float propertyDepth = 132f;
     [SerializeField, Min(20f)] private float airportDepth = 132f;
     [SerializeField, Min(20f)] private float utilityDepth = 132f;
     [SerializeField, Min(20f)] private float specialDepth = 132f;
@@ -60,6 +59,12 @@ public class BoardGeometryMaster : MonoBehaviour
     [SerializeField] private bool livePreview = false;
 
     public List<SpaceGeometry> Spaces => spaces;
+
+    public bool LivePreview
+    {
+        get => livePreview;
+        set => livePreview = value;
+    }
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -129,7 +134,7 @@ public class BoardGeometryMaster : MonoBehaviour
             SyncProfiles();
 
 #if UNITY_EDITOR
-        Undo.RecordObjects(
+        UnityEditor.Undo.RecordObjects(
             GetRects(boardSpaces),
             "Apply Board Geometry"
         );
@@ -164,7 +169,7 @@ public class BoardGeometryMaster : MonoBehaviour
         }
 
 #if UNITY_EDITOR
-        Undo.RecordObjects(
+        UnityEditor.Undo.RecordObjects(
             GetRects(boardSpaces),
             "Restore Board Geometry"
         );
@@ -244,13 +249,20 @@ public class BoardGeometryMaster : MonoBehaviour
                 totalWeight;
 
             float center = current + width * 0.5f;
-            Vector2 position = GetSidePosition(startingCorner, center);
+            Vector2 position =
+                GetSidePosition(startingCorner, center);
+
             position += profile.positionOffset;
+
+            Vector2 size =
+                startingCorner == 0 || startingCorner == 20
+                    ? new Vector2(width, Mathf.Max(20f, profile.depth))
+                    : new Vector2(Mathf.Max(20f, profile.depth), width);
 
             SetRect(
                 boardSpaces[index],
                 position,
-                new Vector2(width, Mathf.Max(20f, profile.depth))
+                size
             );
 
             current += width;
@@ -369,10 +381,14 @@ public class BoardGeometryMaster : MonoBehaviour
     {
         switch (kind)
         {
-            case SpaceKind.Airport: return airportDepth;
-            case SpaceKind.Utility: return utilityDepth;
-            case SpaceKind.Special: return specialDepth;
-            default: return propertyDepth;
+            case SpaceKind.Airport:
+                return airportDepth;
+            case SpaceKind.Utility:
+                return utilityDepth;
+            case SpaceKind.Special:
+                return specialDepth;
+            default:
+                return propertyDepth;
         }
     }
 
@@ -532,6 +548,11 @@ public class BoardGeometryMaster : MonoBehaviour
         return Vector2.zero;
     }
 
+    public void ApplyLayoutFromInspector()
+    {
+        ApplyLayout();
+    }
+
 #if UNITY_EDITOR
     private UnityEngine.Object[] GetRects(BoardSpace[] boardSpaces)
     {
@@ -549,175 +570,6 @@ public class BoardGeometryMaster : MonoBehaviour
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
             gameObject.scene
         );
-    }
-
-    [CustomEditor(typeof(BoardGeometryMaster))]
-    private class BoardGeometryMasterEditor : UnityEditor.Editor
-    {
-        private Vector2 scroll;
-        private readonly bool[] foldouts = new bool[40];
-
-        public override void OnInspectorGUI()
-        {
-            BoardGeometryMaster master =
-                (BoardGeometryMaster)target;
-
-            serializedObject.Update();
-
-            EditorGUILayout.HelpBox(
-                "Geometry only. BoardSpace gameplay data is untouched.",
-                MessageType.Info
-            );
-
-            EditorGUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("SYNC 40 SPACES", GUILayout.Height(28)))
-                master.SyncProfiles();
-
-            if (GUILayout.Button("APPLY LAYOUT", GUILayout.Height(28)))
-                master.ApplyLayout();
-
-            if (GUILayout.Button("RESTORE GRID", GUILayout.Height(28)))
-                master.RestoreOriginalSquareLayout();
-
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(6);
-
-            Draw("boardSize", "Board Size");
-            Draw("defaultCornerSize", "Default Corner Size");
-            Draw("livePreview", "Live Preview");
-
-            EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField(
-                "DEFAULT DEPTHS",
-                EditorStyles.boldLabel
-            );
-
-            Draw("propertyDepth", "Property");
-            Draw("airportDepth", "Airport");
-            Draw("utilityDepth", "Utility");
-            Draw("specialDepth", "Special");
-
-            EditorGUILayout.Space(8);
-
-            SerializedProperty list =
-                serializedObject.FindProperty("spaces");
-
-            if (list.arraySize != 40)
-            {
-                EditorGUILayout.HelpBox(
-                    "Press SYNC 40 SPACES first.",
-                    MessageType.Warning
-                );
-
-                serializedObject.ApplyModifiedProperties();
-                return;
-            }
-
-            scroll = EditorGUILayout.BeginScrollView(
-                scroll,
-                GUILayout.MinHeight(500)
-            );
-
-            for (int i = 0; i < 40; i++)
-            {
-                SerializedProperty profile =
-                    list.GetArrayElementAtIndex(i);
-
-                int number =
-                    profile.FindPropertyRelative(
-                        "spaceNumber"
-                    ).intValue;
-
-                string name =
-                    profile.FindPropertyRelative(
-                        "sceneObjectName"
-                    ).stringValue;
-
-                foldouts[i] = EditorGUILayout.Foldout(
-                    foldouts[i],
-                    $"Space {number:00} — {name}",
-                    true
-                );
-
-                if (!foldouts[i])
-                    continue;
-
-                EditorGUI.indentLevel++;
-
-                Draw(profile, "kind", "Type");
-
-                int kind =
-                    profile.FindPropertyRelative(
-                        "kind"
-                    ).enumValueIndex;
-
-                if (kind ==
-                    (int)SpaceKind.Corner)
-                {
-                    Draw(profile, "cornerWidth", "Width");
-                    Draw(profile, "cornerHeight", "Height");
-                }
-                else
-                {
-                    Draw(profile, "widthWeight", "Width Weight");
-                    Draw(profile, "depth", "Depth");
-                }
-
-                Draw(profile, "positionOffset", "Position Offset");
-
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space(7);
-            }
-
-            EditorGUILayout.EndScrollView();
-
-            bool changed =
-                serializedObject.ApplyModifiedProperties();
-
-            if (changed && master.livePreview)
-                master.ApplyLayout();
-        }
-
-        private void Draw(
-            string propertyName,
-            string label)
-        {
-            SerializedProperty property =
-                serializedObject.FindProperty(
-                    propertyName
-                );
-
-            if (property != null)
-            {
-                EditorGUILayout.PropertyField(
-                    property,
-                    new GUIContent(label),
-                    true
-                );
-            }
-        }
-
-        private void Draw(
-            SerializedProperty parent,
-            string propertyName,
-            string label)
-        {
-            SerializedProperty property =
-                parent.FindPropertyRelative(
-                    propertyName
-                );
-
-            if (property != null)
-            {
-                EditorGUILayout.PropertyField(
-                    property,
-                    new GUIContent(label),
-                    true
-                );
-            }
-        }
     }
 #endif
 }
