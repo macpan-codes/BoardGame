@@ -10,40 +10,42 @@ public class BoardGeometryMasterEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        BoardGeometryMaster master = (BoardGeometryMaster)target;
+        BoardGeometryMaster master =
+            (BoardGeometryMaster)target;
+
         serializedObject.Update();
 
         EditorGUILayout.HelpBox(
-            "Geometry only. Gameplay BoardSpace data is untouched.",
+            "Final board geometry: 1000x1000, four slightly larger corners, all 36 non-corner spaces identical. Airports, utilities, properties and special spaces use the same geometry.",
             MessageType.Info
         );
 
         EditorGUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("Sync 40 Spaces", GUILayout.Height(28)))
+        if (GUILayout.Button("SYNC 40 SPACES", GUILayout.Height(28)))
             master.SyncProfiles();
 
-        if (GUILayout.Button("Apply Layout", GUILayout.Height(28)))
+        if (GUILayout.Button("APPLY LAYOUT", GUILayout.Height(28)))
             master.ApplyLayout();
 
-        if (GUILayout.Button("Restore Grid", GUILayout.Height(28)))
+        if (GUILayout.Button("RESTORE GRID", GUILayout.Height(28)))
             master.RestoreOriginalSquareLayout();
 
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.Space(8);
 
+        EditorGUILayout.LabelField(
+            "BOARD GEOMETRY",
+            EditorStyles.boldLabel
+        );
+
         Draw("boardSize", "Board Size");
-        Draw("defaultCornerSize", "Default Corner Size");
+        Draw("cornerSize", "Corner Size");
+        Draw("normalDepth", "Normal Space Depth");
+        Draw("livePreview", "Live Preview");
 
-        EditorGUILayout.Space(4);
-        EditorGUILayout.LabelField("Default Depths", EditorStyles.boldLabel);
-        Draw("propertyDepth", "Property");
-        Draw("airportDepth", "Airport");
-        Draw("utilityDepth", "Utility");
-        Draw("specialDepth", "Special");
-
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(8);
 
         SerializedProperty list =
             serializedObject.FindProperty("spaces");
@@ -51,7 +53,7 @@ public class BoardGeometryMasterEditor : Editor
         if (list == null || list.arraySize != 40)
         {
             EditorGUILayout.HelpBox(
-                "Press Sync 40 Spaces first.",
+                "Press SYNC 40 SPACES first.",
                 MessageType.Warning
             );
 
@@ -59,12 +61,22 @@ public class BoardGeometryMasterEditor : Editor
             return;
         }
 
-        scroll = EditorGUILayout.BeginScrollView(
-            scroll,
-            GUILayout.MinHeight(450)
+        EditorGUILayout.LabelField(
+            "INDIVIDUAL FINE OFFSETS",
+            EditorStyles.boldLabel
         );
 
-        for (int i = 0; i < list.arraySize; i++)
+        EditorGUILayout.HelpBox(
+            "These offsets are only for tiny visual corrections. They do not change the equal-size rule.",
+            MessageType.None
+        );
+
+        scroll = EditorGUILayout.BeginScrollView(
+            scroll,
+            GUILayout.MinHeight(420)
+        );
+
+        for (int i = 0; i < 40; i++)
         {
             SerializedProperty profile =
                 list.GetArrayElementAtIndex(i);
@@ -89,28 +101,28 @@ public class BoardGeometryMasterEditor : Editor
 
             EditorGUI.indentLevel++;
 
-            Draw(profile, "kind", "Type");
-            Draw(profile, "widthWeight", "Width Weight");
-            Draw(profile, "depth", "Depth");
-            Draw(profile, "positionOffset", "Position Offset");
-
-            if ((BoardGeometryMaster.SpaceKind)
-                profile.FindPropertyRelative("kind").enumValueIndex
-                == BoardGeometryMaster.SpaceKind.Corner)
-            {
-                Draw(profile, "cornerWidth", "Corner Width");
-                Draw(profile, "cornerHeight", "Corner Height");
-            }
+            Draw(
+                profile,
+                "positionOffset",
+                "Position Offset"
+            );
 
             EditorGUI.indentLevel--;
-            EditorGUILayout.Space(8);
+            EditorGUILayout.Space(4);
         }
 
         EditorGUILayout.EndScrollView();
-        serializedObject.ApplyModifiedProperties();
+
+        bool changed =
+            serializedObject.ApplyModifiedProperties();
+
+        if (changed && master.LivePreview)
+            master.ApplyLayout();
     }
 
-    private void Draw(string propertyName, string label)
+    private void Draw(
+        string propertyName,
+        string label)
     {
         SerializedProperty property =
             serializedObject.FindProperty(propertyName);
