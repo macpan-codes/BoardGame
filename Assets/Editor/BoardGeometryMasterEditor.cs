@@ -38,7 +38,6 @@ public class BoardGeometryMasterEditor : Editor
 
         EditorGUILayout.Space(4);
         EditorGUILayout.LabelField("Default Depths", EditorStyles.boldLabel);
-
         Draw("propertyDepth", "Property");
         Draw("airportDepth", "Airport");
         Draw("utilityDepth", "Utility");
@@ -47,9 +46,9 @@ public class BoardGeometryMasterEditor : Editor
         EditorGUILayout.Space(10);
 
         SerializedProperty list =
-            serializedObject.FindProperty("profiles");
+            serializedObject.FindProperty("spaces");
 
-        if (list.arraySize == 0)
+        if (list == null || list.arraySize != 40)
         {
             EditorGUILayout.HelpBox(
                 "Press Sync 40 Spaces first.",
@@ -71,100 +70,36 @@ public class BoardGeometryMasterEditor : Editor
                 list.GetArrayElementAtIndex(i);
 
             int number =
-                profile.FindPropertyRelative(
-                    "spaceNumber"
-                ).intValue;
+                profile.FindPropertyRelative("spaceNumber").intValue;
 
             string sourceName =
-                profile.FindPropertyRelative(
-                    "sourceName"
-                ).stringValue;
+                profile.FindPropertyRelative("sceneObjectName").stringValue;
 
             string label =
                 $"Space {number:00} — {sourceName}";
 
-            foldouts[i] =
-                EditorGUILayout.Foldout(
-                    foldouts[i],
-                    label,
-                    true
-                );
+            foldouts[i] = EditorGUILayout.Foldout(
+                foldouts[i],
+                label,
+                true
+            );
 
             if (!foldouts[i])
                 continue;
 
             EditorGUI.indentLevel++;
 
-            Draw(
-                profile,
-                "kind",
-                "Type"
-            );
+            Draw(profile, "kind", "Type");
+            Draw(profile, "widthWeight", "Width Weight");
+            Draw(profile, "depth", "Depth");
+            Draw(profile, "positionOffset", "Position Offset");
 
-            int kind =
-                profile.FindPropertyRelative(
-                    "kind"
-                ).enumValueIndex;
-
-            if (kind ==
-                (int)BoardGeometryMaster.SpaceKind.Corner)
+            if ((BoardGeometryMaster.SpaceKind)
+                profile.FindPropertyRelative("kind").enumValueIndex
+                == BoardGeometryMaster.SpaceKind.Corner)
             {
-                Draw(
-                    profile,
-                    "cornerWidth",
-                    "Corner Width"
-                );
-
-                Draw(
-                    profile,
-                    "cornerHeight",
-                    "Corner Height"
-                );
-            }
-            else
-            {
-                Draw(
-                    profile,
-                    "alongWeight",
-                    "Width Weight"
-                );
-
-                Draw(
-                    profile,
-                    "inwardDepth",
-                    "Depth"
-                );
-            }
-
-            EditorGUILayout.Space(2);
-
-            Draw(
-                profile,
-                "positionOffset",
-                "Position Offset"
-            );
-
-            Draw(
-                profile,
-                "manualRotation",
-                "Rotation"
-            );
-
-            Draw(
-                profile,
-                "useManualPosition",
-                "Manual Position"
-            );
-
-            if (profile.FindPropertyRelative(
-                    "useManualPosition"
-                ).boolValue)
-            {
-                Draw(
-                    profile,
-                    "manualPosition",
-                    "Manual Position Value"
-                );
+                Draw(profile, "cornerWidth", "Corner Width");
+                Draw(profile, "cornerHeight", "Corner Height");
             }
 
             EditorGUI.indentLevel--;
@@ -175,21 +110,19 @@ public class BoardGeometryMasterEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
-    private void Draw(
-        string propertyName,
-        string label)
+    private void Draw(string propertyName, string label)
     {
-        SerializedProperty p =
-            serializedObject.FindProperty(
-                propertyName
-            );
+        SerializedProperty property =
+            serializedObject.FindProperty(propertyName);
 
-        if (p != null)
+        if (property != null)
+        {
             EditorGUILayout.PropertyField(
-                p,
+                property,
                 new GUIContent(label),
                 true
             );
+        }
     }
 
     private void Draw(
@@ -197,17 +130,17 @@ public class BoardGeometryMasterEditor : Editor
         string propertyName,
         string label)
     {
-        SerializedProperty p =
-            parent.FindPropertyRelative(
-                propertyName
-            );
+        SerializedProperty property =
+            parent.FindPropertyRelative(propertyName);
 
-        if (p != null)
+        if (property != null)
+        {
             EditorGUILayout.PropertyField(
-                p,
+                property,
                 new GUIContent(label),
                 true
             );
+        }
     }
 }
 #endif
