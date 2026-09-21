@@ -4,30 +4,18 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Creates a clean, editable PropertyInfoPanel template.
-///
-/// IMPORTANT:
-/// This rebuilds only the children under PopupBackground.
-/// It does not touch BoardSpace, BoardPlayer, GameManager, or gameplay data.
-///
-/// Run:
-/// Tools -> Board Game -> Build Property Info Template
-///
-/// After that, redesign the colors/artwork/layout directly in the Inspector.
-/// The runtime script supplies the data.
-/// </summary>
-public static class PropertyInfoPanelSetup
+public static class LandingActionPanelSetup
 {
     private const float CardWidth = 560f;
     private const float CardHeight = 760f;
 
     private const float HeaderHeight = 130f;
     private const float TypeBarHeight = 50f;
-    private const float OwnerHeight = 64f;
+    private const float OwnerHeight = 62f;
 
-    private const float InfoRowHeight = 32f;
-    private const float ManageHeight = 56f;
+    private const float RowHeight = 32f;
+    private const float ActionButtonHeight = 54f;
+    private const float ActionSpacing = 8f;
 
     private static readonly Color CardColor =
         new Color(0.055f, 0.075f, 0.12f, 1f);
@@ -44,33 +32,38 @@ public static class PropertyInfoPanelSetup
     private static readonly Color AccentColor =
         new Color(0.18f, 0.52f, 0.95f, 1f);
 
+    private static readonly Color BuyColor =
+        new Color(0.08f, 0.42f, 0.78f, 1f);
+
+    private static readonly Color DeclineColor =
+        new Color(0.18f, 0.22f, 0.29f, 1f);
+
     private static readonly Color MainText =
         new Color(0.96f, 0.98f, 1f, 1f);
 
     private static readonly Color SecondaryText =
         new Color(0.60f, 0.68f, 0.78f, 1f);
 
-    [MenuItem(
-        "Tools/Board Game/Build Property Info Template"
-    )]
+    [MenuItem("Tools/Board Game/Build Landing Action Template")]
     public static void BuildTemplate()
     {
-        PropertyInfoPanel panel =
-            Object.FindFirstObjectByType<PropertyInfoPanel>(
+        LandingActionPanel panel =
+            Object.FindFirstObjectByType<LandingActionPanel>(
                 FindObjectsInactive.Include
             );
 
         if (panel == null)
         {
             Debug.LogError(
-                "PropertyInfoPanelSetup: PropertyInfoPanel not found."
+                "LandingActionPanelSetup: LandingActionPanel was not found."
             );
+
             return;
         }
 
         Undo.RegisterFullObjectHierarchyUndo(
             panel.gameObject,
-            "Build Property Info Template"
+            "Build Landing Action Template"
         );
 
         Transform popup =
@@ -99,7 +92,11 @@ public static class PropertyInfoPanelSetup
 
         ClearChildren(popup);
 
-        ConfigureRootCard(popup);
+        ConfigureCard(popup);
+
+        // ========================================================
+        // HEADER
+        // ========================================================
 
         Transform header =
             CreateRect(
@@ -109,7 +106,7 @@ public static class PropertyInfoPanelSetup
 
         ConfigureHeader(header);
 
-        TMP_Text propertyName =
+        TMP_Text nameText =
             CreateText(
                 header,
                 "PropertyNameText",
@@ -118,27 +115,27 @@ public static class PropertyInfoPanelSetup
                 TextAlignmentOptions.Center
             );
 
-        propertyName.fontStyle =
+        nameText.fontStyle =
             FontStyles.Bold;
 
-        propertyName.enableAutoSizing =
+        nameText.enableAutoSizing =
             true;
 
-        propertyName.fontSizeMin =
-            19f;
+        nameText.fontSizeMin =
+            18f;
 
-        propertyName.fontSizeMax =
+        nameText.fontSizeMax =
             30f;
 
         StretchAt(
-            propertyName.rectTransform,
-            0.12f,
-            0.78f,
+            nameText.rectTransform,
+            0.10f,
+            0.72f,
             0.35f,
-            0.95f
+            0.94f
         );
 
-        TMP_Text headerPrice =
+        TMP_Text priceText =
             CreateText(
                 header,
                 "HeaderPriceText",
@@ -147,24 +144,30 @@ public static class PropertyInfoPanelSetup
                 TextAlignmentOptions.Center
             );
 
-        headerPrice.fontStyle =
+        priceText.fontStyle =
             FontStyles.Bold;
 
         StretchAt(
-            headerPrice.rectTransform,
+            priceText.rectTransform,
             0.25f,
             0.25f,
             0.08f,
             0.36f
         );
 
-        Transform close =
+        Transform closeButton =
             CreateButton(
                 header,
                 "CloseXButton"
             );
 
-        ConfigureCloseButton(close);
+        ConfigureCloseButton(
+            closeButton
+        );
+
+        // ========================================================
+        // TYPE BAR
+        // ========================================================
 
         Transform typeBar =
             CreateRect(
@@ -193,6 +196,10 @@ public static class PropertyInfoPanelSetup
             typeBarText.rectTransform
         );
 
+        // ========================================================
+        // OWNER ROW
+        // ========================================================
+
         Transform ownerRow =
             CreateRect(
                 popup,
@@ -216,30 +223,7 @@ public static class PropertyInfoPanelSetup
         StretchAt(
             ownerLabel.rectTransform,
             0.07f,
-            0.22f,
-            0f,
-            0f
-        );
-
-        TMP_Text ownerText =
-            CreateText(
-                ownerRow,
-                "OwnerText",
-                16f,
-                MainText,
-                TextAlignmentOptions.Right
-            );
-
-        ownerText.fontStyle =
-            FontStyles.Bold;
-
-        ownerText.text =
-            "UNOWNED";
-
-        StretchAt(
-            ownerText.rectTransform,
-            0.38f,
-            0.08f,
+            0.70f,
             0f,
             0f
         );
@@ -255,13 +239,13 @@ public static class PropertyInfoPanelSetup
 
         indicatorRect.anchorMin =
             new Vector2(
-                0.34f,
+                0.35f,
                 0.5f
             );
 
         indicatorRect.anchorMax =
             new Vector2(
-                0.34f,
+                0.35f,
                 0.5f
             );
 
@@ -288,98 +272,95 @@ public static class PropertyInfoPanelSetup
                 1f
             );
 
-        Transform info =
+        TMP_Text ownerText =
+            CreateText(
+                ownerRow,
+                "OwnerText",
+                16f,
+                MainText,
+                TextAlignmentOptions.Right
+            );
+
+        ownerText.fontStyle =
+            FontStyles.Bold;
+
+        ownerText.text =
+            "UNOWNED";
+
+        StretchAt(
+            ownerText.rectTransform,
+            0.40f,
+            0.08f,
+            0f,
+            0f
+        );
+
+        // ========================================================
+        // INFORMATION AREA
+        // ========================================================
+
+        Transform informationArea =
             CreateRect(
                 popup,
                 "InformationArea"
             );
 
-        ConfigureInformationArea(info);
-
-        TMP_Text purchase =
-            CreateValueRow(
-                info,
-                "PurchasePriceInfoRow",
-                "Purchase Price",
-                "PurchasePriceInfoText"
-            );
-
-        TMP_Text baseRent =
-            CreateValueRow(
-                info,
-                "BaseRentRow",
-                "Base Rent",
-                "BaseRentText"
-            );
-
-        TMP_Text oneHouse =
-            CreateValueRow(
-                info,
-                "OneHouseRow",
-                "With 1 House",
-                "OneHouseRentText"
-            );
-
-        TMP_Text twoHouse =
-            CreateValueRow(
-                info,
-                "TwoHouseRow",
-                "With 2 Houses",
-                "TwoHouseRentText"
-            );
-
-        TMP_Text threeHouse =
-            CreateValueRow(
-                info,
-                "ThreeHouseRow",
-                "With 3 Houses",
-                "ThreeHouseRentText"
-            );
-
-        TMP_Text fourHouse =
-            CreateValueRow(
-                info,
-                "FourHouseRow",
-                "With 4 Houses",
-                "FourHouseRentText"
-            );
-
-        TMP_Text hotel =
-            CreateValueRow(
-                info,
-                "HotelRow",
-                "With Hotel",
-                "HotelRentText"
-            );
-
-        CreateDivider(
-            info,
-            "CostDivider"
+        ConfigureInformationArea(
+            informationArea
         );
 
-        TMP_Text houseCost =
-            CreateValueRow(
-                info,
-                "HouseCostRow",
-                "House Cost",
-                "HouseCostText"
-            );
+        CreateValueRow(
+            informationArea,
+            "PurchasePriceInfoRow",
+            "PURCHASE PRICE",
+            "PurchasePriceInfoText"
+        );
 
-        TMP_Text hotelCost =
-            CreateValueRow(
-                info,
-                "HotelCostRow",
-                "Hotel Cost",
-                "HotelCostText"
-            );
+        CreateValueRow(
+            informationArea,
+            "BaseRentRow",
+            "BASE RENT",
+            "BaseRentText"
+        );
 
-        TMP_Text mortgage =
-            CreateValueRow(
-                info,
-                "MortgageValueRow",
-                "Mortgage Value",
-                "MortgageValueText"
-            );
+        CreateValueRow(
+            informationArea,
+            "OneHouseRow",
+            "WITH 1 HOUSE",
+            "OneHouseRentText"
+        );
+
+        CreateValueRow(
+            informationArea,
+            "TwoHouseRow",
+            "WITH 2 HOUSES",
+            "TwoHouseRentText"
+        );
+
+        CreateValueRow(
+            informationArea,
+            "ThreeHouseRow",
+            "WITH 3 HOUSES",
+            "ThreeHouseRentText"
+        );
+
+        CreateValueRow(
+            informationArea,
+            "FourHouseRow",
+            "WITH 4 HOUSES",
+            "FourHouseRentText"
+        );
+
+        CreateValueRow(
+            informationArea,
+            "HotelRow",
+            "WITH HOTEL",
+            "HotelRentText"
+        );
+
+        // ========================================================
+        // ACTION AREA
+        // ========================================================
 
         Transform actionArea =
             CreateRect(
@@ -391,17 +372,34 @@ public static class PropertyInfoPanelSetup
             actionArea
         );
 
-        Transform manage =
+        Transform buyButton =
             CreateButton(
                 actionArea,
-                "ManagePropertyButton"
+                "BuyButton"
             );
 
-        ConfigureManageButton(
-            manage
+        ConfigureActionButton(
+            buyButton,
+            "BUY",
+            BuyColor
         );
 
-        // Reconnect all runtime references.
+        Transform declineButton =
+            CreateButton(
+                actionArea,
+                "DeclineButton"
+            );
+
+        ConfigureActionButton(
+            declineButton,
+            "DECLINE",
+            DeclineColor
+        );
+
+        // ========================================================
+        // RECONNECT SCRIPT REFERENCES
+        // ========================================================
+
         SerializedObject serialized =
             new SerializedObject(panel);
 
@@ -414,13 +412,13 @@ public static class PropertyInfoPanelSetup
         SetObject(
             serialized,
             "propertyNameText",
-            propertyName
+            nameText
         );
 
         SetObject(
             serialized,
             "headerPriceText",
-            headerPrice
+            priceText
         );
 
         SetObject(
@@ -433,6 +431,12 @@ public static class PropertyInfoPanelSetup
             serialized,
             "propertyTypeText",
             typeBarText
+        );
+
+        SetObject(
+            serialized,
+            "purchasePriceText",
+            priceText
         );
 
         SetObject(
@@ -455,98 +459,89 @@ public static class PropertyInfoPanelSetup
 
         SetObject(
             serialized,
+            "informationAreaObject",
+            informationArea.gameObject
+        );
+
+        SetObject(
+            serialized,
             "purchasePriceInfoText",
-            purchase
+            FindTMP(
+                informationArea,
+                "PurchasePriceInfoText"
+            )
         );
 
         SetObject(
             serialized,
             "baseRentText",
-            baseRent
+            FindTMP(
+                informationArea,
+                "BaseRentText"
+            )
         );
 
         SetObject(
             serialized,
             "oneHouseRentText",
-            oneHouse
+            FindTMP(
+                informationArea,
+                "OneHouseRentText"
+            )
         );
 
         SetObject(
             serialized,
             "twoHouseRentText",
-            twoHouse
+            FindTMP(
+                informationArea,
+                "TwoHouseRentText"
+            )
         );
 
         SetObject(
             serialized,
             "threeHouseRentText",
-            threeHouse
+            FindTMP(
+                informationArea,
+                "ThreeHouseRentText"
+            )
         );
 
         SetObject(
             serialized,
             "fourHouseRentText",
-            fourHouse
+            FindTMP(
+                informationArea,
+                "FourHouseRentText"
+            )
         );
 
         SetObject(
             serialized,
             "hotelRentText",
-            hotel
+            FindTMP(
+                informationArea,
+                "HotelRentText"
+            )
         );
 
         SetObject(
             serialized,
-            "houseCostText",
-            houseCost
+            "buyButton",
+            buyButton.GetComponent<Button>()
         );
 
         SetObject(
             serialized,
-            "hotelCostText",
-            hotelCost
-        );
-
-        SetObject(
-            serialized,
-            "mortgageValueText",
-            mortgage
-        );
-
-        SetObject(
-            serialized,
-            "managePropertyButton",
-            manage.GetComponent<Button>()
+            "declineButton",
+            declineButton.GetComponent<Button>()
         );
 
         SetObject(
             serialized,
             "closeXButton",
-            close.GetComponent<Button>()
-        );
-
-        SetObject(
-            serialized,
-            "headerObject",
-            header.gameObject
-        );
-
-        SetObject(
-            serialized,
-            "typeBarObject",
-            typeBar.gameObject
-        );
-
-        SetObject(
-            serialized,
-            "informationAreaObject",
-            info.gameObject
-        );
-
-        SetObject(
-            serialized,
-            "closeButtonAreaObject",
-            actionArea.gameObject
+            closeButton.GetComponent<Button>()
         );
 
         serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -558,25 +553,38 @@ public static class PropertyInfoPanelSetup
         );
 
         Debug.Log(
-            "PropertyInfoPanelSetup: " +
-            "Clean editable template created."
+            "LandingActionPanelSetup: " +
+            "Landing Action template built successfully."
         );
     }
 
-    private static void ConfigureRootCard(
+    // ============================================================
+    // CARD
+    // ============================================================
+
+    private static void ConfigureCard(
         Transform popup)
     {
         RectTransform rt =
             popup.GetComponent<RectTransform>();
 
         rt.anchorMin =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         rt.anchorMax =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         rt.pivot =
-            new Vector2(0.5f, 0.5f);
+            new Vector2(
+                0.5f,
+                0.5f
+            );
 
         rt.anchoredPosition =
             Vector2.zero;
@@ -597,6 +605,10 @@ public static class PropertyInfoPanelSetup
             true;
     }
 
+    // ============================================================
+    // HEADER
+    // ============================================================
+
     private static void ConfigureHeader(
         Transform header)
     {
@@ -604,13 +616,22 @@ public static class PropertyInfoPanelSetup
             header.GetComponent<RectTransform>();
 
         rt.anchorMin =
-            new Vector2(0f, 1f);
+            new Vector2(
+                0f,
+                1f
+            );
 
         rt.anchorMax =
-            new Vector2(1f, 1f);
+            new Vector2(
+                1f,
+                1f
+            );
 
         rt.pivot =
-            new Vector2(0.5f, 1f);
+            new Vector2(
+                0.5f,
+                1f
+            );
 
         rt.offsetMin =
             new Vector2(
@@ -631,6 +652,10 @@ public static class PropertyInfoPanelSetup
             false;
     }
 
+    // ============================================================
+    // TYPE BAR
+    // ============================================================
+
     private static void ConfigureTypeBar(
         Transform bar)
     {
@@ -650,13 +675,16 @@ public static class PropertyInfoPanelSetup
             );
 
         rt.pivot =
-            new Vector2(0.5f, 1f);
+            new Vector2(
+                0.5f,
+                1f
+            );
 
         rt.offsetMin =
             new Vector2(
                 0f,
                 -(HeaderHeight +
-                   TypeBarHeight)
+                  TypeBarHeight)
             );
 
         rt.offsetMax =
@@ -674,6 +702,10 @@ public static class PropertyInfoPanelSetup
         image.raycastTarget =
             false;
     }
+
+    // ============================================================
+    // OWNER
+    // ============================================================
 
     private static void ConfigureOwnerRow(
         Transform row)
@@ -707,7 +739,8 @@ public static class PropertyInfoPanelSetup
         rt.offsetMin =
             new Vector2(
                 0f,
-                -(top + OwnerHeight)
+                -(top +
+                  OwnerHeight)
             );
 
         rt.offsetMax =
@@ -726,6 +759,10 @@ public static class PropertyInfoPanelSetup
             false;
     }
 
+    // ============================================================
+    // INFORMATION
+    // ============================================================
+
     private static void ConfigureInformationArea(
         Transform info)
     {
@@ -736,7 +773,7 @@ public static class PropertyInfoPanelSetup
             HeaderHeight +
             TypeBarHeight +
             OwnerHeight +
-            22f;
+            24f;
 
         rt.anchorMin =
             new Vector2(
@@ -759,7 +796,9 @@ public static class PropertyInfoPanelSetup
         rt.offsetMin =
             new Vector2(
                 0f,
-                ManageHeight + 36f
+                ActionButtonHeight * 2f +
+                ActionSpacing +
+                28f
             );
 
         rt.offsetMax =
@@ -768,17 +807,19 @@ public static class PropertyInfoPanelSetup
                 -top
             );
 
-        Image background =
+        Image image =
             info.gameObject.AddComponent<Image>();
 
-        background.color =
+        image.color =
             InfoColor;
 
-        background.raycastTarget =
+        image.raycastTarget =
             false;
 
         VerticalLayoutGroup layout =
-            info.gameObject.AddComponent<VerticalLayoutGroup>();
+            info.gameObject.AddComponent<
+                VerticalLayoutGroup
+            >();
 
         layout.padding =
             new RectOffset(
@@ -807,181 +848,11 @@ public static class PropertyInfoPanelSetup
             false;
     }
 
-    private static void ConfigureActionArea(
-        Transform area)
-    {
-        RectTransform rt =
-            area.GetComponent<RectTransform>();
+    // ============================================================
+    // INFORMATION ROW
+    // ============================================================
 
-        rt.anchorMin =
-            new Vector2(
-                0.05f,
-                0f
-            );
-
-        rt.anchorMax =
-            new Vector2(
-                0.95f,
-                0f
-            );
-
-        rt.pivot =
-            new Vector2(
-                0.5f,
-                0f
-            );
-
-        rt.offsetMin =
-            new Vector2(
-                0f,
-                18f
-            );
-
-        rt.offsetMax =
-            new Vector2(
-                0f,
-                18f + ManageHeight
-            );
-    }
-
-    private static void ConfigureManageButton(
-        Transform button)
-    {
-        RectTransform rt =
-            button.GetComponent<RectTransform>();
-
-        rt.anchorMin =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        rt.anchorMax =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        rt.pivot =
-            new Vector2(
-                0.5f,
-                0.5f
-            );
-
-        rt.sizeDelta =
-            new Vector2(
-                330f,
-                ManageHeight
-            );
-
-        Image image =
-            button.gameObject.AddComponent<Image>();
-
-        image.color =
-            new Color(
-                0.10f,
-                0.22f,
-                0.38f,
-                1f
-            );
-
-        Button ui =
-            button.gameObject.AddComponent<Button>();
-
-        ui.targetGraphic =
-            image;
-
-        TMP_Text text =
-            CreateText(
-                button,
-                "Text",
-                15f,
-                MainText,
-                TextAlignmentOptions.Center
-            );
-
-        text.fontStyle =
-            FontStyles.Bold;
-
-        text.text =
-            "MANAGE PROPERTY";
-
-        Stretch(
-            text.rectTransform
-        );
-    }
-
-    private static void ConfigureCloseButton(
-        Transform button)
-    {
-        RectTransform rt =
-            button.GetComponent<RectTransform>();
-
-        rt.anchorMin =
-            new Vector2(
-                1f,
-                1f
-            );
-
-        rt.anchorMax =
-            new Vector2(
-                1f,
-                1f
-            );
-
-        rt.pivot =
-            new Vector2(
-                1f,
-                1f
-            );
-
-        rt.anchoredPosition =
-            new Vector2(
-                -12f,
-                -12f
-            );
-
-        rt.sizeDelta =
-            new Vector2(
-                52f,
-                52f
-            );
-
-        Image bg =
-            button.gameObject.AddComponent<Image>();
-
-        bg.color =
-            new Color(
-                1f,
-                1f,
-                1f,
-                0.06f
-            );
-
-        Button ui =
-            button.gameObject.AddComponent<Button>();
-
-        ui.targetGraphic =
-            bg;
-
-        TMP_Text icon =
-            CreateText(
-                button,
-                "Icon",
-                27f,
-                MainText,
-                TextAlignmentOptions.Center
-            );
-
-        icon.text =
-            "×";
-
-        Stretch(
-            icon.rectTransform
-        );
-    }
-
-    private static TMP_Text CreateValueRow(
+    private static void CreateValueRow(
         Transform info,
         string rowName,
         string label,
@@ -1000,20 +871,23 @@ public static class PropertyInfoPanelSetup
             false
         );
 
-        LayoutElement element =
+        LayoutElement rowElement =
             row.GetComponent<LayoutElement>();
 
-        element.preferredHeight =
-            InfoRowHeight;
+        rowElement.preferredHeight =
+            RowHeight;
 
-        element.minHeight =
-            InfoRowHeight;
+        rowElement.minHeight =
+            RowHeight;
 
         HorizontalLayoutGroup layout =
             row.GetComponent<HorizontalLayoutGroup>();
 
         layout.spacing =
             8f;
+
+        layout.childAlignment =
+            TextAnchor.MiddleCenter;
 
         layout.childControlWidth =
             true;
@@ -1056,6 +930,9 @@ public static class PropertyInfoPanelSetup
                 TextAlignmentOptions.Right
             );
 
+        valueText.text =
+            "—";
+
         LayoutElement valueLayout =
             valueText.gameObject.AddComponent<
                 LayoutElement
@@ -1063,44 +940,222 @@ public static class PropertyInfoPanelSetup
 
         valueLayout.flexibleWidth =
             1f;
-
-        return valueText;
     }
 
-    private static void CreateDivider(
-        Transform info,
-        string name)
+    // ============================================================
+    // ACTION AREA
+    // ============================================================
+
+    private static void ConfigureActionArea(
+        Transform area)
     {
-        GameObject divider =
-            new GameObject(
-                name,
-                typeof(RectTransform),
-                typeof(LayoutElement),
-                typeof(Image)
+        RectTransform rt =
+            area.GetComponent<RectTransform>();
+
+        float totalHeight =
+            ActionButtonHeight * 2f +
+            ActionSpacing;
+
+        rt.anchorMin =
+            new Vector2(
+                0.05f,
+                0f
             );
 
-        divider.transform.SetParent(
-            info,
-            false
-        );
-
-        LayoutElement element =
-            divider.GetComponent<LayoutElement>();
-
-        element.preferredHeight =
-            1f;
-
-        element.minHeight =
-            1f;
-
-        divider.GetComponent<Image>().color =
-            new Color(
-                0.25f,
-                0.34f,
-                0.45f,
-                0.7f
+        rt.anchorMax =
+            new Vector2(
+                0.95f,
+                0f
             );
+
+        rt.pivot =
+            new Vector2(
+                0.5f,
+                0f
+            );
+
+        rt.offsetMin =
+            new Vector2(
+                0f,
+                18f
+            );
+
+        rt.offsetMax =
+            new Vector2(
+                0f,
+                18f +
+                totalHeight
+            );
+
+        VerticalLayoutGroup layout =
+            area.gameObject.AddComponent<
+                VerticalLayoutGroup
+            >();
+
+        layout.spacing =
+            ActionSpacing;
+
+        layout.childAlignment =
+            TextAnchor.MiddleCenter;
+
+        layout.childControlWidth =
+            false;
+
+        layout.childControlHeight =
+            false;
+
+        layout.childForceExpandWidth =
+            false;
+
+        layout.childForceExpandHeight =
+            false;
     }
+
+    // ============================================================
+    // ACTION BUTTON
+    // ============================================================
+
+    private static void ConfigureActionButton(
+        Transform button,
+        string label,
+        Color color)
+    {
+        RectTransform rt =
+            button.GetComponent<RectTransform>();
+
+        rt.anchorMin =
+            new Vector2(
+                0.5f,
+                0.5f
+            );
+
+        rt.anchorMax =
+            new Vector2(
+                0.5f,
+                0.5f
+            );
+
+        rt.pivot =
+            new Vector2(
+                0.5f,
+                0.5f
+            );
+
+        rt.sizeDelta =
+            new Vector2(
+                330f,
+                ActionButtonHeight
+            );
+
+        Image image =
+            button.gameObject.AddComponent<Image>();
+
+        image.color =
+            color;
+
+        Button uiButton =
+            button.gameObject.AddComponent<Button>();
+
+        uiButton.targetGraphic =
+            image;
+
+        TMP_Text text =
+            CreateText(
+                button,
+                "Text",
+                16f,
+                MainText,
+                TextAlignmentOptions.Center
+            );
+
+        text.fontStyle =
+            FontStyles.Bold;
+
+        text.text =
+            label;
+
+        Stretch(
+            text.rectTransform
+        );
+    }
+
+    // ============================================================
+    // CLOSE BUTTON
+    // ============================================================
+
+    private static void ConfigureCloseButton(
+        Transform button)
+    {
+        RectTransform rt =
+            button.GetComponent<RectTransform>();
+
+        rt.anchorMin =
+            new Vector2(
+                1f,
+                1f
+            );
+
+        rt.anchorMax =
+            new Vector2(
+                1f,
+                1f
+            );
+
+        rt.pivot =
+            new Vector2(
+                1f,
+                1f
+            );
+
+        rt.anchoredPosition =
+            new Vector2(
+                -12f,
+                -12f
+            );
+
+        rt.sizeDelta =
+            new Vector2(
+                52f,
+                52f
+            );
+
+        Image image =
+            button.gameObject.AddComponent<Image>();
+
+        image.color =
+            new Color(
+                1f,
+                1f,
+                1f,
+                0.06f
+            );
+
+        Button uiButton =
+            button.gameObject.AddComponent<Button>();
+
+        uiButton.targetGraphic =
+            image;
+
+        TMP_Text text =
+            CreateText(
+                button,
+                "Icon",
+                27f,
+                MainText,
+                TextAlignmentOptions.Center
+            );
+
+        text.text =
+            "×";
+
+        Stretch(
+            text.rectTransform
+        );
+    }
+
+    // ============================================================
+    // CREATE RECT
+    // ============================================================
 
     private static Transform CreateRect(
         Transform parent,
@@ -1114,7 +1169,7 @@ public static class PropertyInfoPanelSetup
 
         Undo.RegisterCreatedObjectUndo(
             obj,
-            "Create Property UI Object"
+            "Create Landing Action UI"
         );
 
         obj.transform.SetParent(
@@ -1125,6 +1180,10 @@ public static class PropertyInfoPanelSetup
         return obj.transform;
     }
 
+    // ============================================================
+    // CREATE BUTTON
+    // ============================================================
+
     private static Transform CreateButton(
         Transform parent,
         string name)
@@ -1134,6 +1193,10 @@ public static class PropertyInfoPanelSetup
             name
         );
     }
+
+    // ============================================================
+    // CREATE TEXT
+    // ============================================================
 
     private static TMP_Text CreateText(
         Transform parent,
@@ -1151,7 +1214,7 @@ public static class PropertyInfoPanelSetup
 
         Undo.RegisterCreatedObjectUndo(
             obj,
-            "Create Property TMP"
+            "Create Landing Action Text"
         );
 
         obj.transform.SetParent(
@@ -1185,6 +1248,50 @@ public static class PropertyInfoPanelSetup
 
         return text;
     }
+
+    // ============================================================
+    // FIND TMP
+    // ============================================================
+
+    private static TMP_Text FindTMP(
+        Transform root,
+        string name)
+    {
+        Transform child =
+            FindDeepChild(
+                root,
+                name
+            );
+
+        return child != null
+            ? child.GetComponent<TMP_Text>()
+            : null;
+    }
+
+    // ============================================================
+    // SERIALIZED OBJECT
+    // ============================================================
+
+    private static void SetObject(
+        SerializedObject serialized,
+        string field,
+        Object value)
+    {
+        SerializedProperty property =
+            serialized.FindProperty(
+                field
+            );
+
+        if (property != null)
+        {
+            property.objectReferenceValue =
+                value;
+        }
+    }
+
+    // ============================================================
+    // STRETCH
+    // ============================================================
 
     private static void Stretch(
         RectTransform rt)
@@ -1228,33 +1335,9 @@ public static class PropertyInfoPanelSetup
             Vector2.zero;
     }
 
-    private static void SetObject(
-        SerializedObject serialized,
-        string field,
-        Object value)
-    {
-        SerializedProperty property =
-            serialized.FindProperty(
-                field
-            );
-
-        if (property != null)
-            property.objectReferenceValue =
-                value;
-    }
-
-    private static void ClearChildren(
-        Transform parent)
-    {
-        for (int i = parent.childCount - 1;
-             i >= 0;
-             i--)
-        {
-            Object.DestroyImmediate(
-                parent.GetChild(i).gameObject
-            );
-        }
-    }
+    // ============================================================
+    // FIND CHILD
+    // ============================================================
 
     private static Transform FindDirectChild(
         Transform parent,
@@ -1272,5 +1355,50 @@ public static class PropertyInfoPanelSetup
         }
 
         return null;
+    }
+
+    private static Transform FindDeepChild(
+        Transform parent,
+        string name)
+    {
+        if (parent == null)
+            return null;
+
+        if (parent.name == name)
+            return parent;
+
+        for (int i = 0;
+             i < parent.childCount;
+             i++)
+        {
+            Transform result =
+                FindDeepChild(
+                    parent.GetChild(i),
+                    name
+                );
+
+            if (result != null)
+                return result;
+        }
+
+        return null;
+    }
+
+    // ============================================================
+    // CLEAR
+    // ============================================================
+
+    private static void ClearChildren(
+        Transform parent)
+    {
+        for (int i =
+                 parent.childCount - 1;
+             i >= 0;
+             i--)
+        {
+            Object.DestroyImmediate(
+                parent.GetChild(i).gameObject
+            );
+        }
     }
 }

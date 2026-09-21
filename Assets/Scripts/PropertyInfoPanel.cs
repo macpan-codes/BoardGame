@@ -2,56 +2,38 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Runtime controller for the compact Property Info card.
+///
+/// This script only controls data/state.
+/// PropertyInfoPanelSetup builds the visual hierarchy in the Editor.
+///
+/// Dynamic data:
+/// - Property name
+/// - Purchase price
+/// - Owner + owner color
+/// - Rent table
+/// - House/hotel costs
+/// - Mortgage value
+/// - Manage Property availability
+/// </summary>
 public class PropertyInfoPanel : MonoBehaviour
 {
-    // ============================================================
-    // STATE
-    // ============================================================
-
-    private BoardSpace selectedBoardSpace;
-
-    public BoardSpace CurrentSpace =>
-        selectedBoardSpace;
-
-    // ============================================================
-    // CARD ROOT
-    // ============================================================
-
-    [Header("Card Root")]
+    [Header("ROOT")]
     [SerializeField] private GameObject cardRoot;
 
-    // ============================================================
-    // MANAGEMENT PANEL
-    // ============================================================
+    [Header("HEADER")]
+    [SerializeField] private TMP_Text propertyNameText;
+    [SerializeField] private TMP_Text headerPriceText;
+    [SerializeField] private TMP_Text propertyTypeBarText;
 
-    [Header("Management Panel")]
-    [SerializeField]
-    private PropertyManagementPanel propertyManagementPanel;
-
-    // ============================================================
-    // OWNERSHIP
-    // ============================================================
-
-    [Header("Ownership")]
+    [Header("OWNER")]
     [SerializeField] private GameObject ownerIndicator;
+    [SerializeField] private Image ownerIndicatorImage;
     [SerializeField] private TMP_Text ownerText;
 
-    // ============================================================
-    // PROPERTY
-    // ============================================================
-
-    [Header("Property")]
-    [SerializeField] private TMP_Text propertyNameText;
-    [SerializeField] private TMP_Text propertyTypeText;
-    [SerializeField] private TMP_Text propertyTypeBarText;
-    [SerializeField] private Image propertyImage;
-
-    // ============================================================
-    // INFORMATION
-    // ============================================================
-
-    [Header("Information")]
-    [SerializeField] private TMP_Text purchasePriceText;
+    [Header("INFO VALUES")]
+    [SerializeField] private TMP_Text purchasePriceInfoText;
     [SerializeField] private TMP_Text baseRentText;
     [SerializeField] private TMP_Text oneHouseRentText;
     [SerializeField] private TMP_Text twoHouseRentText;
@@ -62,35 +44,26 @@ public class PropertyInfoPanel : MonoBehaviour
     [SerializeField] private TMP_Text hotelCostText;
     [SerializeField] private TMP_Text mortgageValueText;
 
-    // ============================================================
-    // CARD SECTIONS
-    // ============================================================
+    [Header("ACTIONS")]
+    [SerializeField] private Button managePropertyButton;
+    [SerializeField] private Button closeXButton;
 
-    [Header("Card Sections")]
+    [Header("COMPATIBILITY")]
+    [SerializeField] private TMP_Text propertyTypeText;
+    [SerializeField] private Image propertyImage;
+    [SerializeField] private Button closeButton;
     [SerializeField] private GameObject headerObject;
     [SerializeField] private GameObject typeBarObject;
     [SerializeField] private GameObject informationAreaObject;
     [SerializeField] private GameObject closeButtonAreaObject;
 
-    // ============================================================
-    // BUTTONS
-    // ============================================================
-
-    [Header("Buttons")]
-    [SerializeField] private Button managePropertyButton;
-    [SerializeField] private Button closeButton;
-    [SerializeField] private Button closeXButton;
-
-    // ============================================================
-    // LANDING ACTION
-    // ============================================================
-
-    [Header("Landing Action")]
+    [Header("PANELS")]
+    [SerializeField] private PropertyManagementPanel propertyManagementPanel;
     [SerializeField] private LandingActionPanel landingActionPanel;
 
-    // ============================================================
-    // UNITY
-    // ============================================================
+    private BoardSpace selectedBoardSpace;
+
+    public BoardSpace CurrentSpace => selectedBoardSpace;
 
     private void Awake()
     {
@@ -99,241 +72,111 @@ public class PropertyInfoPanel : MonoBehaviour
         FindLandingActionPanel();
         WireButtons();
         HidePanel();
-
-        Debug.Log(
-            "PropertyInfoPanel: Initialized successfully."
-        );
     }
-
-    // ============================================================
-    // FIND REFERENCES
-    // ============================================================
 
     private void AutoFindReferences()
     {
-        cardRoot =
-            FindObject(
-                "PopupBackground",
-                cardRoot
-            );
+        cardRoot = FindObject("PopupBackground", cardRoot);
 
-        ownerIndicator =
-            FindObject(
-                "OwnerIndicator",
-                ownerIndicator
-            );
-
-        ownerText =
-            FindTMP(
-                "OwnerText",
-                ownerText
-            );
-
-        propertyNameText =
-            FindTMP(
-                "PropertyNameText",
-                propertyNameText
-            );
-
-        propertyTypeText =
-            FindTMP(
-                "PropertyTypeText",
-                propertyTypeText
-            );
+        propertyNameText = FindTMP("PropertyNameText", propertyNameText);
+        headerPriceText = FindTMP("HeaderPriceText", headerPriceText);
 
         propertyTypeBarText =
-            FindTMP(
-                "PropertyTypeBar",
-                propertyTypeBarText
-            );
+            FindTMP("PropertyTypeBarText", propertyTypeBarText);
 
-        purchasePriceText =
-            FindTMP(
-                "PurchasePriceText",
-                purchasePriceText
-            );
+        propertyTypeText =
+            FindTMP("PropertyTypeText", propertyTypeText);
 
-        baseRentText =
-            FindTMP(
-                "BaseRentText",
-                baseRentText
-            );
+        ownerIndicator =
+            FindObject("OwnerIndicator", ownerIndicator);
 
-        oneHouseRentText =
-            FindTMP(
-                "OneHouseRentText",
-                oneHouseRentText
-            );
+        ownerText =
+            FindTMP("OwnerText", ownerText);
 
-        twoHouseRentText =
-            FindTMP(
-                "TwoHouseRentText",
-                twoHouseRentText
-            );
-
-        threeHouseRentText =
-            FindTMP(
-                "ThreeHouseRentText",
-                threeHouseRentText
-            );
-
-        fourHouseRentText =
-            FindTMP(
-                "FourHouseRentText",
-                fourHouseRentText
-            );
-
-        hotelRentText =
-            FindTMP(
-                "HotelRentText",
-                hotelRentText
-            );
-
-        houseCostText =
-            FindTMP(
-                "HouseCostText",
-                houseCostText
-            );
-
-        hotelCostText =
-            FindTMP(
-                "HotelCostText",
-                hotelCostText
-            );
-
-        mortgageValueText =
-            FindTMP(
-                "MortgageValueText",
-                mortgageValueText
-            );
-
-        headerObject =
-            FindObject(
-                "Header",
-                headerObject
-            );
-
-        typeBarObject =
-            FindObject(
-                "PropertyTypeBar",
-                typeBarObject
-            );
-
-        informationAreaObject =
-            FindObject(
-                "InformationArea",
-                informationAreaObject
-            );
-
-        closeButtonAreaObject =
-            FindObject(
-                "CloseButtonArea",
-                closeButtonAreaObject
-            );
-
-        managePropertyButton =
-            FindButton(
-                "ManagePropertyButton",
-                managePropertyButton
-            );
-
-        closeButton =
-            FindButton(
-                "CloseButton",
-                closeButton
-            );
-
-        closeXButton =
-            FindButton(
-                "CloseXButton",
-                closeXButton
-            );
-
-        if (propertyImage == null)
+        if (ownerIndicatorImage == null && ownerIndicator != null)
         {
-            Transform image =
-                FindChildRecursive(
-                    transform,
-                    "PropertyImage"
-                );
+            ownerIndicatorImage =
+                ownerIndicator.GetComponent<Image>();
 
-            if (image != null)
+            if (ownerIndicatorImage == null)
             {
-                propertyImage =
-                    image.GetComponent<Image>();
+                ownerIndicatorImage =
+                    ownerIndicator.GetComponentInChildren<Image>(true);
             }
         }
+
+        purchasePriceInfoText =
+            FindTMP("PurchasePriceInfoText", purchasePriceInfoText);
+
+        baseRentText =
+            FindTMP("BaseRentText", baseRentText);
+
+        oneHouseRentText =
+            FindTMP("OneHouseRentText", oneHouseRentText);
+
+        twoHouseRentText =
+            FindTMP("TwoHouseRentText", twoHouseRentText);
+
+        threeHouseRentText =
+            FindTMP("ThreeHouseRentText", threeHouseRentText);
+
+        fourHouseRentText =
+            FindTMP("FourHouseRentText", fourHouseRentText);
+
+        hotelRentText =
+            FindTMP("HotelRentText", hotelRentText);
+
+        houseCostText =
+            FindTMP("HouseCostText", houseCostText);
+
+        hotelCostText =
+            FindTMP("HotelCostText", hotelCostText);
+
+        mortgageValueText =
+            FindTMP("MortgageValueText", mortgageValueText);
+
+        managePropertyButton =
+            FindButton("ManagePropertyButton", managePropertyButton);
+
+        closeXButton =
+            FindButton("CloseXButton", closeXButton);
+
+        closeButton =
+            FindButton("CloseButton", closeButton);
+
+        headerObject =
+            FindObject("Header", headerObject);
+
+        typeBarObject =
+            FindObject("PropertyTypeBar", typeBarObject);
+
+        informationAreaObject =
+            FindObject("InformationArea", informationAreaObject);
+
+        closeButtonAreaObject =
+            FindObject("ActionArea", closeButtonAreaObject);
     }
-
-    private void FindManagementPanel()
-    {
-        if (propertyManagementPanel != null)
-            return;
-
-        propertyManagementPanel =
-            FindFirstObjectByType<PropertyManagementPanel>(
-                FindObjectsInactive.Include
-            );
-
-        if (propertyManagementPanel != null)
-        {
-            Debug.Log(
-                "PropertyInfoPanel: PropertyManagementPanel found."
-            );
-        }
-        else
-        {
-            Debug.LogWarning(
-                "PropertyInfoPanel: PropertyManagementPanel could not be found."
-            );
-        }
-    }
-
-    private void FindLandingActionPanel()
-    {
-        if (landingActionPanel != null)
-            return;
-
-        landingActionPanel =
-            FindFirstObjectByType<LandingActionPanel>(
-                FindObjectsInactive.Include
-            );
-    }
-
-    // ============================================================
-    // BUTTON WIRING
-    // ============================================================
 
     private void WireButtons()
     {
-        if (closeButton != null)
-        {
-            closeButton.onClick.RemoveAllListeners();
-            closeButton.onClick.AddListener(
-                HidePanel
-            );
-        }
-
         if (closeXButton != null)
         {
             closeXButton.onClick.RemoveAllListeners();
-            closeXButton.onClick.AddListener(
-                HidePanel
-            );
+            closeXButton.onClick.AddListener(HidePanel);
+        }
+
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveAllListeners();
+            closeButton.onClick.AddListener(HidePanel);
         }
 
         if (managePropertyButton != null)
         {
             managePropertyButton.onClick.RemoveAllListeners();
-            managePropertyButton.onClick.AddListener(
-                OpenManagementPanel
-            );
+            managePropertyButton.onClick.AddListener(OpenManagementPanel);
         }
     }
-
-    // ============================================================
-    // PUBLIC SHOW
-    // ============================================================
 
     public void ShowSpace(BoardSpace space)
     {
@@ -343,151 +186,10 @@ public class PropertyInfoPanel : MonoBehaviour
         selectedBoardSpace = space;
 
         if (landingActionPanel != null)
-        {
             landingActionPanel.HidePanel();
-        }
 
         ShowPanel();
-
-        if (propertyNameText != null)
-        {
-            propertyNameText.text =
-                space.SpaceName.ToUpperInvariant();
-        }
-
-        string type =
-            GetTypeDisplay(
-                space.SpaceType
-            );
-
-        if (propertyTypeText != null)
-        {
-            propertyTypeText.text = type;
-        }
-
-        if (propertyTypeBarText != null)
-        {
-            propertyTypeBarText.text = type;
-        }
-
-        ClearRows();
-
-        if (space.SpaceType ==
-            BoardSpaceType.Property)
-        {
-            ShowPropertyInformation(space);
-        }
-        else
-        {
-            ShowSpecialInformation(space);
-        }
-
-        UpdateOwner(space);
-        UpdateManagementButton(space);
-    }
-
-    // ============================================================
-    // MANAGEMENT BUTTON
-    // ============================================================
-
-    private void UpdateManagementButton(
-        BoardSpace space)
-    {
-        if (managePropertyButton == null)
-            return;
-
-        GameManager gameManager =
-            FindFirstObjectByType<GameManager>();
-
-        BoardPlayer currentPlayer =
-            gameManager != null
-                ? gameManager.CurrentPlayer
-                : null;
-
-        bool showManagement =
-            space != null &&
-            space.IsOwned &&
-            space.Owner != null &&
-            currentPlayer != null &&
-            space.Owner == currentPlayer &&
-            space.SpaceType == BoardSpaceType.Property;
-
-        managePropertyButton.gameObject.SetActive(
-            showManagement
-        );
-
-        managePropertyButton.interactable =
-            showManagement;
-    }
-
-    private void OpenManagementPanel()
-    {
-        if (selectedBoardSpace == null)
-            return;
-
-        if (!selectedBoardSpace.IsOwned)
-        {
-            return;
-        }
-
-        if (selectedBoardSpace.Owner == null)
-        {
-            return;
-        }
-
-        FindManagementPanel();
-
-        if (propertyManagementPanel == null)
-        {
-            Debug.LogWarning(
-                "PropertyInfoPanel: PropertyManagementPanel is missing."
-            );
-
-            return;
-        }
-
-        Debug.Log(
-            $"PropertyInfoPanel: Opening management panel for " +
-            $"{selectedBoardSpace.SpaceName}."
-        );
-
-        propertyManagementPanel.Show(
-            selectedBoardSpace
-        );
-
-        HidePanel();
-    }
-
-    // ============================================================
-    // HIDE
-    // ============================================================
-
-    public void HidePanel()
-    {
-        if (managePropertyButton != null)
-        {
-            managePropertyButton.gameObject.SetActive(
-                false
-            );
-        }
-
-        if (cardRoot != null)
-        {
-            cardRoot.SetActive(false);
-        }
-        else
-        {
-            gameObject.SetActive(true);
-        }
-
-        if (ownerIndicator != null)
-        {
-            ownerIndicator.SetActive(false);
-        }
-
-        HideRows();
-
-        selectedBoardSpace = null;
+        RefreshContent();
     }
 
     public void RefreshIfVisible()
@@ -503,206 +205,198 @@ public class PropertyInfoPanel : MonoBehaviour
         if (!visible)
             return;
 
-        ShowSpace(selectedBoardSpace);
+        RefreshContent();
     }
 
-    // ============================================================
-    // PROPERTY INFORMATION
-    // ============================================================
-
-    private void ShowPropertyInformation(
-        BoardSpace space)
+    private void RefreshContent()
     {
-        ShowRow(purchasePriceText);
-        ShowRow(baseRentText);
-        ShowRow(oneHouseRentText);
-        ShowRow(twoHouseRentText);
-        ShowRow(threeHouseRentText);
-        ShowRow(fourHouseRentText);
-        ShowRow(hotelRentText);
-        ShowRow(houseCostText);
-        ShowRow(hotelCostText);
-        ShowRow(mortgageValueText);
+        if (selectedBoardSpace == null)
+            return;
 
-        SetLabel(
-            purchasePriceText,
-            "PURCHASE PRICE"
-        );
+        BoardSpace space = selectedBoardSpace;
 
-        SetLabel(
-            baseRentText,
-            "BASE RENT"
-        );
+        if (propertyNameText != null)
+            propertyNameText.text = space.SpaceName;
 
-        SetLabel(
-            oneHouseRentText,
-            "1 HOUSE"
-        );
+        bool purchasable =
+            space.SpaceType == BoardSpaceType.Property ||
+            space.SpaceType == BoardSpaceType.Airport ||
+            space.SpaceType == BoardSpaceType.Utility;
 
-        SetLabel(
-            twoHouseRentText,
-            "2 HOUSES"
-        );
+        if (headerPriceText != null)
+        {
+            headerPriceText.text =
+                purchasable
+                    ? Money(space.PurchasePrice)
+                    : string.Empty;
+        }
 
-        SetLabel(
-            threeHouseRentText,
-            "3 HOUSES"
-        );
+        string type =
+            GetTypeDisplay(space.SpaceType);
 
-        SetLabel(
-            fourHouseRentText,
-            "4 HOUSES"
-        );
+        if (propertyTypeBarText != null)
+            propertyTypeBarText.text = type;
 
-        SetLabel(
-            hotelRentText,
-            "HOTEL"
-        );
+        if (propertyTypeText != null)
+            propertyTypeText.text = type;
 
-        SetLabel(
-            houseCostText,
-            "HOUSE COST"
-        );
+        UpdateOwner(space);
+        HideAllInfoRows();
 
-        SetLabel(
-            hotelCostText,
-            "HOTEL COST"
-        );
+        if (space.SpaceType == BoardSpaceType.Property)
+            ShowPropertyInformation(space);
+        else
+            ShowSpecialInformation(space);
 
-        SetLabel(
-            mortgageValueText,
-            "MORTGAGE VALUE"
-        );
+        UpdateManagementButton(space);
+    }
 
+    private void UpdateOwner(BoardSpace space)
+    {
+        bool owned =
+            space != null &&
+            space.IsOwned &&
+            space.Owner != null;
+
+        if (ownerIndicator != null)
+            ownerIndicator.SetActive(true);
+
+        if (ownerText != null)
+            ownerText.text =
+                owned
+                    ? space.Owner.PlayerName
+                    : "UNOWNED";
+
+        if (ownerIndicatorImage != null)
+        {
+            ownerIndicatorImage.color =
+                owned
+                    ? space.Owner.TokenColor
+                    : new Color(
+                        0.35f,
+                        0.40f,
+                        0.48f,
+                        1f
+                    );
+        }
+    }
+
+    private void ShowPropertyInformation(BoardSpace space)
+    {
         PropertyEconomy economy =
             PropertyEconomy.FromPurchasePrice(
                 space.PurchasePrice
             );
 
-        SetValue(
-            purchasePriceText,
+        ShowValue(
+            purchasePriceInfoText,
             Money(space.PurchasePrice)
         );
 
-        SetValue(
+        ShowValue(
             baseRentText,
             Money(economy.baseRent)
         );
 
-        SetValue(
+        ShowValue(
             oneHouseRentText,
             Money(economy.houseRent)
         );
 
-        SetValue(
+        ShowValue(
             twoHouseRentText,
             Money(economy.twoHouseRent)
         );
 
-        SetValue(
+        ShowValue(
             threeHouseRentText,
             Money(economy.threeHouseRent)
         );
 
-        SetValue(
+        ShowValue(
             fourHouseRentText,
             Money(economy.fourHouseRent)
         );
 
-        SetValue(
+        ShowValue(
             hotelRentText,
             Money(economy.hotelRent)
         );
 
-        SetValue(
+        ShowValue(
             houseCostText,
             Money(economy.houseCost)
         );
 
-        SetValue(
+        ShowValue(
             hotelCostText,
             Money(economy.hotelCost)
         );
 
-        SetValue(
+        ShowValue(
             mortgageValueText,
             Money(economy.mortgageValue)
         );
     }
 
-    // ============================================================
-    // SPECIAL INFORMATION
-    // ============================================================
-
-    private void ShowSpecialInformation(
-        BoardSpace space)
+    private void ShowSpecialInformation(BoardSpace space)
     {
+        // For non-properties, keep the same compact card but show only
+        // information that applies to that space type.
+
         switch (space.SpaceType)
         {
             case BoardSpaceType.Airport:
 
-                ShowRow(purchasePriceText);
-                ShowRow(baseRentText);
-
-                SetLabel(
-                    purchasePriceText,
-                    "PURCHASE PRICE"
-                );
-
-                SetLabel(
-                    baseRentText,
-                    "BASE RENT"
-                );
-
-                SetValue(
-                    purchasePriceText,
+                ShowValue(
+                    purchasePriceInfoText,
                     Money(space.PurchasePrice)
                 );
 
-                SetValue(
+                ShowValue(
                     baseRentText,
                     Money(space.GetRent())
                 );
+
+                HideValue(oneHouseRentText);
+                HideValue(twoHouseRentText);
+                HideValue(threeHouseRentText);
+                HideValue(fourHouseRentText);
+                HideValue(hotelRentText);
+                HideValue(houseCostText);
+                HideValue(hotelCostText);
+                HideValue(mortgageValueText);
 
                 break;
 
             case BoardSpaceType.Utility:
 
-                ShowRow(purchasePriceText);
-                ShowRow(baseRentText);
-
-                SetLabel(
-                    purchasePriceText,
-                    "PURCHASE PRICE"
-                );
-
-                SetLabel(
-                    baseRentText,
-                    "RENT"
-                );
-
-                SetValue(
-                    purchasePriceText,
+                ShowValue(
+                    purchasePriceInfoText,
                     Money(space.PurchasePrice)
                 );
 
-                SetValue(
+                ShowValue(
                     baseRentText,
                     "DICE × 4 / × 10"
                 );
+
+                HideValue(oneHouseRentText);
+                HideValue(twoHouseRentText);
+                HideValue(threeHouseRentText);
+                HideValue(fourHouseRentText);
+                HideValue(hotelRentText);
+                HideValue(houseCostText);
+                HideValue(hotelCostText);
+                HideValue(mortgageValueText);
 
                 break;
 
             case BoardSpaceType.Tax:
 
-                ShowRow(baseRentText);
+                HideValue(purchasePriceInfoText);
 
-                SetLabel(
-                    baseRentText,
-                    "PAY BANK"
-                );
-
-                SetValue(
+                ShowValue(
                     baseRentText,
                     space.SpaceName
                         .ToUpperInvariant()
@@ -711,125 +405,180 @@ public class PropertyInfoPanel : MonoBehaviour
                         : "$100M"
                 );
 
+                HideValue(oneHouseRentText);
+                HideValue(twoHouseRentText);
+                HideValue(threeHouseRentText);
+                HideValue(fourHouseRentText);
+                HideValue(hotelRentText);
+                HideValue(houseCostText);
+                HideValue(hotelCostText);
+                HideValue(mortgageValueText);
+
                 break;
 
             case BoardSpaceType.Chance:
 
-                ShowRow(baseRentText);
+                HideValue(purchasePriceInfoText);
 
-                SetLabel(
-                    baseRentText,
-                    "EFFECT"
-                );
-
-                SetValue(
+                ShowValue(
                     baseRentText,
                     "DRAW A CHANCE CARD"
                 );
+
+                HideValue(oneHouseRentText);
+                HideValue(twoHouseRentText);
+                HideValue(threeHouseRentText);
+                HideValue(fourHouseRentText);
+                HideValue(hotelRentText);
+                HideValue(houseCostText);
+                HideValue(hotelCostText);
+                HideValue(mortgageValueText);
 
                 break;
 
             case BoardSpaceType.CommunityChest:
 
-                ShowRow(baseRentText);
+                HideValue(purchasePriceInfoText);
 
-                SetLabel(
-                    baseRentText,
-                    "EFFECT"
-                );
-
-                SetValue(
+                ShowValue(
                     baseRentText,
                     "DRAW A COMMUNITY CHEST CARD"
                 );
 
+                HideValue(oneHouseRentText);
+                HideValue(twoHouseRentText);
+                HideValue(threeHouseRentText);
+                HideValue(fourHouseRentText);
+                HideValue(hotelRentText);
+                HideValue(houseCostText);
+                HideValue(hotelCostText);
+                HideValue(mortgageValueText);
+
                 break;
 
             case BoardSpaceType.Jail:
-
-                ShowRow(baseRentText);
-
-                SetLabel(
-                    baseRentText,
-                    "STATUS"
-                );
-
-                SetValue(
-                    baseRentText,
-                    "JUST VISITING / JAIL"
-                );
-
-                break;
-
             case BoardSpaceType.GoToJail:
-
-                ShowRow(baseRentText);
-
-                SetLabel(
-                    baseRentText,
-                    "ACTION"
-                );
-
-                SetValue(
-                    baseRentText,
-                    "GO TO JAIL"
-                );
-
-                break;
-
             case BoardSpaceType.FreeParking:
 
-                ShowRow(baseRentText);
+                HideValue(purchasePriceInfoText);
 
-                SetLabel(
+                ShowValue(
                     baseRentText,
-                    "EFFECT"
+                    GetTypeDisplay(space.SpaceType)
                 );
 
-                SetValue(
-                    baseRentText,
-                    "NO EFFECT"
-                );
+                HideValue(oneHouseRentText);
+                HideValue(twoHouseRentText);
+                HideValue(threeHouseRentText);
+                HideValue(fourHouseRentText);
+                HideValue(hotelRentText);
+                HideValue(houseCostText);
+                HideValue(hotelCostText);
+                HideValue(mortgageValueText);
 
                 break;
         }
     }
 
-    // ============================================================
-    // OWNER
-    // ============================================================
-
-    private void UpdateOwner(
-        BoardSpace space)
+    private void UpdateManagementButton(BoardSpace space)
     {
-        if (ownerIndicator == null)
+        if (managePropertyButton == null)
             return;
 
-        if (!space.IsOwned ||
-            space.Owner == null)
-        {
-            ownerIndicator.SetActive(false);
+        GameManager gm =
+            FindFirstObjectByType<GameManager>();
 
-            if (ownerText != null)
-            {
-                ownerText.text = "";
-            }
+        BoardPlayer currentPlayer =
+            gm != null
+                ? gm.CurrentPlayer
+                : null;
 
-            return;
-        }
+        bool show =
+            space != null &&
+            space.SpaceType == BoardSpaceType.Property &&
+            space.Owner != null &&
+            space.Owner == currentPlayer;
 
-        ownerIndicator.SetActive(true);
-
-        if (ownerText != null)
-        {
-            ownerText.text =
-                $"OWNER: {space.Owner.PlayerName}";
-        }
+        managePropertyButton.gameObject.SetActive(show);
+        managePropertyButton.interactable = show;
     }
 
-    // ============================================================
-    // VISUALS
-    // ============================================================
+    private void ShowValue(TMP_Text text, string value)
+    {
+        if (text == null)
+            return;
+
+        text.text = value ?? string.Empty;
+        SetRowActive(text, true);
+    }
+
+    private void HideValue(TMP_Text text)
+    {
+        if (text == null)
+            return;
+
+        SetRowActive(text, false);
+    }
+
+    private void HideAllInfoRows()
+    {
+        HideValue(purchasePriceInfoText);
+        HideValue(baseRentText);
+        HideValue(oneHouseRentText);
+        HideValue(twoHouseRentText);
+        HideValue(threeHouseRentText);
+        HideValue(fourHouseRentText);
+        HideValue(hotelRentText);
+        HideValue(houseCostText);
+        HideValue(hotelCostText);
+        HideValue(mortgageValueText);
+    }
+
+    private void SetRowActive(
+        TMP_Text text,
+        bool active)
+    {
+        Transform row =
+            text.transform.parent;
+
+        if (row != null)
+            row.gameObject.SetActive(active);
+    }
+
+    private void OpenManagementPanel()
+    {
+        if (selectedBoardSpace == null ||
+            propertyManagementPanel == null)
+        {
+            return;
+        }
+
+        GameManager gm =
+            FindFirstObjectByType<GameManager>();
+
+        if (gm == null ||
+            gm.CurrentPlayer != selectedBoardSpace.Owner)
+        {
+            return;
+        }
+
+        propertyManagementPanel.Show(
+            selectedBoardSpace
+        );
+
+        HidePanel();
+    }
+
+    public void HidePanel()
+    {
+        selectedBoardSpace = null;
+
+        if (cardRoot != null)
+            cardRoot.SetActive(false);
+
+        if (managePropertyButton != null)
+            managePropertyButton.gameObject.SetActive(false);
+    }
 
     private void ShowPanel()
     {
@@ -851,106 +600,29 @@ public class PropertyInfoPanel : MonoBehaviour
             closeButtonAreaObject.SetActive(true);
     }
 
-    // ============================================================
-    // ROWS
-    // ============================================================
-
-    private void ClearRows()
+    private void FindManagementPanel()
     {
-        HideRows();
-    }
-
-    private void HideRows()
-    {
-        HideRow(purchasePriceText);
-        HideRow(baseRentText);
-        HideRow(oneHouseRentText);
-        HideRow(twoHouseRentText);
-        HideRow(threeHouseRentText);
-        HideRow(fourHouseRentText);
-        HideRow(hotelRentText);
-        HideRow(houseCostText);
-        HideRow(hotelCostText);
-        HideRow(mortgageValueText);
-    }
-
-    private void ShowRow(
-        TMP_Text value)
-    {
-        if (value == null)
-            return;
-
-        if (value.transform.parent != null)
+        if (propertyManagementPanel == null)
         {
-            value.transform.parent.gameObject.SetActive(true);
+            propertyManagementPanel =
+                FindFirstObjectByType<PropertyManagementPanel>(
+                    FindObjectsInactive.Include
+                );
         }
     }
 
-    private void HideRow(
-        TMP_Text value)
+    private void FindLandingActionPanel()
     {
-        if (value == null)
-            return;
-
-        if (value.transform.parent != null)
+        if (landingActionPanel == null)
         {
-            value.transform.parent.gameObject.SetActive(false);
+            landingActionPanel =
+                FindFirstObjectByType<LandingActionPanel>(
+                    FindObjectsInactive.Include
+                );
         }
     }
 
-    private void SetValue(
-        TMP_Text text,
-        string value)
-    {
-        if (text != null)
-        {
-            text.text = value;
-        }
-    }
-
-    private void SetLabel(
-        TMP_Text valueText,
-        string label)
-    {
-        if (valueText == null)
-            return;
-
-        Transform row =
-            valueText.transform.parent;
-
-        if (row == null)
-            return;
-
-        TMP_Text[] texts =
-            row.GetComponentsInChildren<TMP_Text>(
-                true
-            );
-
-        foreach (TMP_Text text in texts)
-        {
-            if (text == null ||
-                text == valueText)
-            {
-                continue;
-            }
-
-            text.text = label;
-            break;
-        }
-    }
-
-    // ============================================================
-    // HELPERS
-    // ============================================================
-
-    private static string Money(
-        int value)
-    {
-        return $"${value:N0}M";
-    }
-
-    private string GetTypeDisplay(
-        BoardSpaceType type)
+    private string GetTypeDisplay(BoardSpaceType type)
     {
         switch (type)
         {
@@ -986,9 +658,10 @@ public class PropertyInfoPanel : MonoBehaviour
         }
     }
 
-    // ============================================================
-    // AUTO-FIND HELPERS
-    // ============================================================
+    private static string Money(int value)
+    {
+        return $"${value:N0}M";
+    }
 
     private TMP_Text FindTMP(
         string name,
