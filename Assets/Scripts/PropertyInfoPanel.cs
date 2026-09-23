@@ -63,7 +63,8 @@ public class PropertyInfoPanel : MonoBehaviour
 
     private BoardSpace selectedBoardSpace;
 
-    public BoardSpace CurrentSpace => selectedBoardSpace;
+    public BoardSpace CurrentSpace =>
+        selectedBoardSpace;
 
     private void Awake()
     {
@@ -76,24 +77,50 @@ public class PropertyInfoPanel : MonoBehaviour
 
     private void AutoFindReferences()
     {
-        cardRoot = FindObject("PopupBackground", cardRoot);
+        cardRoot =
+            FindObject(
+                "PopupBackground",
+                cardRoot
+            );
 
-        propertyNameText = FindTMP("PropertyNameText", propertyNameText);
-        headerPriceText = FindTMP("HeaderPriceText", headerPriceText);
+        propertyNameText =
+            FindTMP(
+                "PropertyNameText",
+                propertyNameText
+            );
+
+        headerPriceText =
+            FindTMP(
+                "HeaderPriceText",
+                headerPriceText
+            );
 
         propertyTypeBarText =
-            FindTMP("PropertyTypeBarText", propertyTypeBarText);
+            FindTMP(
+                "PropertyTypeBarText",
+                propertyTypeBarText
+            );
 
         propertyTypeText =
-            FindTMP("PropertyTypeText", propertyTypeText);
+            FindTMP(
+                "PropertyTypeText",
+                propertyTypeText
+            );
 
         ownerIndicator =
-            FindObject("OwnerIndicator", ownerIndicator);
+            FindObject(
+                "OwnerIndicator",
+                ownerIndicator
+            );
 
         ownerText =
-            FindTMP("OwnerText", ownerText);
+            FindTMP(
+                "OwnerText",
+                ownerText
+            );
 
-        if (ownerIndicatorImage == null && ownerIndicator != null)
+        if (ownerIndicatorImage == null &&
+            ownerIndicator != null)
         {
             ownerIndicatorImage =
                 ownerIndicator.GetComponent<Image>();
@@ -101,60 +128,113 @@ public class PropertyInfoPanel : MonoBehaviour
             if (ownerIndicatorImage == null)
             {
                 ownerIndicatorImage =
-                    ownerIndicator.GetComponentInChildren<Image>(true);
+                    ownerIndicator.GetComponentInChildren<Image>(
+                        true
+                    );
             }
         }
 
         purchasePriceInfoText =
-            FindTMP("PurchasePriceInfoText", purchasePriceInfoText);
+            FindTMP(
+                "PurchasePriceInfoText",
+                purchasePriceInfoText
+            );
 
         baseRentText =
-            FindTMP("BaseRentText", baseRentText);
+            FindTMP(
+                "BaseRentText",
+                baseRentText
+            );
 
         oneHouseRentText =
-            FindTMP("OneHouseRentText", oneHouseRentText);
+            FindTMP(
+                "OneHouseRentText",
+                oneHouseRentText
+            );
 
         twoHouseRentText =
-            FindTMP("TwoHouseRentText", twoHouseRentText);
+            FindTMP(
+                "TwoHouseRentText",
+                twoHouseRentText
+            );
 
         threeHouseRentText =
-            FindTMP("ThreeHouseRentText", threeHouseRentText);
+            FindTMP(
+                "ThreeHouseRentText",
+                threeHouseRentText
+            );
 
         fourHouseRentText =
-            FindTMP("FourHouseRentText", fourHouseRentText);
+            FindTMP(
+                "FourHouseRentText",
+                fourHouseRentText
+            );
 
         hotelRentText =
-            FindTMP("HotelRentText", hotelRentText);
+            FindTMP(
+                "HotelRentText",
+                hotelRentText
+            );
 
         houseCostText =
-            FindTMP("HouseCostText", houseCostText);
+            FindTMP(
+                "HouseCostText",
+                houseCostText
+            );
 
         hotelCostText =
-            FindTMP("HotelCostText", hotelCostText);
+            FindTMP(
+                "HotelCostText",
+                hotelCostText
+            );
 
         mortgageValueText =
-            FindTMP("MortgageValueText", mortgageValueText);
+            FindTMP(
+                "MortgageValueText",
+                mortgageValueText
+            );
 
         managePropertyButton =
-            FindButton("ManagePropertyButton", managePropertyButton);
+            FindButton(
+                "ManagePropertyButton",
+                managePropertyButton
+            );
 
         closeXButton =
-            FindButton("CloseXButton", closeXButton);
+            FindButton(
+                "CloseXButton",
+                closeXButton
+            );
 
         closeButton =
-            FindButton("CloseButton", closeButton);
+            FindButton(
+                "CloseButton",
+                closeButton
+            );
 
         headerObject =
-            FindObject("Header", headerObject);
+            FindObject(
+                "Header",
+                headerObject
+            );
 
         typeBarObject =
-            FindObject("PropertyTypeBar", typeBarObject);
+            FindObject(
+                "PropertyTypeBar",
+                typeBarObject
+            );
 
         informationAreaObject =
-            FindObject("InformationArea", informationAreaObject);
+            FindObject(
+                "InformationArea",
+                informationAreaObject
+            );
 
         closeButtonAreaObject =
-            FindObject("ActionArea", closeButtonAreaObject);
+            FindObject(
+                "ActionArea",
+                closeButtonAreaObject
+            );
     }
 
     private void WireButtons()
@@ -162,31 +242,41 @@ public class PropertyInfoPanel : MonoBehaviour
         if (closeXButton != null)
         {
             closeXButton.onClick.RemoveAllListeners();
-            closeXButton.onClick.AddListener(HidePanel);
+            closeXButton.onClick.AddListener(
+                HidePanel
+            );
         }
 
         if (closeButton != null)
         {
             closeButton.onClick.RemoveAllListeners();
-            closeButton.onClick.AddListener(HidePanel);
+            closeButton.onClick.AddListener(
+                HidePanel
+            );
         }
 
         if (managePropertyButton != null)
         {
             managePropertyButton.onClick.RemoveAllListeners();
-            managePropertyButton.onClick.AddListener(OpenManagementPanel);
+            managePropertyButton.onClick.AddListener(
+                OpenManagementPanel
+            );
         }
     }
 
-    public void ShowSpace(BoardSpace space)
+    public void ShowSpace(
+        BoardSpace space)
     {
         if (space == null)
             return;
 
-        selectedBoardSpace = space;
+        selectedBoardSpace =
+            space;
 
         if (landingActionPanel != null)
+        {
             landingActionPanel.HidePanel();
+        }
 
         ShowPanel();
         RefreshContent();
@@ -213,10 +303,14 @@ public class PropertyInfoPanel : MonoBehaviour
         if (selectedBoardSpace == null)
             return;
 
-        BoardSpace space = selectedBoardSpace;
+        BoardSpace space =
+            selectedBoardSpace;
 
         if (propertyNameText != null)
-            propertyNameText.text = space.SpaceName;
+        {
+            propertyNameText.text =
+                space.SpaceName;
+        }
 
         bool purchasable =
             space.SpaceType == BoardSpaceType.Property ||
@@ -227,31 +321,54 @@ public class PropertyInfoPanel : MonoBehaviour
         {
             headerPriceText.text =
                 purchasable
-                    ? Money(space.PurchasePrice)
+                    ? Money(
+                        space.PurchasePrice
+                    )
                     : string.Empty;
         }
 
         string type =
-            GetTypeDisplay(space.SpaceType);
+            GetTypeDisplay(
+                space.SpaceType
+            );
 
         if (propertyTypeBarText != null)
-            propertyTypeBarText.text = type;
+        {
+            propertyTypeBarText.text =
+                type;
+        }
 
         if (propertyTypeText != null)
-            propertyTypeText.text = type;
+        {
+            propertyTypeText.text =
+                type;
+        }
 
         UpdateOwner(space);
+
         HideAllInfoRows();
 
-        if (space.SpaceType == BoardSpaceType.Property)
-            ShowPropertyInformation(space);
+        if (space.SpaceType ==
+            BoardSpaceType.Property)
+        {
+            ShowPropertyInformation(
+                space
+            );
+        }
         else
-            ShowSpecialInformation(space);
+        {
+            ShowSpecialInformation(
+                space
+            );
+        }
 
-        UpdateManagementButton(space);
+        UpdateManagementButton(
+            space
+        );
     }
 
-    private void UpdateOwner(BoardSpace space)
+    private void UpdateOwner(
+        BoardSpace space)
     {
         bool owned =
             space != null &&
@@ -259,13 +376,19 @@ public class PropertyInfoPanel : MonoBehaviour
             space.Owner != null;
 
         if (ownerIndicator != null)
-            ownerIndicator.SetActive(true);
+        {
+            ownerIndicator.SetActive(
+                true
+            );
+        }
 
         if (ownerText != null)
+        {
             ownerText.text =
                 owned
                     ? space.Owner.PlayerName
                     : "UNOWNED";
+        }
 
         if (ownerIndicatorImage != null)
         {
@@ -281,7 +404,8 @@ public class PropertyInfoPanel : MonoBehaviour
         }
     }
 
-    private void ShowPropertyInformation(BoardSpace space)
+    private void ShowPropertyInformation(
+        BoardSpace space)
     {
         PropertyEconomy economy =
             PropertyEconomy.FromPurchasePrice(
@@ -290,82 +414,130 @@ public class PropertyInfoPanel : MonoBehaviour
 
         ShowValue(
             purchasePriceInfoText,
-            Money(space.PurchasePrice)
+            Money(
+                space.PurchasePrice
+            )
         );
 
         ShowValue(
             baseRentText,
-            Money(economy.baseRent)
+            Money(
+                economy.baseRent
+            )
         );
 
         ShowValue(
             oneHouseRentText,
-            Money(economy.houseRent)
+            Money(
+                economy.houseRent
+            )
         );
 
         ShowValue(
             twoHouseRentText,
-            Money(economy.twoHouseRent)
+            Money(
+                economy.twoHouseRent
+            )
         );
 
         ShowValue(
             threeHouseRentText,
-            Money(economy.threeHouseRent)
+            Money(
+                economy.threeHouseRent
+            )
         );
 
         ShowValue(
             fourHouseRentText,
-            Money(economy.fourHouseRent)
+            Money(
+                economy.fourHouseRent
+            )
         );
 
         ShowValue(
             hotelRentText,
-            Money(economy.hotelRent)
+            Money(
+                economy.hotelRent
+            )
         );
 
         ShowValue(
             houseCostText,
-            Money(economy.houseCost)
+            Money(
+                economy.houseCost
+            )
         );
 
         ShowValue(
             hotelCostText,
-            Money(economy.hotelCost)
+            Money(
+                economy.hotelCost
+            )
         );
 
+        // IMPORTANT:
+        // Use BoardSpace.MortgageValue so the display always matches
+        // the exact value used by the mortgage/recovery gameplay.
         ShowValue(
             mortgageValueText,
-            Money(economy.mortgageValue)
+            Money(
+                space.MortgageValue
+            )
         );
     }
 
-    private void ShowSpecialInformation(BoardSpace space)
+    private void ShowSpecialInformation(
+        BoardSpace space)
     {
-        // For non-properties, keep the same compact card but show only
-        // information that applies to that space type.
-
         switch (space.SpaceType)
         {
             case BoardSpaceType.Airport:
 
                 ShowValue(
                     purchasePriceInfoText,
-                    Money(space.PurchasePrice)
+                    Money(
+                        space.PurchasePrice
+                    )
                 );
 
                 ShowValue(
                     baseRentText,
-                    Money(space.GetRent())
+                    Money(
+                        space.GetRent()
+                    )
                 );
 
-                HideValue(oneHouseRentText);
-                HideValue(twoHouseRentText);
-                HideValue(threeHouseRentText);
-                HideValue(fourHouseRentText);
-                HideValue(hotelRentText);
-                HideValue(houseCostText);
-                HideValue(hotelCostText);
-                HideValue(mortgageValueText);
+                HideValue(
+                    oneHouseRentText
+                );
+
+                HideValue(
+                    twoHouseRentText
+                );
+
+                HideValue(
+                    threeHouseRentText
+                );
+
+                HideValue(
+                    fourHouseRentText
+                );
+
+                HideValue(
+                    hotelRentText
+                );
+
+                HideValue(
+                    houseCostText
+                );
+
+                HideValue(
+                    hotelCostText
+                );
+
+                HideValue(
+                    mortgageValueText
+                );
 
                 break;
 
@@ -373,7 +545,9 @@ public class PropertyInfoPanel : MonoBehaviour
 
                 ShowValue(
                     purchasePriceInfoText,
-                    Money(space.PurchasePrice)
+                    Money(
+                        space.PurchasePrice
+                    )
                 );
 
                 ShowValue(
@@ -381,20 +555,45 @@ public class PropertyInfoPanel : MonoBehaviour
                     "DICE × 4 / × 10"
                 );
 
-                HideValue(oneHouseRentText);
-                HideValue(twoHouseRentText);
-                HideValue(threeHouseRentText);
-                HideValue(fourHouseRentText);
-                HideValue(hotelRentText);
-                HideValue(houseCostText);
-                HideValue(hotelCostText);
-                HideValue(mortgageValueText);
+                HideValue(
+                    oneHouseRentText
+                );
+
+                HideValue(
+                    twoHouseRentText
+                );
+
+                HideValue(
+                    threeHouseRentText
+                );
+
+                HideValue(
+                    fourHouseRentText
+                );
+
+                HideValue(
+                    hotelRentText
+                );
+
+                HideValue(
+                    houseCostText
+                );
+
+                HideValue(
+                    hotelCostText
+                );
+
+                HideValue(
+                    mortgageValueText
+                );
 
                 break;
 
             case BoardSpaceType.Tax:
 
-                HideValue(purchasePriceInfoText);
+                HideValue(
+                    purchasePriceInfoText
+                );
 
                 ShowValue(
                     baseRentText,
@@ -405,54 +604,37 @@ public class PropertyInfoPanel : MonoBehaviour
                         : "$100M"
                 );
 
-                HideValue(oneHouseRentText);
-                HideValue(twoHouseRentText);
-                HideValue(threeHouseRentText);
-                HideValue(fourHouseRentText);
-                HideValue(hotelRentText);
-                HideValue(houseCostText);
-                HideValue(hotelCostText);
-                HideValue(mortgageValueText);
+                HideAllNonTaxValues();
 
                 break;
 
             case BoardSpaceType.Chance:
 
-                HideValue(purchasePriceInfoText);
+                HideValue(
+                    purchasePriceInfoText
+                );
 
                 ShowValue(
                     baseRentText,
                     "DRAW A CHANCE CARD"
                 );
 
-                HideValue(oneHouseRentText);
-                HideValue(twoHouseRentText);
-                HideValue(threeHouseRentText);
-                HideValue(fourHouseRentText);
-                HideValue(hotelRentText);
-                HideValue(houseCostText);
-                HideValue(hotelCostText);
-                HideValue(mortgageValueText);
+                HideAllNonTaxValues();
 
                 break;
 
             case BoardSpaceType.CommunityChest:
 
-                HideValue(purchasePriceInfoText);
+                HideValue(
+                    purchasePriceInfoText
+                );
 
                 ShowValue(
                     baseRentText,
                     "DRAW A COMMUNITY CHEST CARD"
                 );
 
-                HideValue(oneHouseRentText);
-                HideValue(twoHouseRentText);
-                HideValue(threeHouseRentText);
-                HideValue(fourHouseRentText);
-                HideValue(hotelRentText);
-                HideValue(houseCostText);
-                HideValue(hotelCostText);
-                HideValue(mortgageValueText);
+                HideAllNonTaxValues();
 
                 break;
 
@@ -460,27 +642,40 @@ public class PropertyInfoPanel : MonoBehaviour
             case BoardSpaceType.GoToJail:
             case BoardSpaceType.FreeParking:
 
-                HideValue(purchasePriceInfoText);
+                HideValue(
+                    purchasePriceInfoText
+                );
 
                 ShowValue(
                     baseRentText,
-                    GetTypeDisplay(space.SpaceType)
+                    GetTypeDisplay(
+                        space.SpaceType
+                    )
                 );
 
-                HideValue(oneHouseRentText);
-                HideValue(twoHouseRentText);
-                HideValue(threeHouseRentText);
-                HideValue(fourHouseRentText);
-                HideValue(hotelRentText);
-                HideValue(houseCostText);
-                HideValue(hotelCostText);
-                HideValue(mortgageValueText);
+                HideAllNonTaxValues();
 
+                break;
+
+            default:
                 break;
         }
     }
 
-    private void UpdateManagementButton(BoardSpace space)
+    private void HideAllNonTaxValues()
+    {
+        HideValue(oneHouseRentText);
+        HideValue(twoHouseRentText);
+        HideValue(threeHouseRentText);
+        HideValue(fourHouseRentText);
+        HideValue(hotelRentText);
+        HideValue(houseCostText);
+        HideValue(hotelCostText);
+        HideValue(mortgageValueText);
+    }
+
+    private void UpdateManagementButton(
+        BoardSpace space)
     {
         if (managePropertyButton == null)
             return;
@@ -495,43 +690,88 @@ public class PropertyInfoPanel : MonoBehaviour
 
         bool show =
             space != null &&
-            space.SpaceType == BoardSpaceType.Property &&
+            space.SpaceType ==
+                BoardSpaceType.Property &&
             space.Owner != null &&
             space.Owner == currentPlayer;
 
-        managePropertyButton.gameObject.SetActive(show);
-        managePropertyButton.interactable = show;
+        managePropertyButton.gameObject.SetActive(
+            show
+        );
+
+        managePropertyButton.interactable =
+            show;
     }
 
-    private void ShowValue(TMP_Text text, string value)
+    private void ShowValue(
+        TMP_Text text,
+        string value)
     {
         if (text == null)
             return;
 
-        text.text = value ?? string.Empty;
-        SetRowActive(text, true);
+        text.text =
+            value ?? string.Empty;
+
+        SetRowActive(
+            text,
+            true
+        );
     }
 
-    private void HideValue(TMP_Text text)
+    private void HideValue(
+        TMP_Text text)
     {
         if (text == null)
             return;
 
-        SetRowActive(text, false);
+        SetRowActive(
+            text,
+            false
+        );
     }
 
     private void HideAllInfoRows()
     {
-        HideValue(purchasePriceInfoText);
-        HideValue(baseRentText);
-        HideValue(oneHouseRentText);
-        HideValue(twoHouseRentText);
-        HideValue(threeHouseRentText);
-        HideValue(fourHouseRentText);
-        HideValue(hotelRentText);
-        HideValue(houseCostText);
-        HideValue(hotelCostText);
-        HideValue(mortgageValueText);
+        HideValue(
+            purchasePriceInfoText
+        );
+
+        HideValue(
+            baseRentText
+        );
+
+        HideValue(
+            oneHouseRentText
+        );
+
+        HideValue(
+            twoHouseRentText
+        );
+
+        HideValue(
+            threeHouseRentText
+        );
+
+        HideValue(
+            fourHouseRentText
+        );
+
+        HideValue(
+            hotelRentText
+        );
+
+        HideValue(
+            houseCostText
+        );
+
+        HideValue(
+            hotelCostText
+        );
+
+        HideValue(
+            mortgageValueText
+        );
     }
 
     private void SetRowActive(
@@ -542,7 +782,11 @@ public class PropertyInfoPanel : MonoBehaviour
             text.transform.parent;
 
         if (row != null)
-            row.gameObject.SetActive(active);
+        {
+            row.gameObject.SetActive(
+                active
+            );
+        }
     }
 
     private void OpenManagementPanel()
@@ -557,7 +801,8 @@ public class PropertyInfoPanel : MonoBehaviour
             FindFirstObjectByType<GameManager>();
 
         if (gm == null ||
-            gm.CurrentPlayer != selectedBoardSpace.Owner)
+            gm.CurrentPlayer !=
+                selectedBoardSpace.Owner)
         {
             return;
         }
@@ -574,30 +819,60 @@ public class PropertyInfoPanel : MonoBehaviour
         selectedBoardSpace = null;
 
         if (cardRoot != null)
-            cardRoot.SetActive(false);
+        {
+            cardRoot.SetActive(
+                false
+            );
+        }
 
         if (managePropertyButton != null)
-            managePropertyButton.gameObject.SetActive(false);
+        {
+            managePropertyButton.gameObject.SetActive(
+                false
+            );
+        }
     }
 
     private void ShowPanel()
     {
-        gameObject.SetActive(true);
+        gameObject.SetActive(
+            true
+        );
 
         if (cardRoot != null)
-            cardRoot.SetActive(true);
+        {
+            cardRoot.SetActive(
+                true
+            );
+        }
 
         if (headerObject != null)
-            headerObject.SetActive(true);
+        {
+            headerObject.SetActive(
+                true
+            );
+        }
 
         if (typeBarObject != null)
-            typeBarObject.SetActive(true);
+        {
+            typeBarObject.SetActive(
+                true
+            );
+        }
 
         if (informationAreaObject != null)
-            informationAreaObject.SetActive(true);
+        {
+            informationAreaObject.SetActive(
+                true
+            );
+        }
 
         if (closeButtonAreaObject != null)
-            closeButtonAreaObject.SetActive(true);
+        {
+            closeButtonAreaObject.SetActive(
+                true
+            );
+        }
     }
 
     private void FindManagementPanel()
@@ -622,7 +897,8 @@ public class PropertyInfoPanel : MonoBehaviour
         }
     }
 
-    private string GetTypeDisplay(BoardSpaceType type)
+    private string GetTypeDisplay(
+        BoardSpaceType type)
     {
         switch (type)
         {
@@ -658,7 +934,8 @@ public class PropertyInfoPanel : MonoBehaviour
         }
     }
 
-    private static string Money(int value)
+    private static string Money(
+        int value)
     {
         return $"${value:N0}M";
     }

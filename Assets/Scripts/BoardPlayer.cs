@@ -330,6 +330,9 @@ public class BoardPlayer : MonoBehaviour
             return;
         }
 
+        if (gameManager.IsFinancialRecoveryActive(this))
+            return;
+
         StartCoroutine(
             MoveRoutine(
                 steps,
@@ -620,11 +623,7 @@ public class BoardPlayer : MonoBehaviour
             {
                 GameNotificationUI.Show(
                     $"{PlayerName} CANNOT PAY " +
-                    $"${tax:N0}M TAX"
-                );
-
-                gameManager.HandleBankruptcy(
-                    this
+                    $"${tax:N0}M TAX — FINANCIAL RECOVERY"
                 );
 
                 return;
@@ -893,21 +892,9 @@ public class BoardPlayer : MonoBehaviour
             $"${money:N0}M."
         );
 
-        if (money <= 0)
-        {
-            bankrupt = true;
-
-            GameNotificationUI.Show(
-                $"{PlayerName} IS BANKRUPT"
-            );
-
-            GameManager gameManager =
-                FindFirstObjectByType<GameManager>();
-
-            if (gameManager != null)
-                gameManager.CheckForWinner();
-        }
-
+        // Zero cash by itself does NOT mean elimination.
+        // FinancialRecoveryManager handles outstanding debt and determines
+        // whether this player can still recover through assets.
         return true;
     }
                 
@@ -918,9 +905,18 @@ public class BoardPlayer : MonoBehaviour
                 0,
                 amount
             );
+    }
 
-        bankrupt =
-            money <= 0;
+    public void MarkEliminated()
+    {
+        bankrupt = true;
+        isMoving = false;
+        inJail = false;
+        jailTurnsRemaining = 0;
+
+        Debug.Log(
+            $"{PlayerName} has been eliminated."
+        );
     }
 
 

@@ -120,6 +120,16 @@ public class GameManager : MonoBehaviour
                communityChest.IsMarketFrozen(player);
     }
 
+    public bool IsFinancialRecoveryActive(
+        BoardPlayer player)
+    {
+        FinancialRecoveryManager recovery =
+            GetFinancialRecoveryManager();
+
+        return recovery != null &&
+               recovery.IsRecovering(player);
+    }
+
     // ============================================================
     // UNITY
     // ============================================================
@@ -354,6 +364,8 @@ public class GameManager : MonoBehaviour
         gameStarted = true;
         gameOver = false;
 
+        GetFinancialRecoveryManager().ResetForNewGame();
+
         StartTurn();
     }
 
@@ -472,6 +484,11 @@ public class GameManager : MonoBehaviour
     {
         if (gameOver ||
             !isTurnActive)
+        {
+            return;
+        }
+
+        if (IsFinancialRecoveryActive(CurrentPlayer))
         {
             return;
         }
@@ -857,6 +874,19 @@ public class GameManager : MonoBehaviour
                 ? int.MaxValue
                 : (int)amount;
 
+        if (player.Money < safeAmount)
+        {
+            GetFinancialRecoveryManager()
+                .BeginDebtResolution(
+                    player,
+                    null,
+                    amount,
+                    "BANK PAYMENT"
+                );
+
+            return false;
+        }
+
         if (!player.RemoveMoney(
                 safeAmount))
         {
@@ -952,6 +982,9 @@ public class GameManager : MonoBehaviour
             CurrentPlayer;
 
         if (buyer == null)
+            return false;
+
+        if (IsFinancialRecoveryActive(buyer))
             return false;
 
         if (!IsPlayerTurn(buyer))
@@ -1164,10 +1197,13 @@ public class GameManager : MonoBehaviour
 
         if (payer.Money < rent)
         {
-            HandleBankruptcy(
-                payer,
-                owner
-            );
+            GetFinancialRecoveryManager()
+                .BeginDebtResolution(
+                    payer,
+                    owner,
+                    rent,
+                    $"RENT FOR {boardSpace.SpaceName}"
+                );
 
             return false;
         }
@@ -1224,18 +1260,40 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        player.SetMoney(0);
+        FinancialRecoveryManager recovery =
+            GetFinancialRecoveryManager();
 
-        GameNotificationUI.Show(
-            $"{player.PlayerName} IS BANKRUPT"
-        );
+        if (recovery.IsRecovering(player))
+            return;
 
-        CheckForWinner();
-
-        if (!gameOver)
+        // Compatibility entry point for older callers that only report
+        // a zero-balance player. A player is eliminated only when there
+        // is no remaining recoverable asset value.
+        if (player.Money <= 0 &&
+            recovery.GetTotalRecoveryValue(player) <= 0)
         {
-            MoveToNextPlayer();
+            recovery.EliminateNow(
+                player,
+                creditor,
+                "UNRESOLVED DEBT"
+            );
         }
+    }
+
+    private FinancialRecoveryManager GetFinancialRecoveryManager()
+    {
+        FinancialRecoveryManager recovery =
+            FindFirstObjectByType<FinancialRecoveryManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (recovery == null)
+        {
+            recovery =
+                gameObject.AddComponent<FinancialRecoveryManager>();
+        }
+
+        return recovery;
     }
 
     // ============================================================
@@ -1350,6 +1408,9 @@ public class GameManager : MonoBehaviour
         BoardPlayer player =
             CurrentPlayer;
 
+        if (IsFinancialRecoveryActive(player))
+            return false;
+
         if (!CanBuildHouse(space))
             return false;
 
@@ -1419,6 +1480,9 @@ public class GameManager : MonoBehaviour
         BoardPlayer player =
             CurrentPlayer;
 
+        if (IsFinancialRecoveryActive(player))
+            return false;
+
         if (!CanBuildHotel(space))
             return false;
 
@@ -1465,7 +1529,8 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
-        if (IsMarketFrozen(player))
+        if (IsMarketFrozen(player) &&
+            !IsFinancialRecoveryActive(player))
         {
             GameNotificationUI.Show(
                 $"{player.PlayerName.ToUpperInvariant()} " +
@@ -1504,6 +1569,9 @@ public class GameManager : MonoBehaviour
         {
             return false;
         }
+
+        if (IsFinancialRecoveryActive(player))
+            return false;
 
         if (IsMarketFrozen(player))
         {

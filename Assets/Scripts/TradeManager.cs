@@ -67,11 +67,17 @@ public class TradeManager : MonoBehaviour
         if (player.IsBankrupt)
             return false;
 
-        if (IsMarketFrozen(player))
-            return false;
-
         GameManager gameManager =
             FindFirstObjectByType<GameManager>();
+
+        if (gameManager != null &&
+            gameManager.IsFinancialRecoveryActive(player))
+        {
+            return false;
+        }
+
+        if (IsMarketFrozen(player))
+            return false;
 
         if (gameManager == null ||
             gameManager.GameOver)
@@ -103,6 +109,16 @@ public class TradeManager : MonoBehaviour
 
         if (proposer.IsBankrupt ||
             receiver.IsBankrupt)
+        {
+            return false;
+        }
+
+        GameManager gameManager =
+            FindFirstObjectByType<GameManager>();
+
+        if (gameManager != null &&
+            (gameManager.IsFinancialRecoveryActive(proposer) ||
+             gameManager.IsFinancialRecoveryActive(receiver)))
         {
             return false;
         }
@@ -294,6 +310,18 @@ public class TradeManager : MonoBehaviour
             receiver.IsBankrupt)
         {
             error = "Bankrupt players cannot trade.";
+            return false;
+        }
+
+        GameManager gameManager =
+            FindFirstObjectByType<GameManager>();
+
+        if (gameManager != null &&
+            (gameManager.IsFinancialRecoveryActive(proposer) ||
+             gameManager.IsFinancialRecoveryActive(receiver)))
+        {
+            error =
+                "Trade is unavailable during financial recovery.";
             return false;
         }
 

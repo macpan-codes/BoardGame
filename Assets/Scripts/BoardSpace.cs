@@ -95,8 +95,21 @@ public class BoardSpace : MonoBehaviour
     public bool IsMortgaged =>
         mortgaged;
 
+    /// <summary>
+    /// Effective mortgage value.
+    ///
+    /// Inspector value > 0 = explicit per-property override.
+    /// Inspector value = 0 = use shared PropertyEconomy formula.
+    /// </summary>
     public int MortgageValue =>
-        mortgageValue;
+        mortgageValue > 0
+            ? mortgageValue
+            : PropertyEconomy
+                .FromPurchasePrice(purchasePrice)
+                .mortgageValue;
+
+    public int EffectiveMortgageValue =>
+        MortgageValue;
 
     public int HouseCost =>
         houseCost;
@@ -602,6 +615,39 @@ public class BoardSpace : MonoBehaviour
 
 
 
+    public void TransferOwnershipForBankruptcy(
+        BoardPlayer newOwner)
+    {
+        if (newOwner == null ||
+            !IsOwned)
+        {
+            return;
+        }
+
+        BoardPlayer previousOwner =
+            owner;
+
+        // Buildings do not transfer through bankruptcy. The mortgage flag
+        // remains because the property itself is transferred as-is.
+        houses = 0;
+        hotel = false;
+        ownerLandingCount = 0;
+
+        owner = newOwner;
+        isOwned = true;
+
+        RefreshOwnershipMarker();
+        RefreshBuildingVisual();
+
+        Debug.Log(
+            $"BANKRUPTCY PROPERTY TRANSFER: " +
+            $"{SpaceName} | " +
+            $"{previousOwner?.PlayerName ?? "UNKNOWN"} -> " +
+            $"{newOwner.PlayerName} | " +
+            $"Mortgage: {mortgaged}"
+        );
+    }
+
     public void ClearOwner()
     {
         owner = null;
@@ -850,11 +896,62 @@ public class BoardSpace : MonoBehaviour
 
     public bool CanMortgage()
     {
-        return IsOwned &&
-               !mortgaged &&
-               mortgageValue > 0 &&
-               houses == 0 &&
-               !hotel;
+        if (!IsOwned ||
+            mortgaged ||
+            MortgageValue <= 0)
+        {
+            return false;
+        }
+
+        if (houses == 0 &&
+            !hotel)
+        {
+            return true;
+        }
+
+        // During Financial Recovery, the mortgage operation will first
+        // liquidate houses/hotel so the player can use the property to
+        // satisfy an urgent debt.
+        return IsOwnerInFinancialRecovery();
+    }
+
+    public int GetRecoveryLiquidationValue()
+    {
+        if (!IsOwned ||
+            mortgaged ||
+            MortgageValue <= 0)
+        {
+            return 0;
+        }
+
+        long total = MortgageValue;
+
+        int houseRefund =
+            Mathf.CeilToInt(
+                EffectiveHouseCost * 0.5f
+            );
+
+        int hotelRefund =
+            Mathf.CeilToInt(
+                EffectiveHotelCost * 0.5f
+            );
+
+        if (hotel)
+        {
+            total += hotelRefund;
+            total += (long)houseRefund * 4;
+        }
+        else
+        {
+            total += (long)houseRefund * houses;
+        }
+
+        return total > int.MaxValue
+            ? int.MaxValue
+            : Mathf.Max(
+                0,
+                (int)total
+            );
     }
 
     public bool Mortgage()
@@ -865,10 +962,34 @@ public class BoardSpace : MonoBehaviour
         if (owner == null)
             return false;
 
+        bool recovery =
+            IsOwnerInFinancialRecovery();
+
+        // Emergency recovery: sell buildings first, then mortgage the
+        // property. This keeps the existing PropertyManagementPanel as
+        // the interaction surface without introducing a new recovery UI.
+        if (recovery)
+        {
+            if (hotel)
+                SellHotel();
+
+            while (houses > 0)
+            {
+                if (!SellHouse())
+                    break;
+            }
+        }
+
+        if (houses > 0 ||
+            hotel)
+        {
+            return false;
+        }
+
         mortgaged = true;
 
         owner.AddMoney(
-            mortgageValue
+            MortgageValue
         );
 
         RefreshBuildingVisual();
@@ -876,7 +997,10 @@ public class BoardSpace : MonoBehaviour
         Debug.Log(
             $"{owner.PlayerName} mortgaged " +
             $"{SpaceName} for " +
-            $"${mortgageValue:N0}M."
+            $"${MortgageValue:N0}M" +
+            (recovery
+                ? " during Financial Recovery."
+                : ".")
         );
 
         return true;
@@ -898,7 +1022,7 @@ public class BoardSpace : MonoBehaviour
 
         int repayment =
             Mathf.CeilToInt(
-                mortgageValue * 1.10f
+                MortgageValue * 1.10f
             );
 
         if (owner.Money < repayment)
@@ -1159,6 +1283,39 @@ public class BoardSpace : MonoBehaviour
         if (buildingVisual != null)
             buildingVisual.Refresh();
     }
+
+    private bool IsOwnerInFinancialRecovery()
+    {
+        if (owner == null)
+            return false;
+
+        FinancialRecoveryManager recovery =
+            FinancialRecoveryManager.Instance;
+
+        if (recovery == null)
+        {
+            recovery =
+                FindFirstObjectByType<FinancialRecoveryManager>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        return recovery != null &&
+               recovery.IsRecovering(owner);
+    }
+
+    private void OnValidate()
+    {
+        if (purchasePrice <= 0)
+            return;
+
+        mortgageValue =
+            PropertyEconomy
+                .FromPurchasePrice(purchasePrice)
+                .mortgageValue;
+    }
+
+
 
     // ============================================================
     // RESET
