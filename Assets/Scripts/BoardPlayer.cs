@@ -69,12 +69,28 @@ public class BoardPlayer : MonoBehaviour
 
     [Header("State")]
     [SerializeField] private bool bankrupt;
+    [SerializeField] private bool leftGame;
     [SerializeField] private bool initialized;
 
     public int CurrentSpaceIndex => currentSpaceIndex;
     public int Money => money;
     public bool IsMoving => isMoving;
     public bool IsBankrupt => bankrupt;
+
+    public bool HasLeftGame =>
+        leftGame;
+
+    public bool IsActive =>
+        !bankrupt &&
+        !leftGame;
+
+    public PlayerGameState GameState =>
+        bankrupt
+            ? PlayerGameState.Bankrupt
+            : leftGame
+                ? PlayerGameState.LeftGame
+                : PlayerGameState.Active;
+
     public bool IsInitialized => initialized;
     public bool IsInJail => inJail;
     public int JailTurnsRemaining => jailTurnsRemaining;
@@ -132,6 +148,8 @@ public class BoardPlayer : MonoBehaviour
 
         if (tokenImage == null)
             return;
+
+        tokenImage.enabled = true;
 
         Sprite[] sprites =
             ResolvePlayerTokenSprites();
@@ -261,6 +279,7 @@ public class BoardPlayer : MonoBehaviour
         jailTurnsRemaining = 0;
 
         bankrupt = false;
+        leftGame = false;
         initialized = false;
     }
 
@@ -291,6 +310,7 @@ public class BoardPlayer : MonoBehaviour
 
         isMoving = false;
         bankrupt = false;
+        leftGame = false;
         inJail = false;
         jailTurnsRemaining = 0;
         initialized = true;
@@ -316,7 +336,7 @@ public class BoardPlayer : MonoBehaviour
     {
         if (steps <= 0 ||
             isMoving ||
-            bankrupt)
+            !IsActive)
         {
             return;
         }
@@ -505,7 +525,7 @@ public class BoardPlayer : MonoBehaviour
 
     public void LandOnCurrentSpace()
     {
-        if (bankrupt)
+        if (!IsActive)
             return;
 
         if (boardGenerator == null)
@@ -855,7 +875,7 @@ public class BoardPlayer : MonoBehaviour
     public void AddMoney(int amount)
     {
         if (amount <= 0 ||
-            bankrupt)
+            !IsActive)
         {
             return;
         }
@@ -877,7 +897,7 @@ public class BoardPlayer : MonoBehaviour
     public bool RemoveMoney(int amount)
     {
         if (amount <= 0 ||
-            bankrupt)
+            !IsActive)
         {
             return false;
         }
@@ -910,12 +930,36 @@ public class BoardPlayer : MonoBehaviour
     public void MarkEliminated()
     {
         bankrupt = true;
+        leftGame = false;
         isMoving = false;
         inJail = false;
         jailTurnsRemaining = 0;
 
+        EnsureTokenImage();
+
+        if (tokenImage != null)
+            tokenImage.enabled = false;
+
         Debug.Log(
             $"{PlayerName} has been eliminated."
+        );
+    }
+
+    public void MarkLeftGame()
+    {
+        leftGame = true;
+        bankrupt = false;
+        isMoving = false;
+        inJail = false;
+        jailTurnsRemaining = 0;
+
+        EnsureTokenImage();
+
+        if (tokenImage != null)
+            tokenImage.enabled = false;
+
+        Debug.Log(
+            $"{PlayerName} has left the game."
         );
     }
 
