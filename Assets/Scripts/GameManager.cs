@@ -105,6 +105,16 @@ public class GameManager : MonoBehaviour
     public long BankMoney =>
         bankMoney;
 
+    public bool IsPlayerActive(
+        BoardPlayer player)
+    {
+        return player != null &&
+               player.IsActive;
+    }
+
+    public int ActivePlayerCount =>
+        GetActivePlayerCount();
+
     public bool IsMarketFrozen(
         BoardPlayer player)
     {
@@ -451,7 +461,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (player.IsBankrupt)
+        if (!player.IsActive)
         {
             MoveToNextPlayer();
             return;
@@ -672,6 +682,11 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        CheckForWinner();
+
+        if (gameOver)
+            return;
+
         int safety =
             players.Length;
 
@@ -695,7 +710,7 @@ public class GameManager : MonoBehaviour
 
         } while (
             players[currentPlayerIndex] == null ||
-            players[currentPlayerIndex].IsBankrupt
+            !players[currentPlayerIndex].IsActive
         );
 
         StartTurn();
@@ -705,6 +720,7 @@ public class GameManager : MonoBehaviour
         BoardPlayer player)
     {
         return player != null &&
+               player.IsActive &&
                player == CurrentPlayer &&
                isTurnActive &&
                !gameOver;
@@ -1300,6 +1316,45 @@ public class GameManager : MonoBehaviour
     // WINNER
     // ============================================================
 
+    public int GetActivePlayerCount()
+    {
+        if (players == null)
+            return 0;
+
+        int count = 0;
+
+        foreach (BoardPlayer player in players)
+        {
+            if (player != null &&
+                player.IsActive)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    public BoardPlayer[] GetActivePlayers()
+    {
+        if (players == null)
+            return System.Array.Empty<BoardPlayer>();
+
+        List<BoardPlayer> active =
+            new List<BoardPlayer>();
+
+        foreach (BoardPlayer player in players)
+        {
+            if (player != null &&
+                player.IsActive)
+            {
+                active.Add(player);
+            }
+        }
+
+        return active.ToArray();
+    }
+
     public void CheckForWinner()
     {
         if (players == null)
@@ -1308,39 +1363,47 @@ public class GameManager : MonoBehaviour
         BoardPlayer remainingPlayer =
             null;
 
-        int alivePlayers = 0;
+        int activePlayers =
+            0;
 
         foreach (BoardPlayer player in players)
         {
             if (player == null ||
-                player.IsBankrupt)
+                !player.IsActive)
             {
                 continue;
             }
 
-            alivePlayers++;
+            activePlayers++;
             remainingPlayer = player;
         }
 
-        if (alivePlayers == 1 &&
-            remainingPlayer != null)
+        if (activePlayers != 1 ||
+            remainingPlayer == null)
         {
-            gameOver = true;
-            isTurnActive = false;
-            waitingForPlayerAction = false;
-
-            currentPhase =
-                GamePhase.GameOver;
-
-            Debug.Log(
-                $"GAME OVER: " +
-                $"{remainingPlayer.PlayerName} wins!"
-            );
-
-            GameNotificationUI.Show(
-                $"{remainingPlayer.PlayerName.ToUpperInvariant()} WINS!"
-            );
+            return;
         }
+
+        if (gameOver)
+            return;
+
+        gameOver = true;
+        isTurnActive = false;
+        waitingForPlayerAction = false;
+
+        currentPhase =
+            GamePhase.GameOver;
+
+        Debug.Log(
+            "GAME OVER: " +
+            remainingPlayer.PlayerName +
+            " wins! Active players remaining: 1"
+        );
+
+        GameNotificationUI.Show(
+            remainingPlayer.PlayerName.ToUpperInvariant() +
+            " WINS!"
+        );
     }
 
     // ============================================================
