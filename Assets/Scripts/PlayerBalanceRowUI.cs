@@ -15,6 +15,7 @@ public class PlayerBalanceRowUI : MonoBehaviour
     private int lastBalance;
     private Color lastColor;
     private bool lastBankrupt;
+    private bool lastLeftGame;
 
     public BoardPlayer Player =>
         player;
@@ -54,6 +55,9 @@ public class PlayerBalanceRowUI : MonoBehaviour
         bool currentBankrupt =
             player.IsBankrupt;
 
+        bool currentLeftGame =
+            player.HasLeftGame;
+
         bool changed =
             currentName != lastName ||
             currentBalance != lastBalance ||
@@ -61,7 +65,8 @@ public class PlayerBalanceRowUI : MonoBehaviour
                 currentColor,
                 lastColor
             ) ||
-            currentBankrupt != lastBankrupt;
+            currentBankrupt != lastBankrupt ||
+            currentLeftGame != lastLeftGame;
 
         if (!changed)
             return;
@@ -70,7 +75,8 @@ public class PlayerBalanceRowUI : MonoBehaviour
             currentName,
             currentBalance,
             currentColor,
-            currentBankrupt
+            currentBankrupt,
+            currentLeftGame
         );
     }
 
@@ -84,6 +90,7 @@ public class PlayerBalanceRowUI : MonoBehaviour
         lastBalance = int.MinValue;
         lastColor = Color.clear;
         lastBankrupt = false;
+        lastLeftGame = false;
 
         Refresh();
     }
@@ -96,20 +103,23 @@ public class PlayerBalanceRowUI : MonoBehaviour
         string playerName,
         int balance,
         Color playerColor,
-        bool bankrupt)
+        bool bankrupt,
+        bool leftGame)
     {
         if (playerNameText != null)
         {
             playerNameText.text =
-                bankrupt
-                    ? $"{playerName}  •  BANKRUPT"
-                    : playerName;
+                leftGame
+                    ? $"{playerName}  •  LEFT GAME"
+                    : bankrupt
+                        ? $"{playerName}  •  BANKRUPT"
+                        : playerName;
         }
 
         if (balanceText != null)
         {
             balanceText.text =
-                bankrupt
+                leftGame || bankrupt
                     ? "$0"
                     : $"${balance:N0}M";
         }
@@ -124,6 +134,7 @@ public class PlayerBalanceRowUI : MonoBehaviour
         lastBalance = balance;
         lastColor = playerColor;
         lastBankrupt = bankrupt;
+        lastLeftGame = leftGame;
     }
 
     // ============================================================
