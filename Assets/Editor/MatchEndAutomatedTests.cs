@@ -1,0 +1,429 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// One-click automated checks for the match-end/player-state rules.
+/// These checks use isolated temporary objects and do not modify the open scene.
+/// Run from: Board Game > Tests > Run Match-End Tests.
+/// </summary>
+public static class MatchEndAutomatedTests
+{
+    [MenuItem("Board Game/Tests/Run Match-End Tests")]
+    public static void RunMatchEndTests()
+    {
+        if (Application.isPlaying)
+        {
+            EditorUtility.DisplayDialog(
+                "Match-End Tests",
+                "Stop Play Mode before running these isolated tests.",
+                "OK"
+            );
+            return;
+        }
+
+        int passed = 0;
+        int failed = 0;
+        List<string> failures = new List<string>();
+
+        RunCase(
+            "Active player counts work for 2–6 players",
+            TestPlayerCounts,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Bankruptcy blocks money changes and hides the token",
+            TestBankruptcyState,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Leaving the game blocks money changes and hides the token",
+            TestLeftGameState,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "A 2-player match ends when one player is eliminated",
+            TestTwoPlayerMatchEnd,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "A 3-player match continues until only one remains",
+            TestThreePlayerMatchEnd,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Turns skip bankrupt and left-game players",
+            TestTurnSkipping,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "A new game resets bankrupt/left-game status",
+            TestNewGameReset,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        string summary =
+            "Match-End Automated Tests\n\n" +
+            "PASSED: " + passed + "\n" +
+            "FAILED: " + failed;
+
+        if (failures.Count > 0)
+        {
+            summary += "\n\nFailures:\n- " +
+                string.Join("\n- ", failures);
+            Debug.LogError(summary);
+        }
+        else
+        {
+            Debug.Log(summary);
+        }
+
+        EditorUtility.DisplayDialog(
+            "Match-End Tests: " + (failed == 0 ? "PASS" : "FAIL"),
+            summary,
+            "OK"
+        );
+    }
+
+    private static void TestPlayerCounts()
+    {
+        for (int count = 2; count <= 6; count++)
+        {
+            using (TestFixture fixture = new TestFixture(count))
+            {
+                Require(
+                    fixture.Manager.ActivePlayerCount == count,
+                    "Expected " + count + " active players at setup."
+                );
+
+                Require(
+                    fixture.Manager.GetActivePlayers().Length == count,
+                    "GetActivePlayers returned the wrong count for " + count + " players."
+                );
+
+                fixture.Players[count - 1].MarkLeftGame();
+
+                Require(
+                    fixture.Manager.ActivePlayerCount == count - 1,
+                    "A left-game player was still counted as active."
+                );
+
+                fixture.Players[count - 1].ResetForNewGame();
+
+                Require(
+                    fixture.Manager.ActivePlayerCount == count,
+                    "ResetForNewGame did not reactivate the player."
+                );
+            }
+        }
+    }
+
+    private static void TestBankruptcyState()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            BoardPlayer player = fixture.Players[0];
+            player.SetMoney(123);
+            player.MarkEliminated();
+
+            Require(player.IsBankrupt, "Player was not marked bankrupt.");
+            Require(!player.IsActive, "Bankrupt player was still active.");
+            Require(
+                player.GameState == PlayerGameState.Bankrupt,
+                "PlayerGameState did not report Bankrupt."
+            );
+            Require(
+                !player.GetComponent<Image>().enabled,
+                "Player token Image remained visible after bankruptcy."
+            );
+
+            player.AddMoney(500);
+            Require(player.Money == 123, "Bankrupt player received money.");
+
+            bool removed = player.RemoveMoney(10);
+            Require(!removed, "Bankrupt player was allowed to spend money.");
+            Require(player.Money == 123, "Bankrupt player's balance changed.");
+        }
+    }
+
+    private static void TestLeftGameState()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            BoardPlayer player = fixture.Players[1];
+            player.SetMoney(234);
+            player.MarkLeftGame();
+
+            Require(player.HasLeftGame, "Player was not marked as left.");
+            Require(!player.IsActive, "Left-game player was still active.");
+            Require(
+                player.GameState == PlayerGameState.LeftGame,
+                "PlayerGameState did not report LeftGame."
+            );
+            Require(
+                !player.GetComponent<Image>().enabled,
+                "Player token Image remained visible after leaving."
+            );
+
+            player.AddMoney(500);
+            Require(player.Money == 234, "Left-game player received money.");
+
+            bool removed = player.RemoveMoney(10);
+            Require(!removed, "Left-game player was allowed to spend money.");
+            Require(player.Money == 234, "Left-game player's balance changed.");
+
+            Require(
+                fixture.Manager.ActivePlayerCount == 2,
+                "The left-game player was not excluded from the active count."
+            );
+        }
+    }
+
+    private static void TestTwoPlayerMatchEnd()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            fixture.Players[0].MarkEliminated();
+
+            SetPrivateField(fixture.Manager, "isTurnActive", true);
+            SetPrivateField(fixture.Manager, "waitingForPlayerAction", true);
+
+            RunQuietly(fixture.Manager.CheckForWinner);
+
+            Require(fixture.Manager.GameOver, "Two-player match did not end.");
+            Require(
+                fixture.Manager.ActivePlayerCount == 1,
+                "Expected exactly one surviving player."
+            );
+            Require(
+                !fixture.Manager.IsTurnActive,
+                "Turn remained active after the match ended."
+            );
+            Require(
+                !fixture.Manager.WaitingForPlayerAction,
+                "Player action was still pending after the match ended."
+            );
+            Require(
+                fixture.Manager.CurrentPhase.ToString() == "GameOver",
+                "Game phase was not changed to GameOver."
+            );
+            Require(
+                fixture.Manager.GetActivePlayers()[0] == fixture.Players[1],
+                "The wrong player survived."
+            );
+        }
+    }
+
+    private static void TestThreePlayerMatchEnd()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            fixture.Players[0].MarkEliminated();
+            RunQuietly(fixture.Manager.CheckForWinner);
+
+            Require(
+                !fixture.Manager.GameOver,
+                "The match ended while two players were still active."
+            );
+            Require(
+                fixture.Manager.ActivePlayerCount == 2,
+                "Expected two players to continue."
+            );
+
+            fixture.Players[1].MarkLeftGame();
+            RunQuietly(fixture.Manager.CheckForWinner);
+
+            Require(fixture.Manager.GameOver, "Match did not end at one active player.");
+            Require(
+                fixture.Manager.GetActivePlayers().Length == 1 &&
+                fixture.Manager.GetActivePlayers()[0] == fixture.Players[2],
+                "The remaining active player was incorrect."
+            );
+        }
+    }
+
+    private static void TestTurnSkipping()
+    {
+        using (TestFixture fixture = new TestFixture(4))
+        {
+            fixture.Players[1].MarkEliminated();
+            fixture.Players[2].MarkLeftGame();
+
+            SetPrivateField(fixture.Manager, "currentPlayerIndex", 0);
+            SetPrivateField(fixture.Manager, "gameOver", false);
+
+            MethodInfo moveToNextPlayer = typeof(GameManager).GetMethod(
+                "MoveToNextPlayer",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            );
+
+            Require(moveToNextPlayer != null, "Could not find MoveToNextPlayer.");
+
+            RunQuietly(() => moveToNextPlayer.Invoke(fixture.Manager, null));
+
+            Require(
+                fixture.Manager.CurrentPlayerIndex == 3,
+                "Turn did not skip inactive players to reach Player 4."
+            );
+            Require(
+                fixture.Manager.CurrentPlayer == fixture.Players[3],
+                "The wrong player became current."
+            );
+            Require(
+                fixture.Manager.IsTurnActive,
+                "The next active player's turn did not start."
+            );
+            Require(
+                !fixture.Manager.GameOver,
+                "The match ended even though two active players remained."
+            );
+        }
+    }
+
+    private static void TestNewGameReset()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            fixture.Players[0].MarkEliminated();
+            fixture.Players[1].MarkLeftGame();
+
+            fixture.Players[0].ResetForNewGame();
+            fixture.Players[1].ResetForNewGame();
+
+            Require(fixture.Players[0].IsActive, "Bankrupt player did not reset to Active.");
+            Require(fixture.Players[1].IsActive, "Left-game player did not reset to Active.");
+            Require(
+                fixture.Manager.ActivePlayerCount == 2,
+                "Not all players were active after reset."
+            );
+        }
+    }
+
+    private static void RunCase(
+        string name,
+        Action test,
+        ref int passed,
+        ref int failed,
+        List<string> failures)
+    {
+        try
+        {
+            test();
+            passed++;
+            Debug.Log("[MATCH TEST PASS] " + name);
+        }
+        catch (Exception exception)
+        {
+            failed++;
+            string failure = name + ": " + exception.Message;
+            failures.Add(failure);
+            Debug.LogError("[MATCH TEST FAIL] " + failure + "\n" + exception);
+        }
+    }
+
+    private static void Require(bool condition, string message)
+    {
+        if (!condition)
+            throw new InvalidOperationException(message);
+    }
+
+    private static void RunQuietly(Action action)
+    {
+        bool previousLogState = Debug.unityLogger.logEnabled;
+        Debug.unityLogger.logEnabled = false;
+
+        try
+        {
+            action();
+        }
+        finally
+        {
+            Debug.unityLogger.logEnabled = previousLogState;
+        }
+    }
+
+    private static void SetPrivateField(object target, string fieldName, object value)
+    {
+        FieldInfo field = target.GetType().GetField(
+            fieldName,
+            BindingFlags.Instance | BindingFlags.NonPublic
+        );
+
+        if (field == null)
+            throw new MissingFieldException(target.GetType().Name, fieldName);
+
+        field.SetValue(target, value);
+    }
+
+    private sealed class TestFixture : IDisposable
+    {
+        public readonly GameObject Root;
+        public readonly BoardPlayer[] Players;
+        public readonly GameManager Manager;
+
+        public TestFixture(int playerCount)
+        {
+            Root = new GameObject("__MatchEndAutomatedTestFixture__");
+            Root.hideFlags = HideFlags.HideAndDontSave;
+
+            Players = new BoardPlayer[playerCount];
+
+            for (int i = 0; i < playerCount; i++)
+            {
+                GameObject playerObject =
+                    new GameObject("TestPlayer_" + (i + 1));
+
+                playerObject.transform.SetParent(Root.transform, false);
+                playerObject.AddComponent<Image>();
+
+                BoardPlayer player =
+                    playerObject.AddComponent<BoardPlayer>();
+
+                player.SetPlayerNumber(i + 1);
+                player.SetPlayerName("Test Player " + (i + 1));
+
+                Players[i] = player;
+            }
+
+            GameObject managerObject = new GameObject("TestGameManager");
+            managerObject.transform.SetParent(Root.transform, false);
+
+            Manager = managerObject.AddComponent<GameManager>();
+
+            SetPrivateField(Manager, "players", Players);
+            SetPrivateField(Manager, "currentPlayerIndex", 0);
+            SetPrivateField(Manager, "gameOver", false);
+            SetPrivateField(Manager, "isTurnActive", false);
+            SetPrivateField(Manager, "waitingForPlayerAction", false);
+        }
+
+        public void Dispose()
+        {
+            if (Root != null)
+                UnityEngine.Object.DestroyImmediate(Root);
+        }
+    }
+}
