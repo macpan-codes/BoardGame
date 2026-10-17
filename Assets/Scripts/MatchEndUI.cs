@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -188,9 +189,14 @@ public sealed class MatchEndUI : MonoBehaviour
             new Vector2(0.04f, 0f), new Vector2(0.96f, 0f),
             new Vector2(0.5f, 0f), new Vector2(0f, 62f), new Vector2(0f, 28f));
 
+        AddButton(modal.transform, "NEW MATCH",
+            new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+            new Vector2(0.5f, 0f), new Vector2(-128f, 14f),
+            new Vector2(220f, 44f), Green, RestartCurrentScene);
+
         AddButton(modal.transform, "CLOSE REPORT",
             new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-            new Vector2(0.5f, 0f), new Vector2(0f, 14f),
+            new Vector2(0.5f, 0f), new Vector2(128f, 14f),
             new Vector2(220f, 44f), ButtonColor, HideOverlay);
 
         if (menuButton != null)
@@ -205,6 +211,26 @@ public sealed class MatchEndUI : MonoBehaviour
                 () => ShowFinalResults(gameManager, storedWinner, storedReason)
             );
         }
+    }
+
+    private void RestartCurrentScene()
+    {
+        if (gameManager == null)
+            return;
+
+        if (gameManager.IsEndGameVoteInProgress)
+            gameManager.CancelEndGameVote();
+
+        UnityEngine.SceneManagement.Scene currentScene =
+            SceneManager.GetActiveScene();
+
+        if (currentScene.buildIndex >= 0)
+        {
+            SceneManager.LoadScene(currentScene.buildIndex);
+            return;
+        }
+
+        SceneManager.LoadScene(currentScene.name);
     }
 
     private void ShowLeavePlayerSelection()
