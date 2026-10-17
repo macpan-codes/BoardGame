@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     [Header("Game State")]
     [SerializeField] private bool gameStarted;
     [SerializeField] private bool gameOver;
+    [SerializeField] private bool endGameVoteInProgress;
 
     // ============================================================
     // CHANCE / TURN HISTORY
@@ -102,6 +103,9 @@ public class GameManager : MonoBehaviour
     public bool GameOver =>
         gameOver;
 
+    public bool IsEndGameVoteInProgress =>
+        endGameVoteInProgress;
+
     public long BankMoney =>
         bankMoney;
 
@@ -159,7 +163,20 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        EnsureMatchEndUI();
         InitializeGame();
+    }
+
+    private MatchEndUI EnsureMatchEndUI()
+    {
+        if (!Application.isPlaying)
+            return null;
+
+        MatchEndUI matchEndUI = GetComponent<MatchEndUI>();
+        if (matchEndUI == null)
+            matchEndUI = gameObject.AddComponent<MatchEndUI>();
+
+        return matchEndUI;
     }
 
     // ============================================================
@@ -373,6 +390,7 @@ public class GameManager : MonoBehaviour
 
         gameStarted = true;
         gameOver = false;
+        endGameVoteInProgress = false;
 
         GetFinancialRecoveryManager().ResetForNewGame();
 
@@ -446,7 +464,7 @@ public class GameManager : MonoBehaviour
 
     public void StartTurn()
     {
-        if (gameOver)
+        if (gameOver || endGameVoteInProgress)
             return;
 
         BoardPlayer player =
@@ -493,6 +511,7 @@ public class GameManager : MonoBehaviour
     public void EndTurn()
     {
         if (gameOver ||
+            endGameVoteInProgress ||
             !isTurnActive)
         {
             return;
@@ -674,6 +693,9 @@ public class GameManager : MonoBehaviour
 
     private void MoveToNextPlayer()
     {
+        if (gameOver || endGameVoteInProgress)
+            return;
+
         consecutiveDoubles = 0;
 
         if (players == null ||
@@ -723,7 +745,8 @@ public class GameManager : MonoBehaviour
                player.IsActive &&
                player == CurrentPlayer &&
                isTurnActive &&
-               !gameOver;
+               !gameOver &&
+               !endGameVoteInProgress;
     }
 
     // ============================================================
@@ -732,7 +755,7 @@ public class GameManager : MonoBehaviour
 
     public void BeginPlayerAction()
     {
-        if (gameOver)
+        if (gameOver || endGameVoteInProgress)
             return;
 
         waitingForPlayerAction = true;
@@ -743,7 +766,7 @@ public class GameManager : MonoBehaviour
 
     public void EndPlayerAction()
     {
-        if (gameOver)
+        if (gameOver || endGameVoteInProgress)
             return;
 
         waitingForPlayerAction = false;
@@ -759,6 +782,9 @@ public class GameManager : MonoBehaviour
     public void SetLastDiceRoll(
         int total)
     {
+        if (gameOver || endGameVoteInProgress)
+            return;
+
         lastDiceRoll =
             Mathf.Clamp(
                 total,
@@ -772,6 +798,9 @@ public class GameManager : MonoBehaviour
 
     public void RegisterDouble()
     {
+        if (gameOver || endGameVoteInProgress)
+            return;
+
         consecutiveDoubles++;
 
         Debug.Log(
@@ -1404,6 +1433,101 @@ public class GameManager : MonoBehaviour
             remainingPlayer.PlayerName.ToUpperInvariant() +
             " WINS!"
         );
+
+        MatchEndUI matchEndUI = EnsureMatchEndUI();
+        if (matchEndUI != null)
+        {
+            matchEndUI.ShowFinalResults(
+                this,
+                remainingPlayer,
+                "MATCH WON BY ELIMINATION"
+            );
+        }
+    }
+
+    public bool StartEndGameVote()
+    {
+        if (gameOver || endGameVoteInProgress || GetActivePlayerCount() < 2)
+            return false;
+
+        endGameVoteInProgress = true;
+        Debug.Log("END-GAME VOTE STARTED: unanimous YES votes required.");
+        return true;
+    }
+
+    public void CancelEndGameVote()
+    {
+        if (!endGameVoteInProgress || gameOver)
+            return;
+
+        endGameVoteInProgress = false;
+        Debug.Log("END-GAME VOTE CANCELLED: match resumes.");
+    }
+
+    public bool EndGameByUnanimousVote()
+    {
+        if (gameOver || !endGameVoteInProgress || GetActivePlayerCount() < 2)
+            return false;
+
+        endGameVoteInProgress = false;
+        gameOver = true;
+        isTurnActive = false;
+        waitingForPlayerAction = false;
+        currentPhase = GamePhase.GameOver;
+
+        Debug.Log("GAME OVER: active players unanimously voted to end the match.");
+        GameNotificationUI.Show("MATCH ENDED BY UNANIMOUS VOTE");
+
+        MatchEndUI matchEndUI = EnsureMatchEndUI();
+        if (matchEndUI != null)
+        {
+            matchEndUI.ShowFinalResults(
+                this,
+                null,
+                "ENDED BY UNANIMOUS VOTE"
+            );
+        }
+
+        return true;
+    }
+
+    public bool LeaveGame(BoardPlayer player)
+    {
+        if (gameOver || endGameVoteInProgress || player == null ||
+            !player.IsActive || GetActivePlayerCount() <= 1)
+        {
+            GameNotificationUI.Show("THE LAST ACTIVE PLAYER CANNOT LEAVE THE MATCH");
+            return false;
+        }
+
+        bool leavingCurrentPlayer = player == CurrentPlayer;
+        BoardSpace[] spaces = FindObjectsByType<BoardSpace>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None
+        );
+
+        foreach (BoardSpace space in spaces)
+        {
+            if (space != null && space.Owner == player)
+                space.ResetProperty();
+        }
+
+        player.MarkLeftGame();
+        Debug.Log("PLAYER LEFT MATCH: " + player.PlayerName + ". Owned property was returned to the bank.");
+
+        if (leavingCurrentPlayer)
+        {
+            isTurnActive = false;
+            waitingForPlayerAction = false;
+            currentPhase = GamePhase.TurnEnded;
+        }
+
+        CheckForWinner();
+
+        if (leavingCurrentPlayer && !gameOver)
+            MoveToNextPlayer();
+
+        return true;
     }
 
     // ============================================================
