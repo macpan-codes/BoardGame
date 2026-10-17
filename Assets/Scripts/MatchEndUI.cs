@@ -609,7 +609,7 @@ public sealed class MatchEndUI : MonoBehaviour
             {
                 Player = player,
                 Status = GetStatus(player),
-                Cash = player.IsBankrupt ? 0L : player.Money
+                Cash = player.IsActive ? player.Money : 0L
             };
 
             foreach (BoardSpace space in spaces)
