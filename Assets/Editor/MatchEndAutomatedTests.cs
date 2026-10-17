@@ -117,6 +117,22 @@ public static class MatchEndAutomatedTests
             failures
         );
 
+        RunCase(
+            "Zero-cash player can recover cash by mortgaging property",
+            TestZeroCashMortgageRecovery,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "The last active player cannot voluntarily leave without a winner",
+            TestLastActiveCannotLeave,
+            ref passed,
+            ref failed,
+            failures
+        );
+
         string summary =
             "Match-End Automated Tests\n\n" +
             "PASSED: " + passed + "\n" +
@@ -480,6 +496,42 @@ public static class MatchEndAutomatedTests
             Require(space.Houses == 0, "Buildings were not removed during bankruptcy transfer.");
             Require(!space.HasHotel, "Hotel was not removed during bankruptcy transfer.");
             Require(space.IsMortgaged, "Mortgage state should remain with transferred property.");
+        }
+    }
+
+    private static void TestZeroCashMortgageRecovery()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            BoardPlayer player = fixture.Players[0];
+            player.SetMoney(0);
+
+            BoardSpace property = CreateTestProperty(fixture.Root.transform, player, 100);
+
+            Require(player.IsActive, "A player with zero cash was incorrectly eliminated.");
+            Require(property.CanMortgage(), "Owned clean property was not mortgageable.");
+            Require(property.Mortgage(), "Mortgage operation failed.");
+            Require(property.IsMortgaged, "Property did not enter the mortgaged state.");
+            Require(player.Money == property.MortgageValue, "Mortgage money was not credited correctly.");
+            Require(player.IsActive, "Player was incorrectly eliminated after mortgage recovery.");
+        }
+    }
+
+    private static void TestLastActiveCannotLeave()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            fixture.Players[0].MarkEliminated();
+
+            bool result = fixture.Manager.LeaveGame(fixture.Players[1]);
+
+            Require(!result, "The last active player was allowed to leave.");
+            Require(fixture.Players[1].IsActive, "The last player was marked LEFT GAME.");
+            Require(!fixture.Manager.GameOver, "The game was left without a winner.");
+            Require(
+                fixture.Manager.ActivePlayerCount == 1,
+                "The last active player count changed unexpectedly."
+            );
         }
     }
 
