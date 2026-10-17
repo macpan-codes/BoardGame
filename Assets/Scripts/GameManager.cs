@@ -1447,8 +1447,14 @@ public class GameManager : MonoBehaviour
 
     public bool StartEndGameVote()
     {
-        if (gameOver || endGameVoteInProgress || GetActivePlayerCount() < 2)
+        if (gameOver ||
+            endGameVoteInProgress ||
+            GetActivePlayerCount() < 2 ||
+            waitingForPlayerAction ||
+            (CurrentPlayer != null && CurrentPlayer.IsMoving))
+        {
             return false;
+        }
 
         endGameVoteInProgress = true;
         Debug.Log("END-GAME VOTE STARTED: unanimous YES votes required.");
