@@ -549,6 +549,7 @@ public static class MatchEndAutomatedTests
     {
         GameObject propertyObject = new GameObject("TestProperty_" + price);
         propertyObject.transform.SetParent(parent, false);
+        propertyObject.SetActive(false);
 
         BoardSpace space = propertyObject.AddComponent<BoardSpace>();
 
@@ -562,6 +563,7 @@ public static class MatchEndAutomatedTests
         SetPrivateField(space, "showBuildingVisual", false);
         SetPrivateField(space, "spaceName", "Automated Test Property");
 
+        propertyObject.SetActive(true);
         space.SetOwner(owner);
         return space;
     }
