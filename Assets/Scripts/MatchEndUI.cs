@@ -29,6 +29,8 @@ public sealed class MatchEndUI : MonoBehaviour
     private GameObject overlay;
     private GameObject modal;
     private Button menuButton;
+    private BoardPlayer storedWinner;
+    private string storedReason;
     private readonly HashSet<BoardPlayer> yesVotes = new HashSet<BoardPlayer>();
 
     private static readonly Color Navy = new Color(0.035f, 0.055f, 0.10f, 0.98f);
@@ -48,8 +50,14 @@ public sealed class MatchEndUI : MonoBehaviour
 
     public void ShowEndGameMenu()
     {
-        if (gameManager == null || gameManager.GameOver)
+        if (gameManager == null)
             return;
+
+        if (gameManager.GameOver)
+        {
+            ShowFinalResults(gameManager, storedWinner, storedReason);
+            return;
+        }
 
         ShowOverlay();
         BuildModal("GAME MENU", new Vector2(620f, 470f));
@@ -87,6 +95,8 @@ public sealed class MatchEndUI : MonoBehaviour
         if (gameManager == null)
             return;
 
+        storedReason = reason;
+
         PlayerResult[] results = CalculateResults(gameManager);
         if (results.Length == 0)
             return;
@@ -103,6 +113,7 @@ public sealed class MatchEndUI : MonoBehaviour
             winner = highestActive != null ? highestActive.Player : null;
         }
 
+        storedWinner = winner;
         ShowOverlay();
         BuildModal("MATCH COMPLETE", new Vector2(1540f, 960f));
 
@@ -183,7 +194,17 @@ public sealed class MatchEndUI : MonoBehaviour
             new Vector2(220f, 44f), ButtonColor, HideOverlay);
 
         if (menuButton != null)
-            menuButton.gameObject.SetActive(false);
+        {
+            menuButton.gameObject.SetActive(true);
+            TMP_Text label = menuButton.GetComponentInChildren<TMP_Text>();
+            if (label != null)
+                label.text = "FINAL RESULTS";
+
+            menuButton.onClick.RemoveAllListeners();
+            menuButton.onClick.AddListener(
+                () => ShowFinalResults(gameManager, storedWinner, storedReason)
+            );
+        }
     }
 
     private void ShowLeavePlayerSelection()
@@ -428,7 +449,7 @@ public sealed class MatchEndUI : MonoBehaviour
         if (overlay != null)
             overlay.SetActive(false);
 
-        if (menuButton != null && (gameManager == null || !gameManager.GameOver))
+        if (menuButton != null)
             menuButton.gameObject.SetActive(true);
     }
 
