@@ -75,7 +75,6 @@ public sealed class MatchEndUI : MonoBehaviour
         gameManager = GetComponent<GameManager>();
         BindButtons();
         HideAllPanels();
-        SetMenuButtonLabel("MAIN MENU");
     }
 
     private void BindButtons()
