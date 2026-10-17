@@ -289,8 +289,15 @@ public static class MatchEndUIBuilder
         LayoutElement nameLayout = name.gameObject.AddComponent<LayoutElement>();
         nameLayout.flexibleWidth = 1f;
 
-        CreateButton(row.transform, "YesButton", "YES", Vector2.zero, Vector2.zero, new Vector2(88f, 42f), Green, out _);
-        CreateButton(row.transform, "NoButton", "NO", Vector2.zero, Vector2.zero, new Vector2(78f, 42f), Red, out _);
+        Button yesButton = CreateButton(row.transform, "YesButton", "YES", Vector2.zero, Vector2.zero, new Vector2(88f, 42f), Green, out _);
+        LayoutElement yesElement = yesButton.gameObject.AddComponent<LayoutElement>();
+        yesElement.preferredWidth = 88f;
+        yesElement.preferredHeight = 42f;
+
+        Button noButton = CreateButton(row.transform, "NoButton", "NO", Vector2.zero, Vector2.zero, new Vector2(78f, 42f), Red, out _);
+        LayoutElement noElement = noButton.gameObject.AddComponent<LayoutElement>();
+        noElement.preferredWidth = 78f;
+        noElement.preferredHeight = 42f;
         return row;
     }
 
