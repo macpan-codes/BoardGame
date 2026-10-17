@@ -1416,7 +1416,17 @@ public class GameManager : MonoBehaviour
         if (gameOver)
             return;
 
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i] == remainingPlayer)
+            {
+                currentPlayerIndex = i;
+                break;
+            }
+        }
+
         gameOver = true;
+        endGameVoteInProgress = false;
         isTurnActive = false;
         waitingForPlayerAction = false;
 
