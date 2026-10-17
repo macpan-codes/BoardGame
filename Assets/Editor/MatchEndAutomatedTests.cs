@@ -282,6 +282,10 @@ public static class MatchEndAutomatedTests
                 fixture.Manager.GetActivePlayers()[0] == fixture.Players[1],
                 "The wrong player survived."
             );
+            Require(
+                fixture.Manager.CurrentPlayer == fixture.Players[1],
+                "Current player was not updated to the winner."
+            );
         }
     }
 
@@ -414,6 +418,12 @@ public static class MatchEndAutomatedTests
             Require(
                 fixture.Manager.IsPlayerTurn(fixture.Players[0]),
                 "The current player's turn did not resume after a NO vote."
+            );
+
+            SetPrivateField(fixture.Manager, "waitingForPlayerAction", true);
+            Require(
+                !fixture.Manager.StartEndGameVote(),
+                "Voting was allowed while a player action was unresolved."
             );
         }
     }
