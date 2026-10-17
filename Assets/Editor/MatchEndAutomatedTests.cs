@@ -85,6 +85,38 @@ public static class MatchEndAutomatedTests
             failures
         );
 
+        RunCase(
+            "Voting pauses turns and a cancelled vote resumes the match",
+            TestVotePauseAndCancel,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "A unanimous end-game vote ends the match",
+            TestUnanimousVote,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Leaving the current player clears property and advances the turn",
+            TestVoluntaryLeave,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Bankruptcy property transfer removes buildings and preserves mortgage",
+            TestBankruptcyPropertyTransfer,
+            ref passed,
+            ref failed,
+            failures
+        );
+
         string summary =
             "Match-End Automated Tests\n\n" +
             "PASSED: " + passed + "\n" +
@@ -320,6 +352,156 @@ public static class MatchEndAutomatedTests
                 "Not all players were active after reset."
             );
         }
+    }
+
+    private static void TestVotePauseAndCancel()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            SetPrivateField(fixture.Manager, "isTurnActive", true);
+
+            Require(
+                fixture.Manager.IsPlayerTurn(fixture.Players[0]),
+                "The current player should be able to act before the vote."
+            );
+
+            Require(
+                fixture.Manager.StartEndGameVote(),
+                "The end-game vote did not start."
+            );
+
+            Require(
+                fixture.Manager.IsEndGameVoteInProgress,
+                "Vote state was not enabled."
+            );
+
+            Require(
+                !fixture.Manager.IsPlayerTurn(fixture.Players[0]),
+                "Current player could still act during the vote."
+            );
+
+            int currentIndex = fixture.Manager.CurrentPlayerIndex;
+            fixture.Manager.EndTurn();
+
+            Require(
+                fixture.Manager.CurrentPlayerIndex == currentIndex,
+                "The turn changed while voting was active."
+            );
+
+            fixture.Manager.CancelEndGameVote();
+
+            Require(
+                !fixture.Manager.IsEndGameVoteInProgress,
+                "Vote state was not cleared after cancellation."
+            );
+
+            Require(
+                fixture.Manager.IsPlayerTurn(fixture.Players[0]),
+                "The current player's turn did not resume after a NO vote."
+            );
+        }
+    }
+
+    private static void TestUnanimousVote()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            SetPrivateField(fixture.Manager, "isTurnActive", true);
+
+            Require(
+                fixture.Manager.StartEndGameVote(),
+                "The end-game vote did not start."
+            );
+
+            Require(
+                fixture.Manager.EndGameByUnanimousVote(),
+                "The unanimous vote was not accepted."
+            );
+
+            Require(fixture.Manager.GameOver, "GameOver was not set after unanimous vote.");
+            Require(!fixture.Manager.IsTurnActive, "A turn remained active after voting ended the game.");
+            Require(!fixture.Manager.WaitingForPlayerAction, "A player action remained pending.");
+            Require(!fixture.Manager.IsEndGameVoteInProgress, "Vote state remained active after game over.");
+
+            fixture.Manager.CancelEndGameVote();
+            Require(fixture.Manager.GameOver, "Cancelling a completed vote unexpectedly resumed the match.");
+        }
+    }
+
+    private static void TestVoluntaryLeave()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            BoardPlayer leavingPlayer = fixture.Players[0];
+            BoardSpace space = CreateTestProperty(fixture.Root.transform, leavingPlayer, 120);
+
+            SetPrivateField(space, "houses", 2);
+            SetPrivateField(space, "hotel", true);
+            SetPrivateField(space, "mortgaged", true);
+
+            Require(
+                fixture.Manager.LeaveGame(leavingPlayer),
+                "LeaveGame rejected a valid leave request."
+            );
+
+            Require(leavingPlayer.HasLeftGame, "Player was not marked LEFT GAME.");
+            Require(!leavingPlayer.IsActive, "Left player remained active.");
+            Require(space.Owner == null, "The leaving player's property was not returned to the bank.");
+            Require(!space.IsOwned, "The leaving property remained marked as owned.");
+            Require(space.Houses == 0, "Houses were not cleared.");
+            Require(!space.HasHotel, "Hotel was not cleared.");
+            Require(!space.IsMortgaged, "Mortgage was not cleared.");
+            Require(
+                fixture.Manager.CurrentPlayer == fixture.Players[1],
+                "Turn did not advance to the next active player."
+            );
+            Require(
+                fixture.Manager.ActivePlayerCount == 2,
+                "Leaving player was not excluded from active player count."
+            );
+        }
+    }
+
+    private static void TestBankruptcyPropertyTransfer()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            BoardPlayer debtor = fixture.Players[0];
+            BoardPlayer creditor = fixture.Players[1];
+
+            BoardSpace space = CreateTestProperty(fixture.Root.transform, debtor, 150);
+            SetPrivateField(space, "houses", 3);
+            SetPrivateField(space, "hotel", true);
+            SetPrivateField(space, "mortgaged", true);
+
+            space.TransferOwnershipForBankruptcy(creditor);
+
+            Require(space.Owner == creditor, "Property was not transferred to the creditor.");
+            Require(space.Houses == 0, "Buildings were not removed during bankruptcy transfer.");
+            Require(!space.HasHotel, "Hotel was not removed during bankruptcy transfer.");
+            Require(space.IsMortgaged, "Mortgage state should remain with transferred property.");
+        }
+    }
+
+    private static BoardSpace CreateTestProperty(Transform parent, BoardPlayer owner, int price)
+    {
+        GameObject propertyObject = new GameObject("TestProperty_" + price);
+        propertyObject.transform.SetParent(parent, false);
+
+        BoardSpace space = propertyObject.AddComponent<BoardSpace>();
+
+        SetPrivateField(
+            space,
+            "spaceType",
+            Enum.Parse(typeof(BoardSpaceType), "Property")
+        );
+        SetPrivateField(space, "purchasePrice", price);
+        SetPrivateField(space, "mortgageValue", price / 2);
+        SetPrivateField(space, "showBuildingVisual", false);
+        SetPrivateField(space, "spaceName", "Automated Test Property");
+
+        space.SetOwner(owner);
+        return space;
     }
 
     private static void RunCase(
