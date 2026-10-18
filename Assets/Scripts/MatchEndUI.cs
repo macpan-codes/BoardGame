@@ -87,12 +87,147 @@ public sealed class MatchEndUI : MonoBehaviour
     private void Awake()
     {
         gameManager = GetComponent<GameManager>();
+        ResolveMissingReferences();
         voteInstructionText = FindChildText(
             votePanel != null ? votePanel.transform : null,
             "VoteInstruction"
         );
         BindButtons();
         HideAllPanels();
+    }
+
+    /// <summary>
+    /// Recovers common missing scene references without recreating or
+    /// restyling the user's manually designed UI. Button labels are used
+    /// as the reliable fallback when an Inspector slot was left empty
+    /// or accidentally pointed at another button.
+    /// </summary>
+    private void ResolveMissingReferences()
+    {
+        if (overlay == null)
+        {
+            GameObject foundOverlay = GameObject.Find("MatchEndOverlay");
+            if (foundOverlay != null)
+                overlay = foundOverlay;
+        }
+
+        if (leaveConfirmPanel == null && overlay != null)
+            leaveConfirmPanel = FindPanelByName(overlay.transform, "LeaveConfirmPanel");
+
+        if (leaveConfirmPanel != null)
+        {
+            Button yesByLabel = FindButtonByNormalizedLabel(
+                leaveConfirmPanel.transform,
+                "YESLEAVE"
+            );
+
+            if (yesByLabel != null)
+                leaveConfirmYesButton = yesByLabel;
+
+            Button cancelByLabel = FindButtonByNormalizedLabel(
+                leaveConfirmPanel.transform,
+                "CANCEL"
+            );
+
+            if (cancelByLabel != null)
+                leaveConfirmCancelButton = cancelByLabel;
+
+            if (leaveConfirmText == null)
+                leaveConfirmText = FindFirstTextOutsideButtons(
+                    leaveConfirmPanel.transform
+                );
+        }
+
+        if (leaveConfirmYesButton == null)
+            Debug.LogError(
+                "MatchEndUI: Could not find the YES, LEAVE Button. " +
+                "Assign it to Leave Confirm Yes Button on MatchEndUI, " +
+                "or make sure the button's visible text is 'YES, LEAVE'.",
+                this
+            );
+
+        if (leaveConfirmCancelButton == null)
+            Debug.LogWarning(
+                "MatchEndUI: Could not find the Leave Confirm Cancel Button. " +
+                "Assign it in the MatchEndUI Inspector.",
+                this
+            );
+    }
+
+    private static GameObject FindPanelByName(Transform root, string targetName)
+    {
+        if (root == null)
+            return null;
+
+        Transform[] descendants = root.GetComponentsInChildren<Transform>(true);
+        foreach (Transform child in descendants)
+        {
+            if (string.Equals(child.name, targetName, StringComparison.OrdinalIgnoreCase))
+                return child.gameObject;
+        }
+
+        return null;
+    }
+
+    private static Button FindButtonByNormalizedLabel(Transform root, string normalizedTarget)
+    {
+        if (root == null)
+            return null;
+
+        Button[] buttons = root.GetComponentsInChildren<Button>(true);
+        foreach (Button button in buttons)
+        {
+            if (button == null)
+                continue;
+
+            string label = GetButtonText(button);
+            if (NormalizeButtonLabel(label) == normalizedTarget)
+                return button;
+
+            string objectName = NormalizeButtonLabel(button.gameObject.name);
+            if (objectName == normalizedTarget)
+                return button;
+        }
+
+        return null;
+    }
+
+    private static string GetButtonText(Button button)
+    {
+        TMP_Text tmp = button.GetComponentInChildren<TMP_Text>(true);
+        if (tmp != null)
+            return tmp.text;
+
+        Text legacyText = button.GetComponentInChildren<Text>(true);
+        return legacyText != null ? legacyText.text : string.Empty;
+    }
+
+    private static string NormalizeButtonLabel(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        char[] chars = value
+            .ToUpperInvariant()
+            .Where(char.IsLetterOrDigit)
+            .ToArray();
+
+        return new string(chars);
+    }
+
+    private static TMP_Text FindFirstTextOutsideButtons(Transform root)
+    {
+        if (root == null)
+            return null;
+
+        TMP_Text[] texts = root.GetComponentsInChildren<TMP_Text>(true);
+        foreach (TMP_Text text in texts)
+        {
+            if (text != null && text.GetComponentInParent<Button>() == null)
+                return text;
+        }
+
+        return null;
     }
 
     private void BindButtons()
@@ -464,9 +599,23 @@ public sealed class MatchEndUI : MonoBehaviour
 
     private void ConfirmLeave()
     {
-        if (gameManager == null || selectedLeavingPlayer == null)
+        Debug.Log("MatchEndUI: YES, LEAVE was clicked.", this);
+
+        if (gameManager == null)
         {
-            HideOverlay();
+            Debug.LogError("MatchEndUI: GameManager reference is missing.", this);
+            GameNotificationUI.Show("COULD NOT LEAVE: GAME MANAGER IS MISSING");
+            return;
+        }
+
+        if (selectedLeavingPlayer == null)
+        {
+            Debug.LogError(
+                "MatchEndUI: YES, LEAVE was clicked but no leaving player was selected.",
+                this
+            );
+            GameNotificationUI.Show("PLEASE SELECT LEAVE GAME AGAIN");
+            ShowEndGameMenu();
             return;
         }
 
