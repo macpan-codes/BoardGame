@@ -61,7 +61,16 @@ public class FinancialRecoveryManager : MonoBehaviour
             return;
         }
 
-        if (GetTotalRecoveryValue(activeDebtor) < remainingDebt)
+        // Cash already raised by mortgages counts toward the debt.
+        // Only eliminate when the player's remaining recoverable assets
+        // cannot cover the amount still missing after current cash.
+        long remainingShortfall =
+            System.Math.Max(
+                0L,
+                remainingDebt - activeDebtor.Money
+            );
+
+        if (GetTotalRecoveryValue(activeDebtor) < remainingShortfall)
         {
             EliminateForDebt();
         }
@@ -186,7 +195,13 @@ public class FinancialRecoveryManager : MonoBehaviour
             $"Reason: {debtReason}"
         );
 
-        if (GetTotalRecoveryValue(debtor) < remainingDebt)
+        long remainingShortfall =
+            System.Math.Max(
+                0L,
+                remainingDebt - debtor.Money
+            );
+
+        if (GetTotalRecoveryValue(debtor) < remainingShortfall)
         {
             EliminateForDebt();
         }
