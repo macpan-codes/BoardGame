@@ -80,6 +80,28 @@ public class FinancialRecoveryManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Voluntary leaving ends the player's pending recovery session.
+    /// Their assets are handled by GameManager.LeaveGame; this prevents
+    /// the recovery Update loop from eliminating a player who already left.
+    /// </summary>
+    public bool CancelRecoveryForVoluntaryLeave(BoardPlayer player)
+    {
+        if (player == null || activeDebtor != player)
+            return false;
+
+        long cancelledDebt = remainingDebt;
+        resolving = false;
+        ClearRecoveryState();
+
+        Debug.Log(
+            $"FINANCIAL RECOVERY CANCELLED: {player.PlayerName} left the match. " +
+            $"Outstanding debt forfeited: ${cancelledDebt:N0}M."
+        );
+
+        return true;
+    }
+
+    /// <summary>
     /// Starts debt recovery. Existing cash is paid first. Any remainder
     /// remains open while the player liquidates assets.
     /// </summary>
