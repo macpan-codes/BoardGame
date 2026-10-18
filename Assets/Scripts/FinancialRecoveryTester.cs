@@ -1665,19 +1665,54 @@ public class FinancialRecoveryTester : MonoBehaviour
 
         public void Restore()
         {
+            List<Exception> errors = new List<Exception>();
+
             foreach (ComponentFieldSnapshot state in componentStates)
-                state.Restore();
+            {
+                try
+                {
+                    state.Restore();
+                }
+                catch (Exception exception)
+                {
+                    errors.Add(exception);
+                }
+            }
 
             foreach (PlayerVisualSnapshot state in playerVisuals)
-                state.Restore();
+            {
+                try
+                {
+                    state.Restore();
+                }
+                catch (Exception exception)
+                {
+                    errors.Add(exception);
+                }
+            }
 
             foreach (BoardSpace space in spaces)
             {
                 if (space == null)
                     continue;
 
-                space.RefreshOwnershipMarker();
-                space.RefreshBuildingVisual();
+                try
+                {
+                    space.RefreshOwnershipMarker();
+                    space.RefreshBuildingVisual();
+                }
+                catch (Exception exception)
+                {
+                    errors.Add(exception);
+                }
+            }
+
+            if (errors.Count > 0)
+            {
+                throw new AggregateException(
+                    "One or more scene components could not be fully restored after batch testing.",
+                    errors
+                );
             }
         }
     }
