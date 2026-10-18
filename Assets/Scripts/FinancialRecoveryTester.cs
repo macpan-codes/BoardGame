@@ -1128,6 +1128,8 @@ public class FinancialRecoveryTester : MonoBehaviour
                 yield return null;
 
                 string result = null;
+                bool waitForSecondMortgageResult = false;
+
                 try
                 {
                     if (scenarios[i] == TestScenario.MultipleMortgageRecovery)
@@ -1143,8 +1145,7 @@ public class FinancialRecoveryTester : MonoBehaviour
                             }
                             else
                             {
-                                yield return null;
-                                result = ValidateCompletedMultipleMortgage();
+                                waitForSecondMortgageResult = true;
                             }
                         }
                     }
@@ -1156,6 +1157,20 @@ public class FinancialRecoveryTester : MonoBehaviour
                 catch (Exception exception)
                 {
                     result = exception.GetType().Name + ": " + exception.Message;
+                }
+
+                if (waitForSecondMortgageResult && string.IsNullOrEmpty(result))
+                {
+                    yield return null;
+
+                    try
+                    {
+                        result = ValidateCompletedMultipleMortgage();
+                    }
+                    catch (Exception exception)
+                    {
+                        result = exception.GetType().Name + ": " + exception.Message;
+                    }
                 }
 
                 RecordBatchResult(
@@ -1171,7 +1186,13 @@ public class FinancialRecoveryTester : MonoBehaviour
         }
         finally
         {
+            List<string> completedResults =
+                new List<string>(batchResults);
+
             RestoreBatchEnvironment();
+
+            batchResults.Clear();
+            batchResults.AddRange(completedResults);
 
             batchTestRunning = false;
             batchCoroutine = null;
@@ -1487,7 +1508,10 @@ public class FinancialRecoveryTester : MonoBehaviour
     private void RestoreBatchEnvironment()
     {
         BatchSnapshot snapshot = activeBatchSnapshot;
+        GameObject guard = batchGuardObject;
+
         activeBatchSnapshot = null;
+        batchGuardObject = null;
 
         if (snapshot != null)
         {
@@ -1504,11 +1528,8 @@ public class FinancialRecoveryTester : MonoBehaviour
             }
         }
 
-        if (batchGuardObject != null)
-        {
-            Destroy(batchGuardObject);
-            batchGuardObject = null;
-        }
+        if (guard != null)
+            Destroy(guard);
     }
 
     private static T GetPrivateField<T>(object target, string fieldName)
