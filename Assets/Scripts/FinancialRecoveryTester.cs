@@ -1051,6 +1051,8 @@ public class FinancialRecoveryTester : MonoBehaviour
         );
 
         if (scenePlayers.Length < 2 ||
+            gameManager.Players == null ||
+            gameManager.Players.Length < 2 ||
             FindPlayerByNumber(debtorPlayerNumber) == null ||
             FindPlayerByNumber(creditorPlayerNumber) == null ||
             debtorPlayerNumber == creditorPlayerNumber)
@@ -1084,6 +1086,7 @@ public class FinancialRecoveryTester : MonoBehaviour
         {
             batchTestRunning = false;
             activeBatchSnapshot = null;
+            batchTestSummary = "Batch not started: scene snapshot failed.";
             SetResult(
                 "BATCH NOT STARTED: could not snapshot scene state. " +
                 exception.GetType().Name + ": " + exception.Message
@@ -1433,6 +1436,8 @@ public class FinancialRecoveryTester : MonoBehaviour
             case TestScenario.BankruptcyToCreditor:
                 if (!batchDebtor.IsBankrupt)
                     return "Debtor was not eliminated despite debt exceeding all recoverable assets.";
+                if (recoveryManager.IsRecoveryActive)
+                    return "Recovery state remained active after creditor bankruptcy settlement.";
                 if (batchPrimaryProperty == null ||
                     batchPrimaryProperty.Owner != batchCreditor)
                     return "Property was not transferred to the creditor.";
@@ -1445,6 +1450,8 @@ public class FinancialRecoveryTester : MonoBehaviour
             case TestScenario.BankruptcyToBank:
                 if (!batchDebtor.IsBankrupt)
                     return "Debtor was not eliminated for unrecoverable bank debt.";
+                if (recoveryManager.IsRecoveryActive)
+                    return "Recovery state remained active after bank bankruptcy settlement.";
                 if (batchPrimaryProperty == null ||
                     batchPrimaryProperty.Owner != null ||
                     batchPrimaryProperty.IsOwned ||
