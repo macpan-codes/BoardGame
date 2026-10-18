@@ -133,6 +133,14 @@ public static class MatchEndAutomatedTests
             failures
         );
 
+        RunCase(
+            "A player cannot remove a different player from the local match",
+            TestCannotLeaveAnotherPlayer,
+            ref passed,
+            ref failed,
+            failures
+        );
+
         string summary =
             "Match-End Automated Tests\n\n" +
             "PASSED: " + passed + "\n" +
@@ -506,6 +514,32 @@ public static class MatchEndAutomatedTests
             Require(space.Houses == 0, "Buildings were not removed during bankruptcy transfer.");
             Require(!space.HasHotel, "Hotel was not removed during bankruptcy transfer.");
             Require(space.IsMortgaged, "Mortgage state should remain with transferred property.");
+        }
+    }
+
+    private static void TestCannotLeaveAnotherPlayer()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            BoardPlayer currentPlayer = fixture.Players[0];
+            BoardPlayer otherPlayer = fixture.Players[1];
+
+            BoardSpace otherPlayerProperty =
+                CreateTestProperty(fixture.Root.transform, otherPlayer, 140);
+
+            bool result = fixture.Manager.LeaveGame(otherPlayer);
+
+            Require(!result, "Current player was allowed to remove a different player.");
+            Require(otherPlayer.IsActive, "Target player was incorrectly marked LEFT GAME.");
+            Require(otherPlayerProperty.Owner == otherPlayer, "Target player's property was cleared.");
+            Require(
+                fixture.Manager.ActivePlayerCount == 3,
+                "Active player count changed after a rejected leave request."
+            );
+            Require(
+                fixture.Manager.CurrentPlayer == currentPlayer,
+                "Current player changed after a rejected leave request."
+            );
         }
     }
 
