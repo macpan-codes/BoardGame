@@ -1189,7 +1189,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             List<string> completedResults =
                 new List<string>(batchResults);
 
-            RestoreBatchEnvironment();
+            bool originalSceneRestored = RestoreBatchEnvironment();
 
             batchResults.Clear();
             batchResults.AddRange(completedResults);
@@ -1218,7 +1218,9 @@ public class FinancialRecoveryTester : MonoBehaviour
                 "FINANCIAL RECOVERY BATCH\n" +
                 "PASSED: " + passed + "\n" +
                 "FAILED: " + failed + "\n" +
-                "Original scene state restored.";
+                (originalSceneRestored
+                    ? "Original scene state restored."
+                    : "WARNING: state restore reported an error. Check Console before continuing.");
 
             SetResult(batchTestSummary);
             Debug.Log(batchTestSummary + "\n" + string.Join("\n", batchResults), this);
@@ -1505,10 +1507,11 @@ public class FinancialRecoveryTester : MonoBehaviour
         Debug.Log(result, this);
     }
 
-    private void RestoreBatchEnvironment()
+    private bool RestoreBatchEnvironment()
     {
         BatchSnapshot snapshot = activeBatchSnapshot;
         GameObject guard = batchGuardObject;
+        bool restored = true;
 
         activeBatchSnapshot = null;
         batchGuardObject = null;
@@ -1521,6 +1524,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             }
             catch (Exception exception)
             {
+                restored = false;
                 Debug.LogError(
                     "FinancialRecoveryTester: Failed to restore all scene state after batch tests. " +
                     exception
@@ -1530,6 +1534,8 @@ public class FinancialRecoveryTester : MonoBehaviour
 
         if (guard != null)
             Destroy(guard);
+
+        return restored;
     }
 
     private static T GetPrivateField<T>(object target, string fieldName)
