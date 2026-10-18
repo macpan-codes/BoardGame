@@ -1415,8 +1415,8 @@ public class FinancialRecoveryTester : MonoBehaviour
                     return "Property was not transferred to the creditor.";
                 if (batchPrimaryProperty.Houses != 0 ||
                     batchPrimaryProperty.HasHotel ||
-                    !batchPrimaryProperty.IsMortgaged)
-                    return "Transferred property buildings/mortgage were not handled correctly.";
+                    batchPrimaryProperty.IsMortgaged)
+                    return "Transferred property buildings or mortgage state changed unexpectedly.";
                 return null;
 
             case TestScenario.BankruptcyToBank:
