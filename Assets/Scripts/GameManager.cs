@@ -1524,6 +1524,49 @@ public class GameManager : MonoBehaviour
         }
 
         bool leavingCurrentPlayer = player == CurrentPlayer;
+
+        // Clear any pending recovery/card action before removing the player.
+        // This prevents a coroutine or recovery Update from acting on them later.
+        FinancialRecoveryManager recovery =
+            FindFirstObjectByType<FinancialRecoveryManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (recovery != null)
+            recovery.CancelRecoveryForVoluntaryLeave(player);
+
+        CardManager cardManager =
+            FindFirstObjectByType<CardManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (cardManager != null)
+            cardManager.CancelForPlayerLeaving(player);
+
+        LandingActionPanel[] landingPanels =
+            FindObjectsByType<LandingActionPanel>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            );
+
+        foreach (LandingActionPanel panel in landingPanels)
+        {
+            if (panel != null)
+                panel.HidePanel();
+        }
+
+        PropertyManagementPanel[] managementPanels =
+            FindObjectsByType<PropertyManagementPanel>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            );
+
+        foreach (PropertyManagementPanel panel in managementPanels)
+        {
+            if (panel != null)
+                panel.Hide();
+        }
+
         BoardSpace[] spaces = FindObjectsByType<BoardSpace>(
             FindObjectsInactive.Include,
             FindObjectsSortMode.None
@@ -1542,6 +1585,8 @@ public class GameManager : MonoBehaviour
         {
             isTurnActive = false;
             waitingForPlayerAction = false;
+            lastDiceRoll = 0;
+            consecutiveDoubles = 0;
             currentPhase = GamePhase.TurnEnded;
         }
 
