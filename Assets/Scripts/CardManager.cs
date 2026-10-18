@@ -2859,6 +2859,37 @@ public class CardManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Closes the active card interaction when its player voluntarily leaves.
+    /// Does not end the turn; GameManager.LeaveGame advances the match once.
+    /// </summary>
+    public bool CancelForPlayerLeaving(BoardPlayer player)
+    {
+        if (player == null || activePlayer != player)
+            return false;
+
+        if (chanceCardUI != null)
+            chanceCardUI.HideImmediate();
+
+        activePlayer = null;
+        activeCard = null;
+        activeDeck = null;
+
+        waitingForChoice = false;
+        waitingForPlayerTarget = false;
+        waitingForPropertyTarget = false;
+
+        playerTargets.Clear();
+        propertyTargets.Clear();
+
+        selectedPlayerTarget = null;
+        selectedPropertyTarget = null;
+        targetIndex = 0;
+
+        Debug.Log($"Card interaction cancelled because {player.PlayerName} left the match.");
+        return true;
+    }
+
     // ============================================================
     // DEFAULT CHANCE DECK
     // ============================================================
