@@ -1762,23 +1762,41 @@ public class FinancialRecoveryTester : MonoBehaviour
             if (target == null)
                 return;
 
+            List<Exception> errors = new List<Exception>();
+
             foreach (FieldValueSnapshot state in fields)
             {
-                if (state.Field.IsInitOnly &&
-                    FinancialRecoveryTester.IsMutableCollection(state.Value))
+                try
                 {
-                    FinancialRecoveryTester.RestoreCollectionInPlace(
-                        state.Field.GetValue(target),
-                        state.Value
-                    );
+                    if (state.Field.IsInitOnly &&
+                        FinancialRecoveryTester.IsMutableCollection(state.Value))
+                    {
+                        FinancialRecoveryTester.RestoreCollectionInPlace(
+                            state.Field.GetValue(target),
+                            state.Value
+                        );
+                    }
+                    else
+                    {
+                        state.Field.SetValue(
+                            target,
+                            FinancialRecoveryTester.SnapshotValue(state.Value)
+                        );
+                    }
                 }
-                else
+                catch (Exception exception)
                 {
-                    state.Field.SetValue(
-                        target,
-                        FinancialRecoveryTester.SnapshotValue(state.Value)
-                    );
+                    errors.Add(exception);
                 }
+            }
+
+            if (errors.Count > 0)
+            {
+                throw new AggregateException(
+                    "One or more fields could not be restored on " +
+                    target.GetType().Name + ".",
+                    errors
+                );
             }
         }
     }
