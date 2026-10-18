@@ -93,7 +93,6 @@ public class FinancialRecoveryTester : MonoBehaviour
         "Batch suite has not run.";
 
     private BatchSnapshot activeBatchSnapshot;
-    private GameObject batchGuardObject;
     private BoardPlayer batchDebtor;
     private BoardPlayer batchCreditor;
     private BoardSpace batchPrimaryProperty;
@@ -108,6 +107,12 @@ public class FinancialRecoveryTester : MonoBehaviour
 
     public string BatchTestSummary =>
         batchTestSummary;
+
+    public static bool IsBatchTestRunning
+    {
+        get;
+        private set;
+    }
 
     // ============================================================
     // INTERNAL STATE
@@ -159,6 +164,8 @@ public class FinancialRecoveryTester : MonoBehaviour
             batchTestRunning = false;
             batchTestSummary = "Batch run stopped; original scene state restored.";
         }
+
+        IsBatchTestRunning = false;
     }
 
     // ============================================================
@@ -1084,6 +1091,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             return;
         }
 
+        IsBatchTestRunning = true;
         batchCoroutine = StartCoroutine(RunAllAutomatedScenariosRoutine());
     }
 
@@ -1115,8 +1123,6 @@ public class FinancialRecoveryTester : MonoBehaviour
 
         try
         {
-            InstallTemporaryActivePlayerGuard();
-
             for (int i = 0; i < scenarios.Length; i++)
             {
                 string startError = null;
@@ -1204,6 +1210,7 @@ public class FinancialRecoveryTester : MonoBehaviour
                 new List<string>(batchResults);
 
             bool originalSceneRestored = RestoreBatchEnvironment();
+            IsBatchTestRunning = false;
 
             batchResults.Clear();
             batchResults.AddRange(completedResults);
@@ -1490,28 +1497,6 @@ public class FinancialRecoveryTester : MonoBehaviour
         return null;
     }
 
-    private void InstallTemporaryActivePlayerGuard()
-    {
-        // A hidden, temporary active participant prevents a 2-player test
-        // scenario from opening the actual winner screen mid-batch.
-        batchGuardObject = new GameObject("__RecoveryBatchGuard");
-        batchGuardObject.hideFlags = HideFlags.HideAndDontSave;
-        batchGuardObject.SetActive(false);
-
-        BoardPlayer guard = batchGuardObject.AddComponent<BoardPlayer>();
-        guard.SetPlayerNumber(999);
-        guard.SetPlayerName("Batch Test Guard");
-
-        BoardPlayer[] existingPlayers = gameManager.Players;
-        BoardPlayer[] expandedPlayers =
-            new BoardPlayer[existingPlayers.Length + 1];
-
-        Array.Copy(existingPlayers, expandedPlayers, existingPlayers.Length);
-        expandedPlayers[expandedPlayers.Length - 1] = guard;
-
-        SetPrivateField(gameManager, "players", expandedPlayers);
-    }
-
     private void RecordBatchResult(string name, bool passed, string detail)
     {
         string result =
@@ -1524,11 +1509,9 @@ public class FinancialRecoveryTester : MonoBehaviour
     private bool RestoreBatchEnvironment()
     {
         BatchSnapshot snapshot = activeBatchSnapshot;
-        GameObject guard = batchGuardObject;
         bool restored = true;
 
         activeBatchSnapshot = null;
-        batchGuardObject = null;
 
         if (snapshot != null)
         {
@@ -1545,9 +1528,6 @@ public class FinancialRecoveryTester : MonoBehaviour
                 );
             }
         }
-
-        if (guard != null)
-            Destroy(guard);
 
         return restored;
     }
