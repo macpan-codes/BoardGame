@@ -1386,6 +1386,12 @@ public class GameManager : MonoBehaviour
 
     public void CheckForWinner()
     {
+        // The recovery batch runner deliberately eliminates test players
+        // to verify asset settlement. Suppress only the winner UI/state
+        // transition for the duration of that isolated, auto-restored batch.
+        if (FinancialRecoveryTester.IsBatchTestRunning)
+            return;
+
         if (players == null)
             return;
 
