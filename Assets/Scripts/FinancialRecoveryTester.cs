@@ -1064,11 +1064,25 @@ public class FinancialRecoveryTester : MonoBehaviour
         batchResults.Clear();
         batchTestRunning = true;
         batchTestSummary = "Running six scenarios...";
-        activeBatchSnapshot = BatchSnapshot.Capture(
-            this,
-            gameManager,
-            recoveryManager
-        );
+
+        try
+        {
+            activeBatchSnapshot = BatchSnapshot.Capture(
+                this,
+                gameManager,
+                recoveryManager
+            );
+        }
+        catch (Exception exception)
+        {
+            batchTestRunning = false;
+            activeBatchSnapshot = null;
+            SetResult(
+                "BATCH NOT STARTED: could not snapshot scene state. " +
+                exception.GetType().Name + ": " + exception.Message
+            );
+            return;
+        }
 
         batchCoroutine = StartCoroutine(RunAllAutomatedScenariosRoutine());
     }
