@@ -1215,6 +1215,11 @@ public class FinancialRecoveryTester : MonoBehaviour
             bool originalSceneRestored = RestoreBatchEnvironment();
             IsBatchTestRunning = false;
 
+            // Clear temporary recovery/turn notifications created by the suite
+            // so the restored match is not left showing a test-only message.
+            if (GameNotificationUI.Instance != null)
+                GameNotificationUI.Instance.HideImmediate();
+
             batchResults.Clear();
             batchResults.AddRange(completedResults);
 
