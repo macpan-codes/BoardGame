@@ -2868,6 +2868,8 @@ public class CardManager : MonoBehaviour
         if (player == null || activePlayer != player)
             return false;
 
+        StopAllCoroutines();
+
         if (chanceCardUI != null)
             chanceCardUI.HideImmediate();
 
