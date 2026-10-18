@@ -929,6 +929,7 @@ public class BoardPlayer : MonoBehaviour
 
     public void MarkEliminated()
     {
+        StopAllCoroutines();
         bankrupt = true;
         leftGame = false;
         isMoving = false;
@@ -947,6 +948,7 @@ public class BoardPlayer : MonoBehaviour
 
     public void MarkLeftGame()
     {
+        StopAllCoroutines();
         leftGame = true;
         bankrupt = false;
         isMoving = false;
