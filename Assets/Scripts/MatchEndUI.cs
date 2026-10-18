@@ -66,13 +66,31 @@ public sealed class MatchEndUI : MonoBehaviour
 
     private GameManager gameManager;
     private readonly HashSet<BoardPlayer> yesVotes = new HashSet<BoardPlayer>();
+    private readonly List<BoardPlayer> voteOrder = new List<BoardPlayer>();
+    private int currentVoteIndex;
+    private TMP_Text voteInstructionText;
     private BoardPlayer selectedLeavingPlayer;
     private BoardPlayer storedWinner;
     private string storedReason;
 
+    public BoardPlayer CurrentVotePlayer =>
+        currentVoteIndex >= 0 && currentVoteIndex < voteOrder.Count
+            ? voteOrder[currentVoteIndex]
+            : null;
+
+    public int VoteCountReceived =>
+        yesVotes.Count;
+
+    public int VotePlayerCount =>
+        voteOrder.Count;
+
     private void Awake()
     {
         gameManager = GetComponent<GameManager>();
+        voteInstructionText = FindChildText(
+            votePanel != null ? votePanel.transform : null,
+            "VoteInstruction"
+        );
         BindButtons();
         HideAllPanels();
     }
@@ -204,6 +222,9 @@ public sealed class MatchEndUI : MonoBehaviour
     private void BeginVote()
     {
         yesVotes.Clear();
+        voteOrder.Clear();
+        currentVoteIndex = 0;
+
         if (gameManager == null || !gameManager.StartEndGameVote())
         {
             GameNotificationUI.Show("THE END-GAME VOTE CANNOT START RIGHT NOW");
@@ -211,48 +232,130 @@ public sealed class MatchEndUI : MonoBehaviour
             return;
         }
 
+        BuildVoteOrder();
+
+        if (voteOrder.Count < 2)
+        {
+            CancelVote();
+            return;
+        }
+
         ShowVotePanel();
+    }
+
+    private void BuildVoteOrder()
+    {
+        voteOrder.Clear();
+
+        if (gameManager == null)
+            return;
+
+        BoardPlayer[] players = gameManager.Players;
+        if (players == null || players.Length == 0)
+            return;
+
+        // Start with the player whose turn it is, then continue in turn order.
+        int startIndex = System.Array.IndexOf(
+            players,
+            gameManager.CurrentPlayer
+        );
+
+        if (startIndex < 0)
+            startIndex = 0;
+
+        for (int offset = 0; offset < players.Length; offset++)
+        {
+            int index = (startIndex + offset) % players.Length;
+            BoardPlayer player = players[index];
+
+            if (player != null && player.IsActive)
+                voteOrder.Add(player);
+        }
     }
 
     private void ShowVotePanel()
     {
         if (gameManager == null || votePanel == null || voteRows == null || voteRowTemplate == null)
         {
-            Debug.LogError("MatchEndUI: Vote UI references are missing. Rebuild the editable UI from the Board Game menu.");
+            Debug.LogError("MatchEndUI: Vote UI references are missing. The scene design was not changed.");
             return;
         }
 
         ClearDynamicRows(voteRows, voteRowTemplate);
-        BoardPlayer[] activePlayers = gameManager.GetActivePlayers();
 
-        foreach (BoardPlayer player in activePlayers)
+        // Inactive participants cannot cast a vote. Move forward safely if
+        // a participant was eliminated by a future extension during voting.
+        while (currentVoteIndex < voteOrder.Count &&
+               (voteOrder[currentVoteIndex] == null ||
+                !voteOrder[currentVoteIndex].IsActive ||
+                yesVotes.Contains(voteOrder[currentVoteIndex])))
         {
-            GameObject row = Instantiate(voteRowTemplate, voteRows);
-            row.name = "VoteRow_Player" + player.PlayerNumber;
-            row.SetActive(true);
+            currentVoteIndex++;
+        }
 
-            TMP_Text nameText = FindChildText(row.transform, "VoterName");
-            if (nameText != null)
-                nameText.text = player.PlayerName;
+        int requiredVotes = gameManager.ActivePlayerCount;
+        if (yesVotes.Count >= requiredVotes)
+        {
+            gameManager.EndGameByUnanimousVote();
+            return;
+        }
 
-            Button yesButton = FindChildButton(row.transform, "YesButton");
-            Button noButton = FindChildButton(row.transform, "NoButton");
+        if (currentVoteIndex >= voteOrder.Count)
+        {
+            CancelVote();
+            return;
+        }
 
-            if (yesButton != null)
-            {
-                TMP_Text label = yesButton.GetComponentInChildren<TMP_Text>(true);
-                if (label != null)
-                    label.text = yesVotes.Contains(player) ? "YES ✓" : "YES";
-                yesButton.interactable = !yesVotes.Contains(player);
-                yesButton.onClick.RemoveAllListeners();
-                yesButton.onClick.AddListener(() => RegisterYesVote(player));
-            }
+        BoardPlayer voter = voteOrder[currentVoteIndex];
 
-            if (noButton != null)
-            {
-                noButton.onClick.RemoveAllListeners();
-                noButton.onClick.AddListener(CancelVote);
-            }
+        if (voteInstructionText != null)
+        {
+            voteInstructionText.text =
+                voter.PlayerName.ToUpperInvariant() +
+                ", DO YOU AGREE TO END THE MATCH?";
+        }
+
+        // Show exactly one vote row at a time. No participant can be selected
+        // from a roster to cast a vote on somebody else's behalf.
+        GameObject row = Instantiate(voteRowTemplate, voteRows);
+        row.name = "CurrentVote_" + voter.PlayerNumber;
+        row.SetActive(true);
+
+        TMP_Text nameText = FindChildText(row.transform, "VoterName");
+        if (nameText != null)
+            nameText.text = voter.PlayerName + " — YOUR VOTE";
+
+        Button yesButton = FindChildButton(row.transform, "YesButton");
+        Button noButton = FindChildButton(row.transform, "NoButton");
+
+        if (yesButton != null)
+        {
+            TMP_Text label = yesButton.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+                label.text = "YES";
+
+            yesButton.interactable = true;
+            yesButton.onClick.RemoveAllListeners();
+            yesButton.onClick.AddListener(() => RegisterYesVote(voter));
+        }
+        else
+        {
+            Debug.LogError("MatchEndUI: Vote row template is missing a child named YesButton.");
+        }
+
+        if (noButton != null)
+        {
+            TMP_Text label = noButton.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+                label.text = "NO";
+
+            noButton.interactable = true;
+            noButton.onClick.RemoveAllListeners();
+            noButton.onClick.AddListener(CancelVote);
+        }
+        else
+        {
+            Debug.LogError("MatchEndUI: Vote row template is missing a child named NoButton.");
         }
 
         ShowOnly(votePanel);
@@ -263,13 +366,17 @@ public sealed class MatchEndUI : MonoBehaviour
         if (gameManager == null ||
             !gameManager.IsEndGameVoteInProgress ||
             player == null ||
-            !player.IsActive)
+            !player.IsActive ||
+            player != CurrentVotePlayer)
         {
-            CancelVote();
             return;
         }
 
-        yesVotes.Add(player);
+        if (!yesVotes.Add(player))
+            return;
+
+        currentVoteIndex++;
+
         if (yesVotes.Count >= gameManager.ActivePlayerCount)
         {
             gameManager.EndGameByUnanimousVote();
@@ -282,6 +389,9 @@ public sealed class MatchEndUI : MonoBehaviour
     private void CancelVote()
     {
         yesVotes.Clear();
+        voteOrder.Clear();
+        currentVoteIndex = 0;
+
         if (gameManager != null)
             gameManager.CancelEndGameVote();
 
@@ -294,38 +404,43 @@ public sealed class MatchEndUI : MonoBehaviour
         if (gameManager == null || leavePlayerPanel == null ||
             leavePlayerRows == null || leavePlayerRowTemplate == null)
         {
-            Debug.LogError("MatchEndUI: Leave Game UI references are missing. Rebuild the editable UI from the Board Game menu.");
+            Debug.LogError("MatchEndUI: Leave Game UI references are missing. The scene design was not changed.");
             return;
         }
 
-        BoardPlayer[] activePlayers = gameManager.GetActivePlayers();
-        if (activePlayers.Length <= 1)
+        // This is a local, turn-based multiplayer game. There is no separate
+        // authenticated client per player, so the current player is the only
+        // participant this screen can safely allow to leave.
+        BoardPlayer player = gameManager.CurrentPlayer;
+        if (player == null || !player.IsActive)
         {
-            GameNotificationUI.Show("THE LAST ACTIVE PLAYER CANNOT LEAVE THE MATCH");
+            GameNotificationUI.Show("NO ACTIVE CURRENT PLAYER CAN LEAVE RIGHT NOW");
             HideOverlay();
             return;
         }
 
         ClearDynamicRows(leavePlayerRows, leavePlayerRowTemplate);
-        foreach (BoardPlayer player in activePlayers)
+
+        GameObject row = Instantiate(leavePlayerRowTemplate, leavePlayerRows);
+        row.name = "LeaveCurrentPlayer_" + player.PlayerNumber;
+        row.SetActive(true);
+
+        TMP_Text label = row.GetComponentInChildren<TMP_Text>(true);
+        if (label != null)
+            label.text = "LEAVE AS " + player.PlayerName.ToUpperInvariant();
+
+        Button button = row.GetComponent<Button>();
+        if (button == null)
+            button = row.GetComponentInChildren<Button>(true);
+
+        if (button != null)
         {
-            GameObject row = Instantiate(leavePlayerRowTemplate, leavePlayerRows);
-            row.name = "LeavePlayer_" + player.PlayerNumber;
-            row.SetActive(true);
-
-            TMP_Text label = row.GetComponentInChildren<TMP_Text>(true);
-            if (label != null)
-                label.text = player.PlayerName + " — LEAVE GAME";
-
-            Button button = row.GetComponent<Button>();
-            if (button == null)
-                button = row.GetComponentInChildren<Button>(true);
-
-            if (button != null)
-            {
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => ShowLeaveConfirmation(player));
-            }
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => ShowLeaveConfirmation(player));
+        }
+        else
+        {
+            Debug.LogError("MatchEndUI: Leave-player row template needs a Button component.");
         }
 
         ShowOnly(leavePlayerPanel);
