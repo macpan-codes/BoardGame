@@ -1617,7 +1617,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             snapshot.CaptureComponent(recovery, captured);
             snapshot.CaptureComponent(tester, captured);
 
-            BoardPlayer[] players = FindObjectsByType<BoardPlayer>(
+            BoardPlayer[] players = UnityEngine.Object.FindObjectsByType<BoardPlayer>(
                 FindObjectsInactive.Include,
                 FindObjectsSortMode.None
             );
@@ -1629,7 +1629,7 @@ public class FinancialRecoveryTester : MonoBehaviour
                     snapshot.playerVisuals.Add(new PlayerVisualSnapshot(player));
             }
 
-            BoardSpace[] boardSpaces = FindObjectsByType<BoardSpace>(
+            BoardSpace[] boardSpaces = UnityEngine.Object.FindObjectsByType<BoardSpace>(
                 FindObjectsInactive.Include,
                 FindObjectsSortMode.None
             );
@@ -1642,7 +1642,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             }
 
             CommunityChestCardManager[] chestManagers =
-                FindObjectsByType<CommunityChestCardManager>(
+                UnityEngine.Object.FindObjectsByType<CommunityChestCardManager>(
                     FindObjectsInactive.Include,
                     FindObjectsSortMode.None
                 );
@@ -1714,7 +1714,7 @@ public class FinancialRecoveryTester : MonoBehaviour
                     object value = field.GetValue(target);
                     fields.Add(new FieldValueSnapshot(
                         field,
-                        SnapshotValue(value)
+                        FinancialRecoveryTester.SnapshotValue(value)
                     ));
                 }
 
@@ -1730,9 +1730,9 @@ public class FinancialRecoveryTester : MonoBehaviour
             foreach (FieldValueSnapshot state in fields)
             {
                 if (state.Field.IsInitOnly &&
-                    IsMutableCollection(state.Value))
+                    FinancialRecoveryTester.IsMutableCollection(state.Value))
                 {
-                    RestoreCollectionInPlace(
+                    FinancialRecoveryTester.RestoreCollectionInPlace(
                         state.Field.GetValue(target),
                         state.Value
                     );
@@ -1741,7 +1741,7 @@ public class FinancialRecoveryTester : MonoBehaviour
                 {
                     state.Field.SetValue(
                         target,
-                        SnapshotValue(state.Value)
+                        FinancialRecoveryTester.SnapshotValue(state.Value)
                     );
                 }
             }
@@ -1780,7 +1780,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             rotation = player.transform.rotation;
             localScale = player.transform.localScale;
 
-            tokenImage = GetPrivateField<Image>(player, "tokenImage");
+            tokenImage = FinancialRecoveryTester.GetPrivateField<Image>(player, "tokenImage");
             if (tokenImage == null)
                 tokenImage = player.GetComponent<Image>();
 
@@ -1828,7 +1828,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             IDictionary copy = (IDictionary)Activator.CreateInstance(type);
 
             foreach (DictionaryEntry entry in dictionary)
-                copy.Add(entry.Key, SnapshotValue(entry.Value));
+                copy.Add(entry.Key, FinancialRecoveryTester.SnapshotValue(entry.Value));
 
             return copy;
         }
@@ -1838,7 +1838,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             IList copy = (IList)Activator.CreateInstance(type);
 
             foreach (object item in list)
-                copy.Add(SnapshotValue(item));
+                copy.Add(FinancialRecoveryTester.SnapshotValue(item));
 
             return copy;
         }
@@ -1861,7 +1861,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             object copy = Activator.CreateInstance(type);
 
             foreach (object item in enumerable)
-                enqueue.Invoke(copy, new[] { SnapshotValue(item) });
+                enqueue.Invoke(copy, new[] { FinancialRecoveryTester.SnapshotValue(item) });
 
             return copy;
         }
@@ -1897,7 +1897,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             targetDictionary.Clear();
 
             foreach (DictionaryEntry entry in sourceDictionary)
-                targetDictionary.Add(entry.Key, SnapshotValue(entry.Value));
+                targetDictionary.Add(entry.Key, FinancialRecoveryTester.SnapshotValue(entry.Value));
 
             return;
         }
@@ -1908,7 +1908,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             targetList.Clear();
 
             foreach (object item in sourceList)
-                targetList.Add(SnapshotValue(item));
+                targetList.Add(FinancialRecoveryTester.SnapshotValue(item));
 
             return;
         }
@@ -1928,7 +1928,7 @@ public class FinancialRecoveryTester : MonoBehaviour
             return;
 
         foreach (object item in sourceEnumerable)
-            insert.Invoke(destination, new[] { SnapshotValue(item) });
+            insert.Invoke(destination, new[] { FinancialRecoveryTester.SnapshotValue(item) });
     }
 
     // ============================================================
