@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Development-only tester for FinancialRecoveryManager.
@@ -81,6 +84,31 @@ public class FinancialRecoveryTester : MonoBehaviour
     private string lastResult =
         "Not started.";
 
+    [Header("BATCH AUTOMATION")]
+    [SerializeField]
+    private bool batchTestRunning;
+
+    [SerializeField]
+    private string batchTestSummary =
+        "Batch suite has not run.";
+
+    private BatchSnapshot activeBatchSnapshot;
+    private GameObject batchGuardObject;
+    private BoardPlayer batchDebtor;
+    private BoardPlayer batchCreditor;
+    private BoardSpace batchPrimaryProperty;
+    private BoardSpace batchSecondaryProperty;
+    private long batchExpectedDebt;
+    private int batchCreditorBalanceBefore;
+    private readonly List<string> batchResults =
+        new List<string>();
+
+    public bool BatchTestRunning =>
+        batchTestRunning;
+
+    public string BatchTestSummary =>
+        batchTestSummary;
+
     // ============================================================
     // INTERNAL STATE
     // ============================================================
@@ -124,6 +152,13 @@ public class FinancialRecoveryTester : MonoBehaviour
     private void OnDisable()
     {
         testRunning = false;
+
+        if (batchTestRunning)
+        {
+            RestoreBatchEnvironment();
+            batchTestRunning = false;
+            batchTestSummary = "Batch run stopped; original scene state restored.";
+        }
     }
 
     // ============================================================
