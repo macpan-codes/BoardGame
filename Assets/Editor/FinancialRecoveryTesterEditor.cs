@@ -24,9 +24,42 @@ public class FinancialRecoveryTesterEditor : Editor
         );
 
         EditorGUILayout.HelpBox(
-            "Use this only during development. " +
-            "Prepare a scenario first, then run recovery.",
+            "Manual mode: prepare a single scenario, run recovery, then use the mortgage/elimination buttons.",
             MessageType.Info
+        );
+
+        EditorGUILayout.Space(6f);
+
+        using (new EditorGUI.DisabledScope(
+            !Application.isPlaying || tester.BatchTestRunning))
+        {
+            if (GUILayout.Button(
+                    "RUN ALL 6 FINANCIAL RECOVERY TESTS",
+                    GUILayout.Height(40f)))
+            {
+                tester.RunAllAutomatedScenarios();
+            }
+        }
+
+        if (!Application.isPlaying)
+        {
+            EditorGUILayout.HelpBox(
+                "Enter Play Mode, select the GameManager/FinancialRecoveryTester object, then run the batch. It temporarily tests the live scene in memory and restores player, property, bank, turn, and market-freeze state afterwards.",
+                MessageType.Warning
+            );
+        }
+
+        if (tester.BatchTestRunning)
+            Repaint();
+
+        EditorGUILayout.LabelField(
+            "BATCH SUMMARY",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUILayout.HelpBox(
+            tester.BatchTestSummary,
+            tester.BatchTestRunning ? MessageType.Info : MessageType.None
         );
 
         EditorGUILayout.Space(6f);
