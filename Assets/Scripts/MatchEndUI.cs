@@ -122,7 +122,13 @@ public sealed class MatchEndUI : MonoBehaviour
             );
 
             if (yesByLabel != null)
+            {
                 leaveConfirmYesButton = yesByLabel;
+                Debug.Log(
+                    "MatchEndUI: Connected the designed YES, LEAVE button automatically.",
+                    this
+                );
+            }
 
             Button cancelByLabel = FindButtonByNormalizedLabel(
                 leaveConfirmPanel.transform,
