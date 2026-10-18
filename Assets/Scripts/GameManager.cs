@@ -1516,6 +1516,13 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
+        if (player != CurrentPlayer)
+        {
+            GameNotificationUI.Show("ONLY THE CURRENT PLAYER CAN LEAVE THIS LOCAL MATCH");
+            Debug.LogWarning("GameManager: Leave request rejected because the requested player is not the current player.");
+            return false;
+        }
+
         bool leavingCurrentPlayer = player == CurrentPlayer;
         BoardSpace[] spaces = FindObjectsByType<BoardSpace>(
             FindObjectsInactive.Include,
