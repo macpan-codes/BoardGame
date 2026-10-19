@@ -64,7 +64,7 @@ public class TradeManager : MonoBehaviour
         if (player == null)
             return false;
 
-        if (player.IsBankrupt)
+        if (!player.IsActive)
             return false;
 
         GameManager gameManager =
@@ -107,8 +107,8 @@ public class TradeManager : MonoBehaviour
         if (proposer == receiver)
             return false;
 
-        if (proposer.IsBankrupt ||
-            receiver.IsBankrupt)
+        if (!proposer.IsActive ||
+            !receiver.IsActive)
         {
             return false;
         }
@@ -191,6 +191,32 @@ public class TradeManager : MonoBehaviour
         ClearPendingOffer();
 
         OnOfferCancelled?.Invoke(cancelled);
+    }
+
+    public bool CancelPendingOfferForPlayer(BoardPlayer player)
+    {
+        if (player == null || !HasPendingOffer)
+            return false;
+
+        if (pendingOffer.Proposer != player &&
+            pendingOffer.Receiver != player)
+        {
+            return false;
+        }
+
+        CancelPendingOffer();
+
+        Debug.Log(
+            $"TRADE CANCELLED: Pending offer involving {player.PlayerName} " +
+            "was cancelled because the player left the match."
+        );
+
+        GameNotificationUI.Show(
+            $"{player.PlayerName.ToUpperInvariant()} LEFT THE MATCH — " +
+            "PENDING TRADE CANCELLED"
+        );
+
+        return true;
     }
 
     public bool DeclineOffer()
@@ -306,10 +332,10 @@ public class TradeManager : MonoBehaviour
             return false;
         }
 
-        if (proposer.IsBankrupt ||
-            receiver.IsBankrupt)
+        if (!proposer.IsActive ||
+            !receiver.IsActive)
         {
-            error = "Bankrupt players cannot trade.";
+            error = "Bankrupt or left-game players cannot trade.";
             return false;
         }
 
