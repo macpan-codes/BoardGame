@@ -141,6 +141,22 @@ public static class MatchEndAutomatedTests
             failures
         );
 
+        RunCase(
+            "Trades reject bankrupt and left-game players",
+            TestTradesRejectInactivePlayers,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Pending trade is cancelled when an involved player leaves",
+            TestPendingTradeCancelledForPlayer,
+            ref passed,
+            ref failed,
+            failures
+        );
+
         string summary =
             "Match-End Automated Tests\n\n" +
             "PASSED: " + passed + "\n" +
@@ -577,6 +593,86 @@ public static class MatchEndAutomatedTests
                 "The last active player count changed unexpectedly."
             );
         }
+    }
+
+    private static void TestTradesRejectInactivePlayers()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 10
+            };
+
+            receiver.MarkLeftGame();
+
+            Require(
+                !tradeManager.CanTradeWith(proposer, receiver),
+                "Trade access remained available for a left-game player."
+            );
+            Require(
+                !tradeManager.ValidateOffer(offer, out string leftGameError),
+                "Trade validation accepted a left-game player."
+            );
+            Require(
+                leftGameError != null && leftGameError.Contains("left-game"),
+                "Left-game trade rejection did not provide a clear reason."
+            );
+
+            receiver.ResetForNewGame();
+            receiver.MarkEliminated();
+
+            Require(
+                !tradeManager.CanTradeWith(proposer, receiver),
+                "Trade access remained available for a bankrupt player."
+            );
+            Require(
+                !tradeManager.ValidateOffer(offer, out _),
+                "Trade validation accepted a bankrupt player."
+            );
+        }
+    }
+
+    private static void TestPendingTradeCancelledForPlayer()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 25
+            };
+
+            Require(tradeManager.SendOffer(offer), "A valid test trade offer was rejected.");
+            Require(tradeManager.HasPendingOffer, "Test trade was not left pending.");
+            Require(
+                tradeManager.CancelPendingOfferForPlayer(proposer),
+                "Pending trade was not cancelled for a player leaving the match."
+            );
+            Require(!tradeManager.HasPendingOffer, "Pending trade remained after cancellation.");
+            Require(
+                !tradeManager.CancelPendingOfferForPlayer(fixture.Players[2]),
+                "Cancellation reported success for a player not involved in a pending offer."
+            );
+        }
+    }
+
+    private static TradeManager CreateTestTradeManager(TestFixture fixture)
+    {
+        GameObject tradeObject = new GameObject("TestTradeManager");
+        tradeObject.transform.SetParent(fixture.Root.transform, false);
+        return tradeObject.AddComponent<TradeManager>();
     }
 
     private static BoardSpace CreateTestProperty(Transform parent, BoardPlayer owner, int price)
