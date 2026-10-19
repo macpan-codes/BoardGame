@@ -647,6 +647,9 @@ public static class MatchEndAutomatedTests
             BoardPlayer proposer = fixture.Players[0];
             BoardPlayer receiver = fixture.Players[1];
 
+            proposer.SetMoney(100);
+            receiver.SetMoney(100);
+
             TradeOffer offer = new TradeOffer
             {
                 Proposer = proposer,
