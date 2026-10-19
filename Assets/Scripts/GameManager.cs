@@ -1549,6 +1549,14 @@ public class GameManager : MonoBehaviour
         if (cardManager != null)
             cardManager.CancelForPlayerLeaving(player);
 
+        TradeManager tradeManager =
+            FindFirstObjectByType<TradeManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (tradeManager != null)
+            tradeManager.CancelPendingOfferForPlayer(player);
+
         LandingActionPanel[] landingPanels =
             FindObjectsByType<LandingActionPanel>(
                 FindObjectsInactive.Include,
