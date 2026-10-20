@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// Validates, stores, and executes player-to-player trades.
-/// Does not modify turn state — trading is overlay UI only.
+/// A pending offer temporarily blocks turn progression until answered.
 /// </summary>
 public class TradeManager : MonoBehaviour
 {
