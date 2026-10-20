@@ -172,7 +172,7 @@ public class TradeManager : MonoBehaviour
                 );
 
             if (requestPanel == null ||
-                !requestPanel.PrepareForOfferDelivery())
+                !requestPanel.PrepareForOfferDelivery(this))
             {
                 error = "The incoming trade-request panel is unavailable.";
                 NotifyFailed(offer, error);
