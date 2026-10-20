@@ -67,6 +67,9 @@ public class TradeManager : MonoBehaviour
         if (!player.IsActive)
             return false;
 
+        if (HasPendingOffer)
+            return false;
+
         GameManager gameManager =
             FindFirstObjectByType<GameManager>();
 
@@ -159,6 +162,24 @@ public class TradeManager : MonoBehaviour
             return false;
         }
 
+        // In the scene, the request controller may start inactive. Wake it
+        // before raising OnOfferReceived so it can subscribe to the event.
+        if (Application.isPlaying)
+        {
+            TradeRequestPanel requestPanel =
+                FindFirstObjectByType<TradeRequestPanel>(
+                    FindObjectsInactive.Include
+                );
+
+            if (requestPanel == null ||
+                !requestPanel.PrepareForOfferDelivery())
+            {
+                error = "The incoming trade-request panel is unavailable.";
+                NotifyFailed(offer, error);
+                return false;
+            }
+        }
+
         offer.Status = TradeOfferStatus.Pending;
         pendingOffer = offer.Clone();
 
@@ -180,7 +201,28 @@ public class TradeManager : MonoBehaviour
         return true;
     }
 
+    [System.Obsolete("Pass the requesting player to cancel a trade safely.")]
     public void CancelPendingOffer()
+    {
+        GameNotificationUI.Show(
+            "TRADE CANCELLATION REQUIRES THE REQUESTING PLAYER"
+        );
+    }
+
+    public bool CancelPendingOffer(BoardPlayer requester)
+    {
+        if (!HasPendingOffer ||
+            requester == null ||
+            pendingOffer.Proposer != requester)
+        {
+            return false;
+        }
+
+        CancelPendingOfferInternal();
+        return true;
+    }
+
+    private void CancelPendingOfferInternal()
     {
         if (!HasPendingOffer)
             return;
@@ -204,7 +246,7 @@ public class TradeManager : MonoBehaviour
             return false;
         }
 
-        CancelPendingOffer();
+        CancelPendingOfferInternal();
 
         Debug.Log(
             $"TRADE CANCELLED: Pending offer involving {player.PlayerName} " +
@@ -219,10 +261,23 @@ public class TradeManager : MonoBehaviour
         return true;
     }
 
+    [System.Obsolete("Pass the responding player to decline a trade safely.")]
     public bool DeclineOffer()
     {
-        if (!HasPendingOffer)
+        GameNotificationUI.Show(
+            "TRADE RESPONSE FAILED — RECEIVING PLAYER REQUIRED"
+        );
+        return false;
+    }
+
+    public bool DeclineOffer(BoardPlayer responder)
+    {
+        if (!CanRespondToPendingOffer(responder, out string responseError))
+        {
+            if (!string.IsNullOrWhiteSpace(responseError))
+                GameNotificationUI.Show(responseError);
             return false;
+        }
 
         TradeOffer declined = pendingOffer;
         declined.Status = TradeOfferStatus.Declined;
@@ -243,10 +298,23 @@ public class TradeManager : MonoBehaviour
     // ACCEPT
     // ============================================================
 
+    [System.Obsolete("Pass the responding player to accept a trade safely.")]
     public bool AcceptOffer()
     {
-        if (!HasPendingOffer)
+        GameNotificationUI.Show(
+            "TRADE RESPONSE FAILED — RECEIVING PLAYER REQUIRED"
+        );
+        return false;
+    }
+
+    public bool AcceptOffer(BoardPlayer responder)
+    {
+        if (!CanRespondToPendingOffer(responder, out string responseError))
+        {
+            if (!string.IsNullOrWhiteSpace(responseError))
+                GameNotificationUI.Show(responseError);
             return false;
+        }
 
         TradeOffer offer = pendingOffer;
 
@@ -300,6 +368,34 @@ public class TradeManager : MonoBehaviour
         return true;
     }
 
+    private bool CanRespondToPendingOffer(
+        BoardPlayer responder,
+        out string error)
+    {
+        error = null;
+
+        if (!HasPendingOffer)
+        {
+            error = "There is no pending trade offer.";
+            return false;
+        }
+
+        if (responder == null)
+        {
+            error = "The responding player is missing.";
+            return false;
+        }
+
+        if (responder != pendingOffer.Receiver)
+        {
+            error =
+                $"Only {pendingOffer.Receiver.PlayerName} can respond to this offer.";
+            return false;
+        }
+
+        return true;
+    }
+
     // ============================================================
     // VALIDATION
     // ============================================================
@@ -342,9 +438,20 @@ public class TradeManager : MonoBehaviour
         GameManager gameManager =
             FindFirstObjectByType<GameManager>();
 
-        if (gameManager != null &&
-            (gameManager.IsFinancialRecoveryActive(proposer) ||
-             gameManager.IsFinancialRecoveryActive(receiver)))
+        if (gameManager == null || gameManager.GameOver)
+        {
+            error = "Trading is unavailable because the match is not active.";
+            return false;
+        }
+
+        if (!gameManager.IsPlayerTurn(proposer))
+        {
+            error = "Only the current player can send a trade offer.";
+            return false;
+        }
+
+        if (gameManager.IsFinancialRecoveryActive(proposer) ||
+            gameManager.IsFinancialRecoveryActive(receiver))
         {
             error =
                 "Trade is unavailable during financial recovery.";
@@ -718,6 +825,15 @@ public class TradeManager : MonoBehaviour
 
         if (!property.IsOwned)
             return false;
+
+        // Do not transfer developed or mortgaged properties under the current
+        // rules; those states need separate sale/mortgage settlement first.
+        if (property.Houses > 0 ||
+            property.HasHotel ||
+            property.IsMortgaged)
+        {
+            return false;
+        }
 
         return
             property.IsProperty ||
