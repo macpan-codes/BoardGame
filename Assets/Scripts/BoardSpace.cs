@@ -598,6 +598,10 @@ public class BoardSpace : MonoBehaviour
         owner = newOwner;
         isOwned = true;
 
+        // Development progress belongs to the previous owner and must not
+        // carry over to the new owner after a trade.
+        ownerLandingCount = 0;
+
         RefreshOwnershipMarker();
         RefreshBuildingVisual();
 
