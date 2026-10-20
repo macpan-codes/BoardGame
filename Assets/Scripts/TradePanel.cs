@@ -933,6 +933,12 @@ public class TradePanel : MonoBehaviour
         BoardSpace[] properties =
             TradeManager.GetTradablePropertiesFor(owner);
 
+        if (statusText != null)
+        {
+            statusText.text =
+                "Only owned properties without houses, hotels, or mortgages can be traded.";
+        }
+
         foreach (BoardSpace property in properties)
         {
             Toggle toggle =
