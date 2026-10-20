@@ -850,6 +850,25 @@ public static class MatchEndAutomatedTests
             Require(tradeManager.AcceptOffer(receiver), "The designated receiver could not accept the offer.");
             Require(proposer.Money == 80 && receiver.Money == 120, "Authorized acceptance transferred the wrong amounts.");
             Require(!tradeManager.HasPendingOffer, "Accepted offer remained pending.");
+
+            TradeOffer firstPending = offer;
+            TradeOffer secondOffer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 10
+            };
+            Require(tradeManager.SendOffer(secondOffer), "Second valid offer was rejected.");
+            TradeOffer secondPending = tradeManager.PendingOffer;
+
+            Require(!tradeManager.AcceptOffer(receiver, firstPending), "A stale request accepted a newer offer.");
+            Require(!tradeManager.DeclineOffer(receiver, firstPending), "A stale request declined a newer offer.");
+            Require(tradeManager.HasPendingOffer && tradeManager.PendingOffer == secondPending, "Stale response changed the current pending offer.");
+            Require(proposer.Money == 80 && receiver.Money == 120, "A stale response changed balances.");
+
+            Require(tradeManager.DeclineOffer(receiver, secondPending), "Receiver could not decline the current offer.");
+            Require(proposer.Money == 80 && receiver.Money == 120, "Declining an offer changed balances.");
+            Require(!tradeManager.HasPendingOffer, "Declined offer remained pending.");
         }
     }
 
