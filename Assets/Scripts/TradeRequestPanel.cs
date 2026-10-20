@@ -24,6 +24,7 @@ public class TradeRequestPanel : MonoBehaviour
 
     private TradeManager tradeManager;
     private TradeOffer currentOffer;
+    private CanvasGroup visibilityGroup;
 
     // ============================================================
     // UNITY
@@ -34,6 +35,7 @@ public class TradeRequestPanel : MonoBehaviour
         tradeManager =
             FindFirstObjectByType<TradeManager>();
 
+        EnsureVisibilityGroup();
         WireButtons();
         Hide();
     }
@@ -86,6 +88,34 @@ public class TradeRequestPanel : MonoBehaviour
         ShowOffer(offer);
     }
 
+    /// <summary>
+    /// Ensures this controller is active and subscribed before TradeManager
+    /// raises OnOfferReceived. The popup remains visually hidden until the event.
+    /// </summary>
+    public bool PrepareForOfferDelivery()
+    {
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
+
+        if (!enabled)
+            enabled = true;
+
+        if (!gameObject.activeInHierarchy || !isActiveAndEnabled)
+            return false;
+
+        if (tradeManager == null)
+        {
+            tradeManager =
+                FindFirstObjectByType<TradeManager>(
+                    FindObjectsInactive.Include
+                );
+        }
+
+        EnsureVisibilityGroup();
+        SetVisible(false);
+        return true;
+    }
+
     private void HandleOfferClosed(TradeOffer offer)
     {
         Hide();
@@ -101,9 +131,10 @@ public class TradeRequestPanel : MonoBehaviour
         }
 
         if (acceptButton != null)
-        {
             acceptButton.interactable = false;
-        }
+
+        if (declineButton != null)
+            declineButton.interactable = false;
     }
 
     // ============================================================
@@ -124,10 +155,12 @@ public class TradeRequestPanel : MonoBehaviour
             declineButton.onClick.AddListener(DeclineTrade);
         }
 
+        // The old CLOSE button performed a decline anyway. Hide it so the
+        // recipient has only explicit ACCEPT and DECLINE actions.
         if (closeButton != null)
         {
             closeButton.onClick.RemoveAllListeners();
-            closeButton.onClick.AddListener(DeclineTrade);
+            closeButton.gameObject.SetActive(false);
         }
     }
 
@@ -143,24 +176,43 @@ public class TradeRequestPanel : MonoBehaviour
             return;
         }
 
-        currentOffer = offer;
-
-        if (panel != null)
-            panel.SetActive(true);
-        else
+        if (!gameObject.activeSelf)
             gameObject.SetActive(true);
 
+        currentOffer = offer;
+        SetVisible(true);
         Refresh();
     }
 
     public void Hide()
     {
         currentOffer = null;
+        SetVisible(false);
+    }
 
-        if (panel != null)
-            panel.SetActive(false);
-        else
-            gameObject.SetActive(false);
+    private void EnsureVisibilityGroup()
+    {
+        if (visibilityGroup != null)
+            return;
+
+        visibilityGroup = GetComponent<CanvasGroup>();
+
+        if (visibilityGroup == null)
+            visibilityGroup = gameObject.AddComponent<CanvasGroup>();
+    }
+
+    private void SetVisible(bool visible)
+    {
+        EnsureVisibilityGroup();
+
+        // Keep this GameObject enabled so OnEnable remains subscribed to
+        // trade events. CanvasGroup hides it and releases raycasts instead.
+        if (panel != null && panel != gameObject)
+            panel.SetActive(visible);
+
+        visibilityGroup.alpha = visible ? 1f : 0f;
+        visibilityGroup.interactable = visible;
+        visibilityGroup.blocksRaycasts = visible;
     }
 
     private void Refresh()
@@ -184,8 +236,8 @@ public class TradeRequestPanel : MonoBehaviour
             receiver != null)
         {
             messageText.text =
-                $"{proposer.PlayerName} wants to trade with " +
-                $"{receiver.PlayerName}.";
+                $"HAND THE CONTROLS TO {receiver.PlayerName.ToUpperInvariant()}.\n" +
+                $"{proposer.PlayerName} wants to trade with {receiver.PlayerName}.";
         }
 
         if (offeredText != null &&
@@ -203,7 +255,7 @@ public class TradeRequestPanel : MonoBehaviour
             receiver != null)
         {
             requestedText.text =
-                $"{proposer.PlayerName.ToUpperInvariant()} REQUESTS:\n" +
+                $"{receiver.PlayerName.ToUpperInvariant()} GIVES:\n" +
                 BuildAssetList(
                     currentOffer.RequestedMoney,
                     currentOffer.RequestedProperties
@@ -213,7 +265,7 @@ public class TradeRequestPanel : MonoBehaviour
         if (statusText != null)
         {
             statusText.text =
-                "Review the offer, then accept or decline.";
+                $"Review the offer. {receiver.PlayerName}, accept or decline.";
         }
 
         if (acceptButton != null)
@@ -283,9 +335,28 @@ public class TradeRequestPanel : MonoBehaviour
             return;
         }
 
-        if (!tradeManager.AcceptOffer())
+        if (!tradeManager.AcceptOffer(currentOffer.Receiver))
         {
-            Refresh();
+            if (tradeManager.HasPendingOffer)
+            {
+                Refresh();
+            }
+            else
+            {
+                if (statusText != null)
+                {
+                    statusText.text =
+                        !string.IsNullOrWhiteSpace(currentOffer.FailureReason)
+                            ? currentOffer.FailureReason
+                            : "This trade request is no longer available.";
+                }
+
+                if (acceptButton != null)
+                    acceptButton.interactable = false;
+
+                if (declineButton != null)
+                    declineButton.interactable = false;
+            }
         }
     }
 
@@ -300,7 +371,7 @@ public class TradeRequestPanel : MonoBehaviour
         if (tradeManager == null)
             return;
 
-        tradeManager.DeclineOffer();
+        tradeManager.DeclineOffer(currentOffer != null ? currentOffer.Receiver : null);
         Hide();
     }
 }
