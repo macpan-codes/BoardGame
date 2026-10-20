@@ -729,6 +729,7 @@ public class TradeManager : MonoBehaviour
     {
         public BoardSpace Property;
         public BoardPlayer PreviousOwner;
+        public int PreviousOwnerLandingCount;
     }
 
     private bool TransferPropertySafe(
@@ -756,13 +757,24 @@ public class TradeManager : MonoBehaviour
             return false;
         }
 
+        int previousOwnerLandingCount =
+            property.OwnerLandingCount;
+
         property.TransferOwnershipForTrade(to);
+
+        if (property.Owner != to)
+        {
+            error =
+                $"Ownership transfer failed for {property.SpaceName}.";
+            return false;
+        }
 
         transferred.Add(
             new TransferredProperty
             {
                 Property = property,
-                PreviousOwner = from
+                PreviousOwner = from,
+                PreviousOwnerLandingCount = previousOwnerLandingCount
             }
         );
 
@@ -793,7 +805,8 @@ public class TradeManager : MonoBehaviour
                 entry.PreviousOwner != null)
             {
                 entry.Property.TransferOwnershipForTrade(
-                    entry.PreviousOwner
+                    entry.PreviousOwner,
+                    entry.PreviousOwnerLandingCount
                 );
             }
         }
