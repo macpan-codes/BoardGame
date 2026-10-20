@@ -638,7 +638,7 @@ public class TradePanel : MonoBehaviour
             if (player == currentPlayer)
                 continue;
 
-            if (player.IsBankrupt)
+            if (!player.IsActive)
                 continue;
 
             Button button =
