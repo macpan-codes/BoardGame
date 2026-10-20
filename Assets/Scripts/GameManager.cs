@@ -506,28 +506,21 @@ public class GameManager : MonoBehaviour
         GameNotificationUI.Show(
             $"{player.PlayerName}'S TURN"
         );
+        // Deliver a queued trade request only to its recipient, when their
+        // turn actually starts. Sending an offer does not end the sender's turn.
+        TradeManager tradeManager =
+            FindFirstObjectByType<TradeManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (tradeManager != null)
+            tradeManager.NotifyReceiverTurnStarted(player);
     }
 
     public void EndTurn()
     {
         if (gameOver || endGameVoteInProgress)
             return;
-
-        TradeManager tradeManager =
-            FindFirstObjectByType<TradeManager>(
-                FindObjectsInactive.Include
-            );
-
-        if (tradeManager != null && tradeManager.HasPendingOffer)
-        {
-            Debug.LogWarning(
-                "GameManager: Resolve the pending trade before ending the turn."
-            );
-            GameNotificationUI.Show(
-                "RESPOND TO THE PENDING TRADE BEFORE ENDING THE TURN"
-            );
-            return;
-        }
 
         if (!isTurnActive)
             return;
