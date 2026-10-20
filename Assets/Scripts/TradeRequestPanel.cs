@@ -368,9 +368,10 @@ public class TradeRequestPanel : MonoBehaviour
             return;
         }
 
-        if (!tradeManager.AcceptOffer(currentOffer.Receiver))
+        if (!tradeManager.AcceptOffer(currentOffer.Receiver, currentOffer))
         {
-            if (tradeManager.HasPendingOffer)
+            if (tradeManager.HasPendingOffer &&
+                tradeManager.PendingOffer == currentOffer)
             {
                 Refresh();
             }
@@ -396,7 +397,10 @@ public class TradeRequestPanel : MonoBehaviour
         if (tradeManager == null)
             return;
 
-        tradeManager.DeclineOffer(currentOffer != null ? currentOffer.Receiver : null);
+        tradeManager.DeclineOffer(
+            currentOffer != null ? currentOffer.Receiver : null,
+            currentOffer
+        );
         Hide();
     }
 }
