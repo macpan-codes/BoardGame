@@ -76,22 +76,6 @@ public class DiceManager : MonoBehaviour
             return;
         }
 
-        TradeManager tradeManager =
-            FindFirstObjectByType<TradeManager>(
-                FindObjectsInactive.Include
-            );
-
-        if (tradeManager != null && tradeManager.HasPendingOffer)
-        {
-            Debug.LogWarning(
-                "DiceManager: A pending trade must be resolved before rolling."
-            );
-            GameNotificationUI.Show(
-                "RESOLVE THE PENDING TRADE BEFORE ROLLING"
-            );
-            return;
-        }
-
         if (gameManager.GameOver)
         {
             Debug.Log(
