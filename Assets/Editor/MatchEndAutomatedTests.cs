@@ -198,8 +198,8 @@ public static class MatchEndAutomatedTests
         );
 
         RunCase(
-            "A pending trade prevents the turn from ending",
-            TestPendingTradeBlocksTurnEnd,
+            "A pending trade does not block the sender from ending their turn",
+            TestPendingTradeDoesNotBlockTurnEnd,
             ref passed,
             ref failed,
             failures
@@ -906,7 +906,7 @@ public static class MatchEndAutomatedTests
         }
     }
 
-    private static void TestPendingTradeBlocksTurnEnd()
+    private static void TestPendingTradeDoesNotBlockTurnEnd()
     {
         using (TestFixture fixture = new TestFixture(2))
         {
@@ -923,11 +923,12 @@ public static class MatchEndAutomatedTests
             };
 
             Require(tradeManager.SendOffer(offer), "Valid offer was rejected.");
+            Require(tradeManager.HasPendingOffer, "The sent offer was not left pending.");
             fixture.Manager.EndTurn();
 
-            Require(fixture.Manager.CurrentPlayer == proposer, "The turn advanced while a trade awaited a response.");
-            Require(fixture.Manager.IsTurnActive, "The proposer turn was unexpectedly ended.");
-            Require(tradeManager.HasPendingOffer, "The pending offer was cleared by EndTurn.");
+            Require(fixture.Manager.CurrentPlayer == receiver, "The sender could not end their turn while an offer was pending.");
+            Require(fixture.Manager.IsTurnActive, "The receiver's turn did not start.");
+            Require(tradeManager.HasPendingOffer, "The pending offer was cleared when the sender ended their turn.");
         }
     }
 
@@ -957,7 +958,13 @@ public static class MatchEndAutomatedTests
 
             Require(tradeManager.SendOffer(offer), "Valid offer was rejected.");
             CanvasGroup group = panelObject.GetComponent<CanvasGroup>();
-            Require(group != null && group.alpha > 0.99f, "Incoming request event did not show the panel.");
+            Require(group != null && group.alpha < 0.01f, "Incoming request popup appeared before the receiver's turn.");
+            Require(group != null && !group.blocksRaycasts, "Hidden request popup blocked gameplay before the receiver's turn.");
+
+            fixture.Manager.EndTurn();
+
+            Require(fixture.Manager.CurrentPlayer == receiver, "The receiver's turn did not start after the sender ended their turn.");
+            Require(group != null && group.alpha > 0.99f, "Queued incoming request did not appear when the receiver's turn started.");
             Require(group != null && group.blocksRaycasts, "Visible request panel did not block gameplay clicks.");
         }
     }
