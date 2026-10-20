@@ -842,6 +842,7 @@ public static class MatchEndAutomatedTests
             };
 
             Require(tradeManager.SendOffer(offer), "Valid offer was rejected.");
+            TradeOffer firstPending = tradeManager.PendingOffer;
             Require(!tradeManager.AcceptOffer(unrelated), "An unrelated player accepted the offer.");
             Require(!tradeManager.DeclineOffer(unrelated), "An unrelated player declined the offer.");
             Require(tradeManager.HasPendingOffer, "Unauthorized response cleared the offer.");
@@ -851,7 +852,6 @@ public static class MatchEndAutomatedTests
             Require(proposer.Money == 80 && receiver.Money == 120, "Authorized acceptance transferred the wrong amounts.");
             Require(!tradeManager.HasPendingOffer, "Accepted offer remained pending.");
 
-            TradeOffer firstPending = offer;
             TradeOffer secondOffer = new TradeOffer
             {
                 Proposer = proposer,
