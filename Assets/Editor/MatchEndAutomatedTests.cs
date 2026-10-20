@@ -181,6 +181,38 @@ public static class MatchEndAutomatedTests
             failures
         );
 
+        RunCase(
+            "Only the designated receiver can accept or decline a trade",
+            TestTradeResponsesRequireReceiver,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Developed and mortgaged properties cannot be traded",
+            TestDevelopedOrMortgagedPropertiesCannotTrade,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "A pending trade prevents the turn from ending",
+            TestPendingTradeBlocksTurnEnd,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "An inactive incoming-request panel can reactivate and receive an offer",
+            TestIncomingRequestPanelWakesFromInactiveState,
+            ref passed,
+            ref failed,
+            failures
+        );
+
         string summary =
             "Match-End Automated Tests\n\n" +
             "PASSED: " + passed + "\n" +
@@ -721,7 +753,7 @@ public static class MatchEndAutomatedTests
             };
 
             Require(tradeManager.SendOffer(offer), "Valid money-only offer was rejected.");
-            Require(tradeManager.AcceptOffer(), "Valid money-only offer was not completed.");
+            Require(tradeManager.AcceptOffer(receiver), "Valid money-only offer was not completed.");
 
             Require(proposer.Money == 75, "Proposer did not pay the exact offered amount.");
             Require(receiver.Money == 225, "Receiver did not receive the exact offered amount.");
@@ -737,6 +769,7 @@ public static class MatchEndAutomatedTests
             BoardPlayer proposer = fixture.Players[0];
             BoardPlayer receiver = fixture.Players[1];
             BoardSpace property = CreateTestProperty(fixture.Root.transform, proposer, 100);
+            SetPrivateField(property, "ownerLandingCount", 4);
 
             TradeOffer offer = new TradeOffer
             {
@@ -746,10 +779,11 @@ public static class MatchEndAutomatedTests
             offer.OfferedProperties.Add(property);
 
             Require(tradeManager.SendOffer(offer), "Valid property offer was rejected.");
-            Require(tradeManager.AcceptOffer(), "Valid property offer was not completed.");
+            Require(tradeManager.AcceptOffer(receiver), "Valid property offer was not completed.");
 
             Require(property.Owner == receiver, "Property ownership did not transfer to the receiver.");
             Require(property.IsOwned, "Traded property was no longer marked as owned.");
+            Require(property.MaximumAllowedHouses == 0, "Traded property kept the previous owner's development progress.");
             Require(!tradeManager.HasPendingOffer, "Completed property trade remained pending.");
         }
     }
@@ -779,7 +813,7 @@ public static class MatchEndAutomatedTests
 
             property.SetOwner(newOwner);
 
-            Require(!tradeManager.AcceptOffer(), "Offer succeeded after proposer lost property ownership.");
+            Require(!tradeManager.AcceptOffer(receiver), "Offer succeeded after proposer lost property ownership.");
             Require(proposer.Money == 100, "Proposer lost money after the stale offer was rejected.");
             Require(receiver.Money == 100, "Receiver money changed after the stale offer was rejected.");
             Require(property.Owner == newOwner, "Stale offer changed property ownership.");
@@ -787,8 +821,131 @@ public static class MatchEndAutomatedTests
         }
     }
 
+    private static void TestTradeResponsesRequireReceiver()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+            BoardPlayer unrelated = fixture.Players[2];
+
+            proposer.SetMoney(100);
+            receiver.SetMoney(100);
+            unrelated.SetMoney(100);
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 20
+            };
+
+            Require(tradeManager.SendOffer(offer), "Valid offer was rejected.");
+            Require(!tradeManager.AcceptOffer(unrelated), "An unrelated player accepted the offer.");
+            Require(!tradeManager.DeclineOffer(unrelated), "An unrelated player declined the offer.");
+            Require(tradeManager.HasPendingOffer, "Unauthorized response cleared the offer.");
+            Require(proposer.Money == 100 && receiver.Money == 100, "Unauthorized response changed balances.");
+
+            Require(tradeManager.AcceptOffer(receiver), "The designated receiver could not accept the offer.");
+            Require(proposer.Money == 80 && receiver.Money == 120, "Authorized acceptance transferred the wrong amounts.");
+            Require(!tradeManager.HasPendingOffer, "Accepted offer remained pending.");
+        }
+    }
+
+    private static void TestDevelopedOrMortgagedPropertiesCannotTrade()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+            BoardSpace property = CreateTestProperty(fixture.Root.transform, proposer, 100);
+
+            SetPrivateField(property, "houses", 1);
+            TradeOffer developedOffer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver
+            };
+            developedOffer.OfferedProperties.Add(property);
+
+            Require(!tradeManager.SendOffer(developedOffer), "A property with houses was allowed to trade.");
+            Require(!tradeManager.HasPendingOffer, "An invalid developed-property offer remained pending.");
+
+            SetPrivateField(property, "houses", 0);
+            SetPrivateField(property, "mortgaged", true);
+            TradeOffer mortgagedOffer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver
+            };
+            mortgagedOffer.OfferedProperties.Add(property);
+
+            Require(!tradeManager.SendOffer(mortgagedOffer), "A mortgaged property was allowed to trade.");
+            Require(!tradeManager.HasPendingOffer, "An invalid mortgaged-property offer remained pending.");
+        }
+    }
+
+    private static void TestPendingTradeBlocksTurnEnd()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+            proposer.SetMoney(100);
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 10
+            };
+
+            Require(tradeManager.SendOffer(offer), "Valid offer was rejected.");
+            fixture.Manager.EndTurn();
+
+            Require(fixture.Manager.CurrentPlayer == proposer, "The turn advanced while a trade awaited a response.");
+            Require(fixture.Manager.IsTurnActive, "The proposer turn was unexpectedly ended.");
+            Require(tradeManager.HasPendingOffer, "The pending offer was cleared by EndTurn.");
+        }
+    }
+
+    private static void TestIncomingRequestPanelWakesFromInactiveState()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+            proposer.SetMoney(100);
+
+            GameObject panelObject = new GameObject("TestTradeRequestPanel");
+            panelObject.transform.SetParent(fixture.Root.transform, false);
+            TradeRequestPanel requestPanel = panelObject.AddComponent<TradeRequestPanel>();
+            panelObject.SetActive(false);
+
+            Require(requestPanel.PrepareForOfferDelivery(), "Inactive request controller could not be activated.");
+            Require(panelObject.activeSelf, "Request controller remained inactive.");
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 10
+            };
+
+            Require(tradeManager.SendOffer(offer), "Valid offer was rejected.");
+            CanvasGroup group = panelObject.GetComponent<CanvasGroup>();
+            Require(group != null && group.alpha > 0.99f, "Incoming request event did not show the panel.");
+            Require(group != null && group.blocksRaycasts, "Visible request panel did not block gameplay clicks.");
+        }
+    }
+
     private static TradeManager CreateTestTradeManager(TestFixture fixture)
     {
+        SetPrivateField(fixture.Manager, "isTurnActive", true);
         GameObject tradeObject = new GameObject("TestTradeManager");
         tradeObject.transform.SetParent(fixture.Root.transform, false);
         return tradeObject.AddComponent<TradeManager>();
