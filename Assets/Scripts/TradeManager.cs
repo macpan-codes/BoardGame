@@ -162,8 +162,8 @@ public class TradeManager : MonoBehaviour
             return false;
         }
 
-        // In the scene, the request controller may start inactive. Wake it
-        // before raising OnOfferReceived so it can subscribe to the event.
+        // In the scene, the request controller may start inactive. Prepare
+        // its subscription now, but keep the popup hidden until the receiver's turn.
         if (Application.isPlaying)
         {
             TradeRequestPanel requestPanel =
