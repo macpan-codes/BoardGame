@@ -125,16 +125,48 @@ public class TradeRequestPanel : MonoBehaviour
         TradeOffer offer,
         string error)
     {
+        if (currentOffer == null || offer != currentOffer)
+            return;
+
+        ShowFailureAndAllowDismiss(error);
+    }
+
+    private void ShowFailureAndAllowDismiss(string message)
+    {
         if (statusText != null)
-        {
-            statusText.text = error;
-        }
+            statusText.text = message;
 
         if (acceptButton != null)
             acceptButton.interactable = false;
 
         if (declineButton != null)
-            declineButton.interactable = false;
+        {
+            declineButton.interactable = true;
+            declineButton.onClick.RemoveAllListeners();
+            declineButton.onClick.AddListener(Hide);
+
+            TMP_Text label =
+                declineButton.GetComponentInChildren<TMP_Text>(true);
+
+            if (label != null)
+                label.text = "CLOSE";
+        }
+    }
+
+    private void RestoreDeclineAction()
+    {
+        if (declineButton == null)
+            return;
+
+        declineButton.interactable = true;
+        declineButton.onClick.RemoveAllListeners();
+        declineButton.onClick.AddListener(DeclineTrade);
+
+        TMP_Text label =
+            declineButton.GetComponentInChildren<TMP_Text>(true);
+
+        if (label != null)
+            label.text = "DECLINE";
     }
 
     // ============================================================
@@ -180,6 +212,7 @@ public class TradeRequestPanel : MonoBehaviour
             gameObject.SetActive(true);
 
         currentOffer = offer;
+        RestoreDeclineAction();
         SetVisible(true);
         Refresh();
     }
@@ -343,19 +376,11 @@ public class TradeRequestPanel : MonoBehaviour
             }
             else
             {
-                if (statusText != null)
-                {
-                    statusText.text =
-                        !string.IsNullOrWhiteSpace(currentOffer.FailureReason)
-                            ? currentOffer.FailureReason
-                            : "This trade request is no longer available.";
-                }
-
-                if (acceptButton != null)
-                    acceptButton.interactable = false;
-
-                if (declineButton != null)
-                    declineButton.interactable = false;
+                ShowFailureAndAllowDismiss(
+                    !string.IsNullOrWhiteSpace(currentOffer.FailureReason)
+                        ? currentOffer.FailureReason
+                        : "This trade request is no longer available."
+                );
             }
         }
     }
