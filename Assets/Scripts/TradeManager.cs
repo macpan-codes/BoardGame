@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// Validates, stores, and executes player-to-player trades.
-/// A pending offer temporarily blocks turn progression until answered.
+/// Offers remain pending until the receiving player's turn begins.
 /// </summary>
 public class TradeManager : MonoBehaviour
 {
@@ -196,9 +196,45 @@ public class TradeManager : MonoBehaviour
         );
 
         OnOfferSent?.Invoke(pendingOffer);
-        OnOfferReceived?.Invoke(pendingOffer);
 
+        // Do not show the receiving-player popup yet. The request stays queued
+        // while the proposer continues their normal turn.
         return true;
+    }
+
+    /// <summary>
+    /// Delivers a queued offer only when its designated receiver's turn starts.
+    /// </summary>
+    public void NotifyReceiverTurnStarted(BoardPlayer currentPlayer)
+    {
+        if (!HasPendingOffer ||
+            currentPlayer == null ||
+            pendingOffer.Receiver != currentPlayer)
+        {
+            return;
+        }
+
+        if (Application.isPlaying)
+        {
+            TradeRequestPanel requestPanel =
+                FindFirstObjectByType<TradeRequestPanel>(
+                    FindObjectsInactive.Include
+                );
+
+            if (requestPanel != null)
+            {
+                requestPanel.PrepareForOfferDelivery(this);
+            }
+            else
+            {
+                Debug.LogError(
+                    "TradeManager: No incoming trade-request panel was found " +
+                    "when the receiver's turn started."
+                );
+            }
+        }
+
+        OnOfferReceived?.Invoke(pendingOffer);
     }
 
     [System.Obsolete("Pass the requesting player to cancel a trade safely.")]
