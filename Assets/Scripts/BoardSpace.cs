@@ -586,6 +586,15 @@ public class BoardSpace : MonoBehaviour
     public void TransferOwnershipForTrade(
         BoardPlayer newOwner)
     {
+        TransferOwnershipForTrade(newOwner, 0);
+    }
+
+    // Explicit development progress is only supplied when rolling back a
+    // failed multi-asset trade; a normal transfer starts the new owner at zero.
+    public void TransferOwnershipForTrade(
+        BoardPlayer newOwner,
+        int developmentLandingCount)
+    {
         if (newOwner == null)
             return;
 
@@ -597,10 +606,7 @@ public class BoardSpace : MonoBehaviour
 
         owner = newOwner;
         isOwned = true;
-
-        // Development progress belongs to the previous owner and must not
-        // carry over to the new owner after a trade.
-        ownerLandingCount = 0;
+        ownerLandingCount = Mathf.Max(0, developmentLandingCount);
 
         RefreshOwnershipMarker();
         RefreshBuildingVisual();
@@ -608,8 +614,7 @@ public class BoardSpace : MonoBehaviour
         Debug.Log(
             $"TRADE OWNERSHIP TRANSFER: " +
             $"{SpaceName} | " +
-            $"{previousOwner.PlayerName} -> " +
-            $"{newOwner.PlayerName} | " +
+            $"{previousOwner.PlayerName} -> {newOwner.PlayerName} | " +
             $"Houses: {houses} | " +
             $"Hotel: {hotel} | " +
             $"Landings: {ownerLandingCount}"
