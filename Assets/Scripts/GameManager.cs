@@ -510,12 +510,27 @@ public class GameManager : MonoBehaviour
 
     public void EndTurn()
     {
-        if (gameOver ||
-            endGameVoteInProgress ||
-            !isTurnActive)
+        if (gameOver || endGameVoteInProgress)
+            return;
+
+        TradeManager tradeManager =
+            FindFirstObjectByType<TradeManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (tradeManager != null && tradeManager.HasPendingOffer)
         {
+            Debug.LogWarning(
+                "GameManager: Resolve the pending trade before ending the turn."
+            );
+            GameNotificationUI.Show(
+                "RESPOND TO THE PENDING TRADE BEFORE ENDING THE TURN"
+            );
             return;
         }
+
+        if (!isTurnActive)
+            return;
 
         if (IsFinancialRecoveryActive(CurrentPlayer))
         {
