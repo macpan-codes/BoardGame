@@ -602,8 +602,22 @@ public class TradeManager : MonoBehaviour
 
             if (!IsTradableProperty(property))
             {
-                error =
-                    $"{property.SpaceName} cannot be traded.";
+                if (property.Houses > 0 || property.HasHotel)
+                {
+                    error =
+                        $"{property.SpaceName} must have all buildings removed before it can be traded.";
+                }
+                else if (property.IsMortgaged)
+                {
+                    error =
+                        $"{property.SpaceName} must be unmortgaged before it can be traded.";
+                }
+                else
+                {
+                    error =
+                        $"{property.SpaceName} cannot be traded.";
+                }
+
                 return false;
             }
 
