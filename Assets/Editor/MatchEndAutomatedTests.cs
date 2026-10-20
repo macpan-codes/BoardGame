@@ -945,7 +945,7 @@ public static class MatchEndAutomatedTests
             TradeRequestPanel requestPanel = panelObject.AddComponent<TradeRequestPanel>();
             panelObject.SetActive(false);
 
-            Require(requestPanel.PrepareForOfferDelivery(), "Inactive request controller could not be activated.");
+            Require(requestPanel.PrepareForOfferDelivery(tradeManager), "Inactive request controller could not be activated and bound to the sending manager.");
             Require(panelObject.activeSelf, "Request controller remained inactive.");
 
             TradeOffer offer = new TradeOffer
