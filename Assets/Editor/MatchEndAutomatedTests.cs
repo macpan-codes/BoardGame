@@ -157,6 +157,30 @@ public static class MatchEndAutomatedTests
             failures
         );
 
+        RunCase(
+            "Money-only trades transfer the exact amounts",
+            TestMoneyTrade,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Property trades transfer ownership",
+            TestPropertyTrade,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Stale trade offers are rejected without moving assets",
+            TestStaleTradeOfferRejected,
+            ref passed,
+            ref failed,
+            failures
+        );
+
         string summary =
             "Match-End Automated Tests\n\n" +
             "PASSED: " + passed + "\n" +
@@ -660,14 +684,106 @@ public static class MatchEndAutomatedTests
             Require(tradeManager.SendOffer(offer), "A valid test trade offer was rejected.");
             Require(tradeManager.HasPendingOffer, "Test trade was not left pending.");
             Require(
-                tradeManager.CancelPendingOfferForPlayer(proposer),
-                "Pending trade was not cancelled for a player leaving the match."
-            );
-            Require(!tradeManager.HasPendingOffer, "Pending trade remained after cancellation.");
-            Require(
                 !tradeManager.CancelPendingOfferForPlayer(fixture.Players[2]),
-                "Cancellation reported success for a player not involved in a pending offer."
+                "A player not involved in the offer cancelled the pending trade."
             );
+            Require(tradeManager.HasPendingOffer, "An unrelated player cleared the pending trade.");
+
+            Require(
+                fixture.Manager.LeaveGame(proposer),
+                "GameManager rejected the valid leave request."
+            );
+            Require(proposer.HasLeftGame, "Leaving player was not marked LEFT GAME.");
+            Require(!tradeManager.HasPendingOffer, "Pending trade remained after its proposer left.");
+            Require(
+                fixture.Manager.CurrentPlayer == receiver,
+                "Turn did not advance after the proposer left."
+            );
+        }
+    }
+
+    private static void TestMoneyTrade()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+
+            proposer.SetMoney(100);
+            receiver.SetMoney(200);
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 25
+            };
+
+            Require(tradeManager.SendOffer(offer), "Valid money-only offer was rejected.");
+            Require(tradeManager.AcceptOffer(), "Valid money-only offer was not completed.");
+
+            Require(proposer.Money == 75, "Proposer did not pay the exact offered amount.");
+            Require(receiver.Money == 225, "Receiver did not receive the exact offered amount.");
+            Require(!tradeManager.HasPendingOffer, "Completed money trade remained pending.");
+        }
+    }
+
+    private static void TestPropertyTrade()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+            BoardSpace property = CreateTestProperty(fixture.Root.transform, proposer, 100);
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver
+            };
+            offer.OfferedProperties.Add(property);
+
+            Require(tradeManager.SendOffer(offer), "Valid property offer was rejected.");
+            Require(tradeManager.AcceptOffer(), "Valid property offer was not completed.");
+
+            Require(property.Owner == receiver, "Property ownership did not transfer to the receiver.");
+            Require(property.IsOwned, "Traded property was no longer marked as owned.");
+            Require(!tradeManager.HasPendingOffer, "Completed property trade remained pending.");
+        }
+    }
+
+    private static void TestStaleTradeOfferRejected()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+            BoardPlayer newOwner = fixture.Players[2];
+
+            proposer.SetMoney(100);
+            receiver.SetMoney(100);
+            BoardSpace property = CreateTestProperty(fixture.Root.transform, proposer, 100);
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 20
+            };
+            offer.OfferedProperties.Add(property);
+
+            Require(tradeManager.SendOffer(offer), "Initially valid offer was rejected.");
+
+            property.SetOwner(newOwner);
+
+            Require(!tradeManager.AcceptOffer(), "Offer succeeded after proposer lost property ownership.");
+            Require(proposer.Money == 100, "Proposer lost money after the stale offer was rejected.");
+            Require(receiver.Money == 100, "Receiver money changed after the stale offer was rejected.");
+            Require(property.Owner == newOwner, "Stale offer changed property ownership.");
+            Require(!tradeManager.HasPendingOffer, "Failed stale offer remained pending.");
         }
     }
 
