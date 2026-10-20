@@ -506,6 +506,7 @@ public class GameManager : MonoBehaviour
         GameNotificationUI.Show(
             $"{player.PlayerName}'S TURN"
         );
+
         // Deliver a queued trade request only to its recipient, when their
         // turn actually starts. Sending an offer does not end the sender's turn.
         TradeManager tradeManager =
