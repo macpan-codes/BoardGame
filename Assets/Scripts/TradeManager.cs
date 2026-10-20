@@ -270,6 +270,22 @@ public class TradeManager : MonoBehaviour
         return false;
     }
 
+    public bool DeclineOffer(
+        BoardPlayer responder,
+        TradeOffer expectedOffer)
+    {
+        if (expectedOffer == null ||
+            !ReferenceEquals(pendingOffer, expectedOffer))
+        {
+            GameNotificationUI.Show(
+                "THIS TRADE REQUEST IS NO LONGER CURRENT"
+            );
+            return false;
+        }
+
+        return DeclineOffer(responder);
+    }
+
     public bool DeclineOffer(BoardPlayer responder)
     {
         if (!CanRespondToPendingOffer(responder, out string responseError))
@@ -305,6 +321,22 @@ public class TradeManager : MonoBehaviour
             "TRADE RESPONSE FAILED — RECEIVING PLAYER REQUIRED"
         );
         return false;
+    }
+
+    public bool AcceptOffer(
+        BoardPlayer responder,
+        TradeOffer expectedOffer)
+    {
+        if (expectedOffer == null ||
+            !ReferenceEquals(pendingOffer, expectedOffer))
+        {
+            GameNotificationUI.Show(
+                "THIS TRADE REQUEST IS NO LONGER CURRENT"
+            );
+            return false;
+        }
+
+        return AcceptOffer(responder);
     }
 
     public bool AcceptOffer(BoardPlayer responder)
