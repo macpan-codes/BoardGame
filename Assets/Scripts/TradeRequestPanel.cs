@@ -59,28 +59,30 @@ public class TradeRequestPanel : MonoBehaviour
         if (tradeManager == null)
         {
             tradeManager =
-                FindFirstObjectByType<TradeManager>();
+                FindFirstObjectByType<TradeManager>(
+                    FindObjectsInactive.Include
+                );
         }
 
         if (tradeManager == null)
             return;
 
-        if (subscribe)
-        {
-            tradeManager.OnOfferReceived += HandleOfferReceived;
-            tradeManager.OnOfferCompleted += HandleOfferClosed;
-            tradeManager.OnOfferDeclined += HandleOfferClosed;
-            tradeManager.OnOfferCancelled += HandleOfferClosed;
-            tradeManager.OnOfferFailed += HandleOfferFailed;
-        }
-        else
-        {
-            tradeManager.OnOfferReceived -= HandleOfferReceived;
-            tradeManager.OnOfferCompleted -= HandleOfferClosed;
-            tradeManager.OnOfferDeclined -= HandleOfferClosed;
-            tradeManager.OnOfferCancelled -= HandleOfferClosed;
-            tradeManager.OnOfferFailed -= HandleOfferFailed;
-        }
+        // Keep this idempotent: PrepareForOfferDelivery can rebind this panel
+        // while active, and repeated subscriptions must not duplicate callbacks.
+        tradeManager.OnOfferReceived -= HandleOfferReceived;
+        tradeManager.OnOfferCompleted -= HandleOfferClosed;
+        tradeManager.OnOfferDeclined -= HandleOfferClosed;
+        tradeManager.OnOfferCancelled -= HandleOfferClosed;
+        tradeManager.OnOfferFailed -= HandleOfferFailed;
+
+        if (!subscribe)
+            return;
+
+        tradeManager.OnOfferReceived += HandleOfferReceived;
+        tradeManager.OnOfferCompleted += HandleOfferClosed;
+        tradeManager.OnOfferDeclined += HandleOfferClosed;
+        tradeManager.OnOfferCancelled += HandleOfferClosed;
+        tradeManager.OnOfferFailed += HandleOfferFailed;
     }
 
     private void HandleOfferReceived(TradeOffer offer)
@@ -92,8 +94,21 @@ public class TradeRequestPanel : MonoBehaviour
     /// Ensures this controller is active and subscribed before TradeManager
     /// raises OnOfferReceived. The popup remains visually hidden until the event.
     /// </summary>
-    public bool PrepareForOfferDelivery()
+    public bool PrepareForOfferDelivery(TradeManager sourceManager)
     {
+        if (sourceManager == null)
+            return false;
+
+        // Bind to the exact sender before activation triggers OnEnable.
+        // This avoids scene-wide discovery selecting a different manager.
+        if (tradeManager != sourceManager)
+        {
+            if (tradeManager != null)
+                Subscribe(false);
+
+            tradeManager = sourceManager;
+        }
+
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
 
@@ -103,14 +118,7 @@ public class TradeRequestPanel : MonoBehaviour
         if (!gameObject.activeInHierarchy || !isActiveAndEnabled)
             return false;
 
-        if (tradeManager == null)
-        {
-            tradeManager =
-                FindFirstObjectByType<TradeManager>(
-                    FindObjectsInactive.Include
-                );
-        }
-
+        Subscribe(true);
         EnsureVisibilityGroup();
         SetVisible(false);
         return true;
