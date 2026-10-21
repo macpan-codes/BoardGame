@@ -1414,6 +1414,11 @@ public static class MatchEndAutomatedTests
             SetPrivateField(requestPanel, "acceptButton", acceptButton);
             SetPrivateField(requestPanel, "tradeManager", tradeManager);
 
+            Require(
+                requestPanel.PrepareForOfferDelivery(tradeManager),
+                "Incoming trade panel could not bind to the test TradeManager."
+            );
+
             TradeOffer offer = new TradeOffer
             {
                 Proposer = proposer,
