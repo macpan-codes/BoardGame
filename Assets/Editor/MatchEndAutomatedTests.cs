@@ -198,6 +198,22 @@ public static class MatchEndAutomatedTests
         );
 
         RunCase(
+            "Market Freeze blocks property transactions and trade offers",
+            TestMarketFreezeBlocksPropertyTransactions,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Market Freeze lasts for the next two full turns",
+            TestMarketFreezeDuration,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
             "A pending trade does not block the sender from ending their turn",
             TestPendingTradeDoesNotBlockTurnEnd,
             ref passed,
@@ -947,6 +963,152 @@ public static class MatchEndAutomatedTests
         }
     }
 
+    private static void TestMarketFreezeBlocksPropertyTransactions()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+            proposer.SetMoney(500);
+            receiver.SetMoney(500);
+
+            CreateTestCommunityChestManager(
+                fixture,
+                proposer,
+                2,
+                false
+            );
+
+            BoardSpace unownedProperty =
+                CreateTestProperty(
+                    fixture.Root.transform,
+                    null,
+                    100
+                );
+
+            Require(
+                !fixture.Manager.BuySpace(unownedProperty),
+                "A frozen player purchased an unowned property."
+            );
+            Require(
+                unownedProperty.Owner == null && proposer.Money == 500,
+                "A blocked property purchase changed ownership or money."
+            );
+
+            BoardSpace ownedProperty =
+                CreateTestProperty(
+                    fixture.Root.transform,
+                    proposer,
+                    100
+                );
+
+            SetPrivateField(ownedProperty, "houses", 1);
+            Require(
+                !fixture.Manager.CanBuildHouse(ownedProperty),
+                "House-building remained available during Market Freeze."
+            );
+            Require(
+                !ownedProperty.SellHouse(),
+                "A frozen player sold a house."
+            );
+            Require(
+                ownedProperty.Houses == 1 && proposer.Money == 500,
+                "A blocked house sale changed buildings or money."
+            );
+
+            SetPrivateField(ownedProperty, "houses", 0);
+            Require(
+                !fixture.Manager.CanBuildHotel(ownedProperty),
+                "Hotel-building remained available during Market Freeze."
+            );
+            Require(
+                !fixture.Manager.MortgageProperty(ownedProperty),
+                "A frozen player mortgaged a property."
+            );
+            Require(
+                !ownedProperty.Mortgage(),
+                "A direct property mortgage bypassed Market Freeze."
+            );
+
+            SetPrivateField(ownedProperty, "mortgaged", true);
+            Require(
+                !fixture.Manager.UnmortgageProperty(ownedProperty),
+                "A frozen player unmortgaged a property."
+            );
+            Require(
+                !ownedProperty.Unmortgage(),
+                "A direct property unmortgage bypassed Market Freeze."
+            );
+
+            SetPrivateField(ownedProperty, "mortgaged", false);
+            SetPrivateField(ownedProperty, "hotel", true);
+            Require(
+                !ownedProperty.SellHotel(),
+                "A frozen player sold a hotel."
+            );
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 10
+            };
+
+            Require(
+                !tradeManager.SendOffer(offer),
+                "A frozen player sent a trade offer."
+            );
+            Require(
+                !tradeManager.HasPendingOffer,
+                "A trade offer remained pending despite Market Freeze."
+            );
+            Require(
+                proposer.Money == 500 && receiver.Money == 500,
+                "A blocked trade offer changed player balances."
+            );
+        }
+    }
+
+    private static void TestMarketFreezeDuration()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            BoardPlayer player = fixture.Players[0];
+
+            CommunityChestCardManager communityChest =
+                CreateTestCommunityChestManager(
+                    fixture,
+                    player,
+                    2,
+                    true
+                );
+
+            Require(
+                communityChest.IsMarketFrozen(player),
+                "New Market Freeze was not active."
+            );
+
+            communityChest.AdvanceMarketFreezeTurn(player);
+            Require(
+                communityChest.MarketFreezeTurns(player) == 2,
+                "Market Freeze incorrectly consumed a turn on the turn it was applied."
+            );
+
+            communityChest.AdvanceMarketFreezeTurn(player);
+            Require(
+                communityChest.MarketFreezeTurns(player) == 1,
+                "Market Freeze did not decrement after the first full turn."
+            );
+
+            communityChest.AdvanceMarketFreezeTurn(player);
+            Require(
+                !communityChest.IsMarketFrozen(player),
+                "Market Freeze did not expire after the second full turn."
+            );
+        }
+    }
+
     private static void TestIncomingRequestPanelWakesFromInactiveState()
     {
         using (TestFixture fixture = new TestFixture(2))
@@ -990,6 +1152,59 @@ public static class MatchEndAutomatedTests
         GameObject tradeObject = new GameObject("TestTradeManager");
         tradeObject.transform.SetParent(fixture.Root.transform, false);
         return tradeObject.AddComponent<TradeManager>();
+    }
+
+    private static CommunityChestCardManager CreateTestCommunityChestManager(
+        TestFixture fixture,
+        BoardPlayer frozenPlayer,
+        int turnsRemaining,
+        bool newlyApplied)
+    {
+        GameObject managerObject =
+            new GameObject("TestCommunityChestCardManager");
+
+        managerObject.transform.SetParent(
+            fixture.Root.transform,
+            false
+        );
+
+        // Keep it inactive to avoid creating UI for this isolated test.
+        managerObject.SetActive(false);
+
+        CommunityChestCardManager manager =
+            managerObject.AddComponent<CommunityChestCardManager>();
+
+        FieldInfo turnsField =
+            typeof(CommunityChestCardManager).GetField(
+                "marketFreezeTurns",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            );
+
+        FieldInfo newlyAppliedField =
+            typeof(CommunityChestCardManager).GetField(
+                "newlyAppliedMarketFreezes",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            );
+
+        if (turnsField == null || newlyAppliedField == null)
+        {
+            throw new MissingFieldException(
+                "CommunityChestCardManager Market Freeze state fields were not found."
+            );
+        }
+
+        Dictionary<BoardPlayer, int> turns =
+            (Dictionary<BoardPlayer, int>)turnsField.GetValue(manager);
+
+        HashSet<BoardPlayer> newlyAppliedPlayers =
+            (HashSet<BoardPlayer>)newlyAppliedField.GetValue(manager);
+
+        turns[frozenPlayer] = turnsRemaining;
+
+        if (newlyApplied)
+            newlyAppliedPlayers.Add(frozenPlayer);
+
+        return manager;
     }
 
     private static BoardSpace CreateTestProperty(Transform parent, BoardPlayer owner, int price)
