@@ -366,6 +366,7 @@ public class TradeRequestPanel : MonoBehaviour
 
         bool hasDedicatedRequestedText =
             requestedText != null &&
+            requestedText.isActiveAndEnabled &&
             requestedText != offeredText &&
             requestedText != messageText &&
             requestedText != headerText &&
