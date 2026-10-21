@@ -741,6 +741,12 @@ public class BoardSpace : MonoBehaviour
 
         BoardPlayer player = owner;
 
+        if (IsOwnerMarketFrozenOutsideRecovery())
+        {
+            GameNotificationUI.Show("CANNOT BUILD — MARKET FROZEN");
+            return false;
+        }
+
         if (!CanBuildAnotherHouseFor(player))
             return false;
 
@@ -858,6 +864,12 @@ public class BoardSpace : MonoBehaviour
 
         BoardPlayer player = owner;
 
+        if (IsOwnerMarketFrozenOutsideRecovery())
+        {
+            GameNotificationUI.Show("CANNOT BUILD — MARKET FROZEN");
+            return false;
+        }
+
         if (!CanBuildHotelFor(player))
             return false;
 
@@ -971,6 +983,12 @@ public class BoardSpace : MonoBehaviour
         if (owner == null)
             return false;
 
+        if (IsOwnerMarketFrozenOutsideRecovery())
+        {
+            GameNotificationUI.Show("CANNOT MORTGAGE — MARKET FROZEN");
+            return false;
+        }
+
         bool recovery =
             IsOwnerInFinancialRecovery();
 
@@ -1029,6 +1047,12 @@ public class BoardSpace : MonoBehaviour
         if (owner == null)
             return false;
 
+        if (IsOwnerMarketFrozenOutsideRecovery())
+        {
+            GameNotificationUI.Show("CANNOT UNMORTGAGE — MARKET FROZEN");
+            return false;
+        }
+
         int repayment =
             Mathf.CeilToInt(
                 MortgageValue * 1.10f
@@ -1067,6 +1091,12 @@ public class BoardSpace : MonoBehaviour
             return false;
         }
 
+        if (IsOwnerMarketFrozenOutsideRecovery())
+        {
+            GameNotificationUI.Show("CANNOT SELL BUILDINGS — MARKET FROZEN");
+            return false;
+        }
+
         int refund =
             Mathf.CeilToInt(
                 EffectiveHouseCost * 0.5f
@@ -1087,6 +1117,12 @@ public class BoardSpace : MonoBehaviour
             !hotel ||
             EffectiveHotelCost <= 0)
         {
+            return false;
+        }
+
+        if (IsOwnerMarketFrozenOutsideRecovery())
+        {
+            GameNotificationUI.Show("CANNOT SELL BUILDINGS — MARKET FROZEN");
             return false;
         }
 
@@ -1311,6 +1347,21 @@ public class BoardSpace : MonoBehaviour
 
         return recovery != null &&
                recovery.IsRecovering(owner);
+    }
+
+    private bool IsOwnerMarketFrozenOutsideRecovery()
+    {
+        if (owner == null)
+            return false;
+
+        GameManager gameManager =
+            FindFirstObjectByType<GameManager>(
+                FindObjectsInactive.Include
+            );
+
+        return gameManager != null &&
+               gameManager.IsMarketFrozen(owner) &&
+               !IsOwnerInFinancialRecovery();
     }
 
     private void OnValidate()
