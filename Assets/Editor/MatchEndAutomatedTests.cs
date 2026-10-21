@@ -1427,7 +1427,7 @@ public static class MatchEndAutomatedTests
                 "Valid offer containing a requested property was rejected."
             );
 
-            fixture.Manager.EndTurn();
+            tradeManager.NotifyReceiverTurnStarted(receiver);
 
             Require(
                 messageText.text.Contains("Receiver Test Property"),
