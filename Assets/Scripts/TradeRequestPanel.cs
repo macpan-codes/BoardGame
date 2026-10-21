@@ -35,9 +35,101 @@ public class TradeRequestPanel : MonoBehaviour
         tradeManager =
             FindFirstObjectByType<TradeManager>();
 
+        ResolveTextReferences();
         EnsureVisibilityGroup();
         WireButtons();
         Hide();
+    }
+
+    /// <summary>
+    /// Recovers missing or accidentally duplicated text references from the
+    /// existing popup hierarchy. It does not create or restyle UI elements.
+    /// </summary>
+    private void ResolveTextReferences()
+    {
+        TMP_Text[] texts = GetComponentsInChildren<TMP_Text>(true);
+
+        if (headerText == null)
+            headerText = FindNamedText(texts, "HeaderText", "TradeRequestHeader", "RequestHeaderText");
+
+        if (messageText == null)
+            messageText = FindNamedText(texts, "MessageText", "TradeRequestMessage", "RequestMessageText");
+
+        if (offeredText == null)
+            offeredText = FindNamedText(texts, "OfferedText", "OfferedPropertiesText", "OfferedAssetsText", "ProposerGivesText");
+
+        bool requestedReferenceConflicts =
+            requestedText == offeredText ||
+            requestedText == messageText ||
+            requestedText == headerText ||
+            requestedText == statusText;
+
+        if (requestedText == null || requestedReferenceConflicts)
+        {
+            TMP_Text resolved = FindNamedText(
+                texts,
+                "RequestedText",
+                "RequestedPropertiesText",
+                "RequestedAssetsText",
+                "RequestedPropertyListText",
+                "SelectedRequestedPropertiesText",
+                "ReceiverGivesText"
+            );
+
+            if (resolved != null &&
+                resolved != offeredText &&
+                resolved != messageText &&
+                resolved != headerText &&
+                resolved != statusText)
+            {
+                requestedText = resolved;
+            }
+            else if (requestedReferenceConflicts)
+            {
+                requestedText = null;
+            }
+        }
+
+        if (statusText == null)
+            statusText = FindNamedText(texts, "StatusText", "TradeRequestStatus", "RequestStatusText");
+    }
+
+    private static TMP_Text FindNamedText(TMP_Text[] texts, params string[] names)
+    {
+        if (texts == null || names == null)
+            return null;
+
+        foreach (string name in names)
+        {
+            string expected = NormalizeObjectName(name);
+            foreach (TMP_Text text in texts)
+            {
+                if (text != null &&
+                    NormalizeObjectName(text.gameObject.name) == expected)
+                {
+                    return text;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static string NormalizeObjectName(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
+
+        System.Text.StringBuilder result =
+            new System.Text.StringBuilder(value.Length);
+
+        foreach (char character in value)
+        {
+            if (char.IsLetterOrDigit(character))
+                result.Append(char.ToLowerInvariant(character));
+        }
+
+        return result.ToString();
     }
 
     private void OnEnable()
@@ -261,6 +353,8 @@ public class TradeRequestPanel : MonoBehaviour
         if (currentOffer == null)
             return;
 
+        ResolveTextReferences();
+
         BoardPlayer proposer =
             currentOffer.Proposer;
 
@@ -268,20 +362,45 @@ public class TradeRequestPanel : MonoBehaviour
             currentOffer.Receiver;
 
         if (headerText != null)
-        {
             headerText.text = "TRADE REQUEST";
-        }
 
-        if (messageText != null &&
-            proposer != null &&
-            receiver != null)
+        bool hasDedicatedRequestedText =
+            requestedText != null &&
+            requestedText != offeredText &&
+            requestedText != messageText &&
+            requestedText != headerText &&
+            requestedText != statusText;
+
+        string requestedAssets =
+            receiver != null
+                ? $"{receiver.PlayerName.ToUpperInvariant()} GIVES:\n" +
+                  BuildAssetList(
+                      currentOffer.RequestedMoney,
+                      currentOffer.RequestedProperties
+                  )
+                : BuildAssetList(
+                    currentOffer.RequestedMoney,
+                    currentOffer.RequestedProperties
+                );
+
+        if (messageText != null)
         {
-            messageText.text =
-                $"HAND THE CONTROLS TO {receiver.PlayerName.ToUpperInvariant()}.\n" +
-                $"{proposer.PlayerName} wants to trade with {receiver.PlayerName}.";
+            string introduction =
+                proposer != null && receiver != null
+                    ? $"HAND THE CONTROLS TO {receiver.PlayerName.ToUpperInvariant()}.\n" +
+                      $"{proposer.PlayerName} wants to trade with {receiver.PlayerName}."
+                    : "Review the trade request.";
+
+            // Fallback is deliberate: never leave a valid requested-property
+            // offer invisible just because the dedicated Inspector reference
+            // is missing or points at another text field.
+            messageText.text = hasDedicatedRequestedText
+                ? introduction
+                : introduction + "\n\n" + requestedAssets;
         }
 
         if (offeredText != null &&
+            offeredText != requestedText &&
             proposer != null)
         {
             offeredText.text =
@@ -292,31 +411,42 @@ public class TradeRequestPanel : MonoBehaviour
                 );
         }
 
-        if (requestedText != null &&
-            receiver != null)
+        if (hasDedicatedRequestedText)
         {
-            requestedText.text =
-                $"{receiver.PlayerName.ToUpperInvariant()} GIVES:\n" +
-                BuildAssetList(
-                    currentOffer.RequestedMoney,
-                    currentOffer.RequestedProperties
-                );
+            requestedText.text = requestedAssets;
         }
 
-        if (statusText != null)
+        if (statusText != null &&
+            statusText != requestedText &&
+            statusText != messageText)
         {
             statusText.text =
-                $"Review the offer. {receiver.PlayerName}, accept or decline.";
+                receiver != null
+                    ? $"Review the offer. {receiver.PlayerName}, accept or decline."
+                    : "Review the offer, then accept or decline.";
         }
+
+        bool requestTermsCanBeDisplayed =
+            hasDedicatedRequestedText || messageText != null;
 
         if (acceptButton != null)
         {
             acceptButton.interactable =
+                requestTermsCanBeDisplayed &&
                 tradeManager != null &&
                 tradeManager.ValidatePendingOffer(
                     currentOffer,
                     out _
                 );
+        }
+
+        if (currentOffer.RequestedProperties.Count > 0)
+        {
+            Debug.Log(
+                "TradeRequestPanel: Requested properties shown to receiver: " +
+                BuildAssetList(0, currentOffer.RequestedProperties),
+                this
+            );
         }
     }
 
