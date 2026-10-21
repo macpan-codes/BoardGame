@@ -313,7 +313,7 @@ public class TradeRequestPanel : MonoBehaviour
         {
             acceptButton.interactable =
                 tradeManager != null &&
-                tradeManager.ValidateOffer(
+                tradeManager.ValidatePendingOffer(
                     currentOffer,
                     out _
                 );
