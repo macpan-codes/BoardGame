@@ -230,6 +230,12 @@ public class PropertyManagementPanel : MonoBehaviour
             return;
         }
 
+        bool marketFrozen =
+            gameManager.IsMarketFrozen(currentPlayer);
+
+        bool inFinancialRecovery =
+            gameManager.IsFinancialRecoveryActive(currentPlayer);
+
         if (houseButton != null)
         {
             houseButton.interactable =
@@ -249,13 +255,16 @@ public class PropertyManagementPanel : MonoBehaviour
         if (mortgageButton != null)
         {
             mortgageButton.interactable =
-                selectedSpace.CanMortgage();
+                selectedSpace.CanMortgage() &&
+                (!marketFrozen || inFinancialRecovery);
         }
 
         if (unmortgageButton != null)
         {
             unmortgageButton.interactable =
-                selectedSpace.CanUnmortgage();
+                selectedSpace.CanUnmortgage() &&
+                !marketFrozen &&
+                !inFinancialRecovery;
         }
     }
 
