@@ -240,12 +240,12 @@ public sealed class MatchEndUI : MonoBehaviour
     {
         Bind(menuButton, ShowEndGameMenu);
         Bind(menuVoteButton, BeginVote);
-        Bind(menuLeaveButton, ShowLeavePlayerSelection);
+        Bind(menuLeaveButton, ShowReturnToMainMenuConfirmation);
         Bind(menuCloseButton, HideOverlay);
         Bind(voteCancelButton, CancelVote);
         Bind(leavePlayerBackButton, ShowEndGameMenu);
-        Bind(leaveConfirmYesButton, ConfirmLeave);
-        Bind(leaveConfirmCancelButton, ShowLeavePlayerSelection);
+        Bind(leaveConfirmYesButton, ConfirmReturnToMainMenu);
+        Bind(leaveConfirmCancelButton, ShowEndGameMenu);
         Bind(newMatchButton, RestartCurrentScene);
         Bind(closeResultsButton, CloseResults);
     }
@@ -540,6 +540,27 @@ public sealed class MatchEndUI : MonoBehaviour
         GameNotificationUI.Show("END-GAME VOTE REJECTED — MATCH RESUMES");
     }
 
+    private void ShowReturnToMainMenuConfirmation()
+    {
+        if (leaveConfirmPanel == null)
+        {
+            Debug.LogError("MatchEndUI: Leave confirmation panel is missing.", this);
+            GameNotificationUI.Show("COULD NOT OPEN MAIN MENU CONFIRMATION");
+            return;
+        }
+
+        selectedLeavingPlayer = null;
+
+        if (leaveConfirmText != null)
+        {
+            leaveConfirmText.text =
+                "RETURN TO THE MAIN MENU?\n\n" +
+                "YOUR CURRENT MATCH WILL END. UNSAVED MATCH PROGRESS WILL BE LOST.";
+        }
+
+        ShowOnly(leaveConfirmPanel);
+    }
+
     private void ShowLeavePlayerSelection()
     {
         if (gameManager == null || leavePlayerPanel == null ||
@@ -603,42 +624,28 @@ public sealed class MatchEndUI : MonoBehaviour
         ShowOnly(leaveConfirmPanel);
     }
 
-    private void ConfirmLeave()
+    private void ConfirmReturnToMainMenu()
     {
-        Debug.Log("MatchEndUI: YES, LEAVE was clicked.", this);
+        Debug.Log("MatchEndUI: Return to Main Menu confirmed.", this);
 
-        if (gameManager == null)
-        {
-            Debug.LogError("MatchEndUI: GameManager reference is missing.", this);
-            GameNotificationUI.Show("COULD NOT LEAVE: GAME MANAGER IS MISSING");
-            return;
-        }
+        if (gameManager != null && gameManager.IsEndGameVoteInProgress)
+            gameManager.CancelEndGameVote();
 
-        if (selectedLeavingPlayer == null)
+        // LocalGameSettings is static, so clear it before leaving this match.
+        LocalGameSettings.Clear();
+
+        const string mainMenuSceneName = "MainMenu";
+        if (!Application.CanStreamedLevelBeLoaded(mainMenuSceneName))
         {
             Debug.LogError(
-                "MatchEndUI: YES, LEAVE was clicked but no leaving player was selected.",
+                $"MatchEndUI: Main menu scene '{mainMenuSceneName}' is not in Build Settings.",
                 this
             );
-            GameNotificationUI.Show("PLEASE SELECT LEAVE GAME AGAIN");
-            ShowEndGameMenu();
+            GameNotificationUI.Show("COULD NOT LOAD MAIN MENU");
             return;
         }
 
-        bool left = gameManager.LeaveGame(selectedLeavingPlayer);
-        selectedLeavingPlayer = null;
-
-        if (!left)
-        {
-            ShowEndGameMenu();
-            return;
-        }
-
-        if (gameManager.GameOver)
-            return;
-
-        HideOverlay();
-        GameNotificationUI.Show("PLAYER LEFT THE MATCH — PROPERTIES RETURNED TO THE BANK");
+        SceneManager.LoadScene(mainMenuSceneName);
     }
 
     private void RestartCurrentScene()
