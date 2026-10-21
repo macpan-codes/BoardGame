@@ -206,6 +206,46 @@ public static class MatchEndAutomatedTests
         );
 
         RunCase(
+            "Property rent follows base, house, hotel, and mortgage states",
+            TestPropertyRentLevelsAndMortgage,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Railroad rent scales with railroad ownership",
+            TestRailroadRentScalesWithOwnershipCount,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Utility rent uses dice total and utility ownership count",
+            TestUtilityRentUsesDiceAndOwnershipCount,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Normal rent transfers the exact amount between players",
+            TestNormalRentTransfersExactAmount,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Jail countdown releases a player after two skipped turns",
+            TestJailCountdown,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
             "Market Freeze lasts for the next two full turns",
             TestMarketFreezeDuration,
             ref passed,
@@ -1106,6 +1146,185 @@ public static class MatchEndAutomatedTests
                 !communityChest.IsMarketFrozen(player),
                 "Market Freeze did not expire after the second full turn."
             );
+        }
+    }
+
+    private static void TestPropertyRentLevelsAndMortgage()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            BoardSpace property =
+                CreateTestProperty(
+                    fixture.Root.transform,
+                    fixture.Players[0],
+                    100
+                );
+
+            SetPrivateField(property, "baseRent", 20);
+            SetPrivateField(property, "rentLevel1", 40);
+            SetPrivateField(property, "rentLevel2", 80);
+            SetPrivateField(property, "rentLevel3", 120);
+            SetPrivateField(property, "rentLevel4", 160);
+            SetPrivateField(property, "hotelRent", 200);
+
+            Require(property.GetRent() == 20, "Base property rent was incorrect.");
+
+            SetPrivateField(property, "houses", 1);
+            Require(property.GetRent() == 40, "One-house rent was incorrect.");
+
+            SetPrivateField(property, "houses", 2);
+            Require(property.GetRent() == 80, "Two-house rent was incorrect.");
+
+            SetPrivateField(property, "houses", 3);
+            Require(property.GetRent() == 120, "Three-house rent was incorrect.");
+
+            SetPrivateField(property, "houses", 4);
+            Require(property.GetRent() == 160, "Four-house rent was incorrect.");
+
+            SetPrivateField(property, "houses", 0);
+            SetPrivateField(property, "hotel", true);
+            Require(property.GetRent() == 200, "Hotel rent was incorrect.");
+
+            SetPrivateField(property, "mortgaged", true);
+            Require(property.GetRent() == 0, "Mortgaged property still charged rent.");
+        }
+    }
+
+    private static void TestRailroadRentScalesWithOwnershipCount()
+    {
+        int[] expectedRent = { 25, 50, 100, 200 };
+
+        for (int count = 1; count <= 4; count++)
+        {
+            using (TestFixture fixture = new TestFixture(2))
+            {
+                BoardPlayer owner = fixture.Players[0];
+                List<BoardSpace> railroads = new List<BoardSpace>();
+
+                for (int i = 0; i < count; i++)
+                {
+                    BoardSpace railroad =
+                        CreateTestProperty(
+                            fixture.Root.transform,
+                            owner,
+                            100
+                        );
+
+                    SetPrivateField(
+                        railroad,
+                        "spaceType",
+                        Enum.Parse(typeof(BoardSpaceType), "Airport")
+                    );
+
+                    railroads.Add(railroad);
+                }
+
+                Require(
+                    railroads[0].GetRent() == expectedRent[count - 1],
+                    "Railroad rent was incorrect when the owner held " + count + " railroad(s)."
+                );
+            }
+        }
+    }
+
+    private static void TestUtilityRentUsesDiceAndOwnershipCount()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            BoardPlayer owner = fixture.Players[0];
+
+            BoardSpace firstUtility =
+                CreateTestProperty(
+                    fixture.Root.transform,
+                    owner,
+                    100
+                );
+
+            SetPrivateField(
+                firstUtility,
+                "spaceType",
+                Enum.Parse(typeof(BoardSpaceType), "Utility")
+            );
+
+            Require(
+                firstUtility.GetUtilityRent(7) == 28,
+                "One utility should charge four times the dice total."
+            );
+
+            BoardSpace secondUtility =
+                CreateTestProperty(
+                    fixture.Root.transform,
+                    owner,
+                    100
+                );
+
+            SetPrivateField(
+                secondUtility,
+                "spaceType",
+                Enum.Parse(typeof(BoardSpaceType), "Utility")
+            );
+
+            Require(
+                firstUtility.GetUtilityRent(7) == 70,
+                "Two utilities should charge ten times the dice total."
+            );
+
+            SetPrivateField(firstUtility, "mortgaged", true);
+            Require(
+                firstUtility.GetUtilityRent(7) == 0,
+                "A mortgaged utility still charged rent."
+            );
+        }
+    }
+
+    private static void TestNormalRentTransfersExactAmount()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            BoardPlayer payer = fixture.Players[0];
+            BoardPlayer owner = fixture.Players[1];
+
+            payer.SetMoney(100);
+            owner.SetMoney(50);
+
+            BoardSpace property =
+                CreateTestProperty(
+                    fixture.Root.transform,
+                    owner,
+                    100
+                );
+
+            SetPrivateField(property, "baseRent", 30);
+
+            Require(
+                fixture.Manager.PayRent(property),
+                "A player with enough cash could not pay rent."
+            );
+
+            Require(payer.Money == 70, "Payer did not lose the exact rent amount.");
+            Require(owner.Money == 80, "Property owner did not receive the exact rent amount.");
+        }
+    }
+
+    private static void TestJailCountdown()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            BoardPlayer player = fixture.Players[0];
+
+            SetPrivateField(player, "inJail", true);
+            SetPrivateField(player, "jailTurnsRemaining", 2);
+
+            Require(player.IsInJail, "Player was not in the jailed test state.");
+            Require(player.JailTurnsRemaining == 2, "Jail should begin with two turns remaining.");
+
+            player.DecreaseJailTurn();
+            Require(player.IsInJail, "Player was released after only one skipped turn.");
+            Require(player.JailTurnsRemaining == 1, "Jail countdown did not decrease to one.");
+
+            player.DecreaseJailTurn();
+            Require(!player.IsInJail, "Player was not released after the second skipped turn.");
+            Require(player.JailTurnsRemaining == 0, "Jail countdown did not reach zero.");
         }
     }
 
