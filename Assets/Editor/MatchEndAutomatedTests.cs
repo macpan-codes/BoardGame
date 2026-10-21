@@ -1434,7 +1434,7 @@ public static class MatchEndAutomatedTests
                 "Receiver did not see the requested property when the dedicated text reference was missing."
             );
             Require(
-                messageText.text.Contains("PLAYER 2 GIVES"),
+                messageText.text.Contains("TEST PLAYER 2 GIVES"),
                 "Fallback did not clearly identify what the receiver is being asked to give."
             );
             Require(
