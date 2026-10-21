@@ -13,6 +13,10 @@ public class GameSetupController : MonoBehaviour
     [SerializeField] private Button decreasePlayersButton;
     [SerializeField] private Button increasePlayersButton;
     [SerializeField] private Button startGameButton;
+    [SerializeField] private Button backButton;
+
+    [Header("Navigation")]
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
 
     [Header("Player Row")]
     [SerializeField] private GameObject playerRowPrefab;
@@ -62,6 +66,14 @@ public class GameSetupController : MonoBehaviour
             startGameButton.onClick.RemoveAllListeners();
             startGameButton.onClick.AddListener(
                 StartGame
+            );
+        }
+
+        if (backButton != null)
+        {
+            backButton.onClick.RemoveAllListeners();
+            backButton.onClick.AddListener(
+                BackToMainMenu
             );
         }
     }
@@ -242,6 +254,31 @@ public class GameSetupController : MonoBehaviour
             default:
                 return Color.white;
         }
+    }
+
+    // ============================================================
+    // NAVIGATION
+    // ============================================================
+
+    public void BackToMainMenu()
+    {
+        if (string.IsNullOrWhiteSpace(mainMenuSceneName))
+        {
+            Debug.LogError(
+                "GameSetupController: Main menu scene name is empty."
+            );
+
+            return;
+        }
+
+        // Discard any cached local-game configuration when leaving setup.
+        LocalGameSettings.Clear();
+
+        Debug.Log(
+            $"GameSetupController: Returning to {mainMenuSceneName}."
+        );
+
+        SceneManager.LoadScene(mainMenuSceneName);
     }
 
     // ============================================================
