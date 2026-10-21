@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -264,6 +265,14 @@ public static class MatchEndAutomatedTests
         RunCase(
             "An inactive incoming-request panel can reactivate and receive an offer",
             TestIncomingRequestPanelWakesFromInactiveState,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
+            "Incoming trade request displays requested property when its text reference is missing",
+            TestIncomingRequestDisplaysRequestedPropertyWithoutDedicatedText,
             ref passed,
             ref failed,
             failures
@@ -1363,6 +1372,88 @@ public static class MatchEndAutomatedTests
             Require(group != null && group.alpha > 0.99f, "Queued incoming request did not appear when the receiver's turn started.");
             Require(group != null && group.blocksRaycasts, "Visible request panel did not block gameplay clicks.");
         }
+    }
+
+    private static void TestIncomingRequestDisplaysRequestedPropertyWithoutDedicatedText()
+    {
+        using (TestFixture fixture = new TestFixture(2))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+            proposer.SetMoney(100);
+
+            BoardSpace requestedProperty =
+                CreateTestProperty(fixture.Root.transform, receiver, 150);
+            SetPrivateField(requestedProperty, "spaceName", "Receiver Test Property");
+
+            GameObject panelObject = new GameObject("TestTradeRequestPanel");
+            panelObject.transform.SetParent(fixture.Root.transform, false);
+            TradeRequestPanel requestPanel = panelObject.AddComponent<TradeRequestPanel>();
+
+            TMP_Text headerText = CreateTestTMPText(panelObject.transform, "HeaderText");
+            TMP_Text messageText = CreateTestTMPText(panelObject.transform, "MessageText");
+            TMP_Text offeredText = CreateTestTMPText(panelObject.transform, "OfferedText");
+            TMP_Text statusText = CreateTestTMPText(panelObject.transform, "StatusText");
+
+            GameObject acceptObject = new GameObject(
+                "AcceptButton",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button)
+            );
+            acceptObject.transform.SetParent(panelObject.transform, false);
+            Button acceptButton = acceptObject.GetComponent<Button>();
+
+            SetPrivateField(requestPanel, "headerText", headerText);
+            SetPrivateField(requestPanel, "messageText", messageText);
+            SetPrivateField(requestPanel, "offeredText", offeredText);
+            SetPrivateField(requestPanel, "requestedText", null);
+            SetPrivateField(requestPanel, "statusText", statusText);
+            SetPrivateField(requestPanel, "acceptButton", acceptButton);
+            SetPrivateField(requestPanel, "tradeManager", tradeManager);
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 10
+            };
+            offer.RequestedProperties.Add(requestedProperty);
+
+            Require(
+                tradeManager.SendOffer(offer),
+                "Valid offer containing a requested property was rejected."
+            );
+
+            fixture.Manager.EndTurn();
+
+            Require(
+                messageText.text.Contains("Receiver Test Property"),
+                "Receiver did not see the requested property when the dedicated text reference was missing."
+            );
+            Require(
+                messageText.text.Contains("PLAYER 2 GIVES"),
+                "Fallback did not clearly identify what the receiver is being asked to give."
+            );
+            Require(
+                acceptButton.interactable,
+                "A valid offer with visible requested terms should remain acceptable."
+            );
+        }
+    }
+
+    private static TMP_Text CreateTestTMPText(Transform parent, string objectName)
+    {
+        GameObject textObject = new GameObject(
+            objectName,
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(TextMeshProUGUI)
+        );
+        textObject.transform.SetParent(parent, false);
+        return textObject.GetComponent<TextMeshProUGUI>();
     }
 
     private static TradeManager CreateTestTradeManager(TestFixture fixture)
