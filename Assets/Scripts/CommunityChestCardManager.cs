@@ -779,7 +779,7 @@ public class CommunityChestCardManager : MonoBehaviour
         ui.ShowSpecialEffect(
             "MARKET FREEZE",
             "2 TURNS",
-            "You cannot buy, sell, mortgage, or trade property for your next 2 turns.",
+            "You cannot buy, build, sell, mortgage, or trade property for your next 2 turns.",
             "ACTIVE"
         );
 
@@ -1758,7 +1758,7 @@ public class CommunityChestCardManager : MonoBehaviour
             new Card
             {
                 title = "Market Freeze",
-                description = "You cannot buy, sell, mortgage, or trade property for your next 2 turns.",
+                description = "You cannot buy, build, sell, mortgage, or trade property for your next 2 turns.",
                 effect = Effect.MarketFreeze,
                 weight = 3f
             },
