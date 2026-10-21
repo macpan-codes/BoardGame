@@ -1668,6 +1668,10 @@ public class GameManager : MonoBehaviour
         if (!IsPlayerTurn(player))
             return false;
 
+        // Market Freeze disables ordinary property development.
+        if (IsMarketFrozen(player))
+            return false;
+
         if (!IsPlayerStandingOn(
                 player,
                 space))
@@ -1738,6 +1742,10 @@ public class GameManager : MonoBehaviour
         }
 
         if (!IsPlayerTurn(player))
+            return false;
+
+        // Market Freeze disables ordinary property development.
+        if (IsMarketFrozen(player))
             return false;
 
         if (!IsPlayerStandingOn(
