@@ -753,7 +753,22 @@ public static class MatchEndAutomatedTests
             };
 
             Require(tradeManager.SendOffer(offer), "Valid money-only offer was rejected.");
-            Require(tradeManager.AcceptOffer(receiver), "Valid money-only offer was not completed.");
+
+            // The sender's turn ends before the receiver responds.
+            SetPrivateField(fixture.Manager, "currentPlayerIndex", 1);
+            fixture.Manager.StartTurn();
+
+            Require(
+                tradeManager.ValidatePendingOffer(
+                    tradeManager.PendingOffer,
+                    out string pendingError
+                ),
+                "A valid queued offer was marked invalid on the receiver's turn: " + pendingError
+            );
+            Require(
+                tradeManager.AcceptOffer(receiver),
+                "Receiver could not accept a valid offer after the turn passed."
+            );
 
             Require(proposer.Money == 75, "Proposer did not pay the exact offered amount.");
             Require(receiver.Money == 225, "Receiver did not receive the exact offered amount.");
