@@ -386,7 +386,7 @@ public class TradeManager : MonoBehaviour
 
         TradeOffer offer = pendingOffer;
 
-        if (!ValidateOffer(
+        if (!ValidatePendingOffer(
                 offer,
                 out string error))
         {
@@ -472,6 +472,34 @@ public class TradeManager : MonoBehaviour
         TradeOffer offer,
         out string error)
     {
+        return ValidateOfferInternal(
+            offer,
+            out error,
+            true
+        );
+    }
+
+    /// <summary>
+    /// Revalidates a queued offer after the turn has passed to its receiver.
+    /// It applies the same asset, ownership, balance, and game-state checks,
+    /// but does not require the proposer to still be the current player.
+    /// </summary>
+    public bool ValidatePendingOffer(
+        TradeOffer offer,
+        out string error)
+    {
+        return ValidateOfferInternal(
+            offer,
+            out error,
+            false
+        );
+    }
+
+    private bool ValidateOfferInternal(
+        TradeOffer offer,
+        out string error,
+        bool requireProposerTurn)
+    {
         error = null;
 
         if (offer == null)
@@ -512,7 +540,8 @@ public class TradeManager : MonoBehaviour
             return false;
         }
 
-        if (!gameManager.IsPlayerTurn(proposer))
+        if (requireProposerTurn &&
+            !gameManager.IsPlayerTurn(proposer))
         {
             error = "Only the current player can send a trade offer.";
             return false;
