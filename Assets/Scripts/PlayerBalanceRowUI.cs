@@ -17,6 +17,10 @@ public class PlayerBalanceRowUI : MonoBehaviour
     private bool lastBankrupt;
     private bool lastLeftGame;
 
+    private Color originalPlayerNameColor = Color.white;
+    private Color originalBalanceColor = Color.white;
+    private bool hasCachedTextColors;
+
     public BoardPlayer Player =>
         player;
 
@@ -28,7 +32,30 @@ public class PlayerBalanceRowUI : MonoBehaviour
     {
         player = boardPlayer;
 
+        CacheTextColors();
         ForceRefresh();
+    }
+
+    private void Awake()
+    {
+        CacheTextColors();
+    }
+
+    private void CacheTextColors()
+    {
+        if (hasCachedTextColors ||
+            (playerNameText == null && balanceText == null))
+        {
+            return;
+        }
+
+        if (playerNameText != null)
+            originalPlayerNameColor = playerNameText.color;
+
+        if (balanceText != null)
+            originalBalanceColor = balanceText.color;
+
+        hasCachedTextColors = true;
     }
 
     // ============================================================
@@ -108,12 +135,18 @@ public class PlayerBalanceRowUI : MonoBehaviour
     {
         if (playerNameText != null)
         {
+            // Keep the row compact. A left-game status suffix pushes into
+            // the balance column, so identify a departed player by dimming
+            // their row instead of adding more text.
             playerNameText.text =
+                bankrupt
+                    ? $"{playerName}  •  BANKRUPT"
+                    : playerName;
+
+            playerNameText.color =
                 leftGame
-                    ? $"{playerName}  •  LEFT GAME"
-                    : bankrupt
-                        ? $"{playerName}  •  BANKRUPT"
-                        : playerName;
+                    ? GetMutedColor(originalPlayerNameColor)
+                    : originalPlayerNameColor;
         }
 
         if (balanceText != null)
@@ -122,12 +155,19 @@ public class PlayerBalanceRowUI : MonoBehaviour
                 leftGame || bankrupt
                     ? "$0"
                     : $"${balance:N0}M";
+
+            balanceText.color =
+                leftGame
+                    ? GetMutedColor(originalBalanceColor)
+                    : originalBalanceColor;
         }
 
         if (colorIndicator != null)
         {
             colorIndicator.color =
-                playerColor;
+                leftGame
+                    ? GetMutedColor(playerColor)
+                    : playerColor;
         }
 
         lastName = playerName;
@@ -153,6 +193,13 @@ public class PlayerBalanceRowUI : MonoBehaviour
 
         if (colorIndicator != null)
             colorIndicator.enabled = false;
+    }
+
+    private Color GetMutedColor(Color original)
+    {
+        Color muted = Color.Lerp(original, Color.gray, 0.55f);
+        muted.a = original.a * 0.55f;
+        return muted;
     }
 
     // ============================================================
