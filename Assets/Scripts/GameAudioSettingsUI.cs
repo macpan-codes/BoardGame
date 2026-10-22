@@ -13,6 +13,7 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
 
     private static GameAudioSettingsUI instance;
 
+    private GameObject overlay;
     private GameObject panel;
     private Slider masterVolumeSlider;
     private TMP_Text volumeValueText;
@@ -67,7 +68,12 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
         }
 
         instance = this;
-        BuildUI();
+        if (transform.Find("AudioSettingsOverlay") != null)
+            BindExistingUI();
+        else
+            BuildUI();
+        if (overlay != null)
+            overlay.SetActive(false);
         ApplySavedAudioSettings();
     }
 
@@ -91,7 +97,7 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
         RectTransform canvasRect = GetComponent<RectTransform>();
         Stretch(canvasRect);
 
-        GameObject overlay = CreateImage(
+        overlay = CreateImage(
             "AudioSettingsOverlay",
             transform,
             new Color(0.005f, 0.012f, 0.028f, 0.84f)
@@ -182,6 +188,65 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
             new Color(0.14f, 0.42f, 0.31f, 1f),
             out _
         ).onClick.AddListener(Close);
+
+        RefreshLabels();
+        overlay.SetActive(false);
+    }
+
+    /// <summary>Builds the editable hierarchy when invoked by the Unity Editor tooling.</summary>
+    public void BuildUIForEditor()
+    {
+        if (transform.Find("AudioSettingsOverlay") == null)
+            BuildUI();
+    }
+
+    private void BindExistingUI()
+    {
+        Transform overlayTransform = transform.Find("AudioSettingsOverlay");
+        overlay = overlayTransform != null ? overlayTransform.gameObject : null;
+        Transform panelTransform = overlayTransform != null
+            ? overlayTransform.Find("AudioSettingsPanel")
+            : null;
+        panel = panelTransform != null ? panelTransform.gameObject : null;
+
+        if (panel == null)
+        {
+            Debug.LogError("GameAudioSettingsUI: Editable Settings panel is missing.", this);
+            return;
+        }
+
+        foreach (TMP_Text text in panel.GetComponentsInChildren<TMP_Text>(true))
+        {
+            if (text.text.StartsWith("MASTER VOLUME", System.StringComparison.OrdinalIgnoreCase))
+                volumeValueText = text;
+            else if (text.text.StartsWith("MUTE AUDIO", System.StringComparison.OrdinalIgnoreCase))
+                muteButtonText = text;
+        }
+
+        Transform sliderTransform = panel.transform.Find("MasterVolumeSlider");
+        masterVolumeSlider = sliderTransform != null ? sliderTransform.GetComponent<Slider>() : null;
+        if (masterVolumeSlider != null)
+        {
+            masterVolumeSlider.SetValueWithoutNotify(SavedMasterVolume);
+            masterVolumeSlider.onValueChanged.RemoveListener(OnVolumeChanged);
+            masterVolumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+        }
+
+        Transform muteTransform = panel.transform.Find("MuteAudioButton");
+        muteButton = muteTransform != null ? muteTransform.GetComponent<Button>() : null;
+        if (muteButton != null)
+        {
+            muteButton.onClick.RemoveListener(ToggleMute);
+            muteButton.onClick.AddListener(ToggleMute);
+        }
+
+        Transform closeTransform = panel.transform.Find("CloseAudioSettingsButton");
+        Button closeButton = closeTransform != null ? closeTransform.GetComponent<Button>() : null;
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveListener(Close);
+            closeButton.onClick.AddListener(Close);
+        }
 
         RefreshLabels();
     }
@@ -445,14 +510,15 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
 
     private void Show()
     {
-        if (panel != null)
-            panel.SetActive(true);
+        if (overlay != null)
+            overlay.SetActive(true);
     }
 
     private void Close()
     {
         PlayerPrefs.Save();
-        Destroy(gameObject);
+        if (overlay != null)
+            overlay.SetActive(false);
     }
 
     private static void Stretch(RectTransform rect)
