@@ -6,7 +6,6 @@ public class CommunityChestCardTester : MonoBehaviour
 {
     [SerializeField] private CommunityChestCardManager manager;
     [SerializeField] private KeyCode toggleKey = KeyCode.F7;
-    [SerializeField] private bool openOnStart = true;
 
     private GameObject window;
     private TMP_Text status;
@@ -38,9 +37,8 @@ public class CommunityChestCardTester : MonoBehaviour
 
         RefreshStatus();
 
-        window.SetActive(
-            openOnStart
-        );
+        // Keep the tester hidden during normal gameplay; press F7 to open it.
+        window.SetActive(false);
 #endif
     }
 
