@@ -78,8 +78,7 @@ public class PlayerRowUI : MonoBehaviour
         // Add TMP_InputField while inactive so its Awake/OnEnable methods
         // run only after its text and viewport references are assigned.
         inputObject.SetActive(false);
-        TMP_InputField createdInput =
-            inputObject.AddComponent<TMP_InputField>();
+        inputObject.AddComponent<TMP_InputField>();
 
         inputObject.transform.SetParent(
             transform,
