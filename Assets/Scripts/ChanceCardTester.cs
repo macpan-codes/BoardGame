@@ -13,7 +13,6 @@ public class ChanceCardTester : MonoBehaviour
     [SerializeField] private KeyCode toggleKey = KeyCode.F8;
 
     [Header("Window")]
-    [SerializeField] private bool openOnStart = true;
     [SerializeField] private Vector2 windowSize = new Vector2(900f, 800f);
 
     [Header("Colors")]
@@ -52,7 +51,7 @@ public class ChanceCardTester : MonoBehaviour
 #else
         BuildTesterUI();
         RefreshCards();
-        SetVisible(openOnStart);
+        SetVisible(false);
 #endif
     }
 
