@@ -50,9 +50,15 @@ public class RentTester : MonoBehaviour
 
     private void Start()
     {
+#if !UNITY_EDITOR
+        // Keep developer-only rent controls out of player builds.
+        enabled = false;
+        return;
+#else
         BuildUI();
         RefreshProperties();
         SetVisible(openOnStart);
+#endif
     }
 
     private void Update()
