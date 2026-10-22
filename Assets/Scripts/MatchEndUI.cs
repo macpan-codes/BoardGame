@@ -92,8 +92,80 @@ public sealed class MatchEndUI : MonoBehaviour
             votePanel != null ? votePanel.transform : null,
             "VoteInstruction"
         );
+        CreateInGameSettingsButton();
         BindButtons();
         HideAllPanels();
+    }
+
+    private void CreateInGameSettingsButton()
+    {
+        if (mainMenuPanel == null ||
+            mainMenuPanel.transform.Find("SettingsButton") != null)
+        {
+            return;
+        }
+
+        // Add the settings entry beside the existing CLOSE button instead of
+        // shifting or restyling the manually designed match-end menu.
+        GameObject buttonObject = new GameObject(
+            "SettingsButton",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image),
+            typeof(Button)
+        );
+
+        buttonObject.transform.SetParent(
+            mainMenuPanel.transform,
+            false
+        );
+
+        RectTransform rect = buttonObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = new Vector2(-220f, -350f);
+        rect.sizeDelta = new Vector2(180f, 80f);
+
+        Image image = buttonObject.GetComponent<Image>();
+        image.color = new Color(0.16f, 0.22f, 0.32f, 1f);
+        image.raycastTarget = true;
+
+        Button button = buttonObject.GetComponent<Button>();
+        button.targetGraphic = image;
+        button.transition = Selectable.Transition.ColorTint;
+
+        ColorBlock colors = button.colors;
+        colors.normalColor = image.color;
+        colors.highlightedColor = Color.Lerp(image.color, Color.white, 0.14f);
+        colors.pressedColor = Color.Lerp(image.color, Color.black, 0.14f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.fadeDuration = 0.08f;
+        button.colors = colors;
+        button.onClick.AddListener(GameAudioSettingsUI.Open);
+
+        GameObject labelObject = new GameObject(
+            "SettingsLabel",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(TextMeshProUGUI)
+        );
+        labelObject.transform.SetParent(buttonObject.transform, false);
+
+        RectTransform labelRect = labelObject.GetComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = Vector2.zero;
+        labelRect.offsetMax = Vector2.zero;
+
+        TextMeshProUGUI label = labelObject.GetComponent<TextMeshProUGUI>();
+        label.text = "SETTINGS";
+        label.fontSize = 18f;
+        label.fontStyle = FontStyles.Bold;
+        label.color = new Color(0.96f, 0.74f, 0.30f, 1f);
+        label.alignment = TextAlignmentOptions.Center;
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+        label.raycastTarget = false;
     }
 
     /// <summary>
