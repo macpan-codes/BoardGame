@@ -21,6 +21,11 @@ public class CommunityChestCardTester : MonoBehaviour
 
     private void Start()
     {
+#if !UNITY_EDITOR
+        // Runtime testers are developer tools, not part of the player-facing game.
+        enabled = false;
+        return;
+#else
         BuildTester();
 
         if (manager == null)
@@ -36,6 +41,7 @@ public class CommunityChestCardTester : MonoBehaviour
         window.SetActive(
             openOnStart
         );
+#endif
     }
 
     private void Update()
