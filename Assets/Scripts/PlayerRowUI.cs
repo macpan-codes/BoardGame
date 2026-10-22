@@ -72,13 +72,15 @@ public class PlayerRowUI : MonoBehaviour
             new GameObject(
                 "PlayerNameInput",
                 typeof(RectTransform),
-                typeof(Image),
-                typeof(TMP_InputField)
+                typeof(Image)
             );
 
-        // Configure the hierarchy before enabling TMP_InputField so it
-        // never runs with missing text/viewport references.
+        // Add TMP_InputField while inactive so its Awake/OnEnable methods
+        // run only after its text and viewport references are assigned.
         inputObject.SetActive(false);
+        TMP_InputField createdInput =
+            inputObject.AddComponent<TMP_InputField>();
+
         inputObject.transform.SetParent(
             transform,
             false
@@ -148,7 +150,7 @@ public class PlayerRowUI : MonoBehaviour
         placeholder.transform.SetAsFirstSibling();
         playerNameText.transform.SetAsLastSibling();
         playerNameText.alignment = TextAlignmentOptions.Left;
-        playerNameText.enableWordWrapping = false;
+        playerNameText.textWrappingMode = TextWrappingModes.NoWrap;
         playerNameText.overflowMode = TextOverflowModes.Ellipsis;
         playerNameText.raycastTarget = false;
 
