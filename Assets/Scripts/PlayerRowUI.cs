@@ -177,6 +177,7 @@ public class PlayerRowUI : MonoBehaviour
             inputObject.AddComponent<TMP_InputField>();
 
         inputField.targetGraphic = background;
+        inputField.transition = Selectable.Transition.None;
         inputField.textViewport = viewport;
         inputField.textComponent = inputText;
         inputField.placeholder = placeholder;
