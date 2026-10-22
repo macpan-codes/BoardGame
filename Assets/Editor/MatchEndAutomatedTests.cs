@@ -372,6 +372,17 @@ public static class MatchEndAutomatedTests
 
         Require(nameInput != null, "Custom player name input was not created.");
         Require(
+            nameInput.onFocusSelectAll,
+            "The existing player name will not be selected for easy replacement."
+        );
+        Require(
+            nameInput.customCaretColor &&
+            nameInput.caretColor.r > 0.9f &&
+            nameInput.caretColor.g > 0.9f &&
+            nameInput.caretColor.b > 0.9f,
+            "The typing caret is not configured to be visible against the dark field."
+        );
+        Require(
             nameInput.textComponent != null,
             "Input field has no dedicated live text component."
         );
