@@ -186,6 +186,9 @@ public class PlayerRowUI : MonoBehaviour
         inputField.characterLimit = 16;
         inputField.readOnly = false;
         inputField.interactable = true;
+        inputField.onFocusSelectAll = true;
+        inputField.customCaretColor = true;
+        inputField.caretColor = Color.white;
         inputField.selectionColor = new Color(0.25f, 0.48f, 0.88f, 0.55f);
 
         inputField.SetTextWithoutNotify($"Player {playerNumber}");
