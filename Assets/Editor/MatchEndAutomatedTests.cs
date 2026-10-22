@@ -371,12 +371,47 @@ public static class MatchEndAutomatedTests
                 .GetValue(row);
 
         Require(nameInput != null, "Custom player name input was not created.");
+        Require(
+            nameInput.textComponent != null,
+            "Input field has no dedicated live text component."
+        );
+        Require(
+            nameInput.textComponent.gameObject.activeInHierarchy,
+            "Input text component is not active and visible in the hierarchy."
+        );
+        Require(
+            nameInput.textComponent.color.r > 0.9f &&
+            nameInput.textComponent.color.g > 0.9f &&
+            nameInput.textComponent.color.b > 0.9f,
+            "Typed text is not configured with a bright, readable color."
+        );
+        Require(
+            nameInput.textComponent.fontSize >= 18f &&
+            nameInput.textComponent.fontSize <= 24f,
+            "Typed text font size is outside the intended readable range."
+        );
+
+        Image inputBackground = nameInput.targetGraphic as Image;
+        Require(
+            inputBackground != null &&
+            inputBackground.color.a > 0.9f &&
+            inputBackground.color.b > inputBackground.color.r,
+            "Name input background is not visibly styled as a navy field."
+        );
+        Require(
+            nameInput.placeholder != null,
+            "Name input has no placeholder."
+        );
 
         nameInput.text = "  Seeyam  ";
 
         Require(
             row.GetPlayerName() == "Seeyam",
             "Custom player name was not trimmed and returned correctly."
+        );
+        Require(
+            nameInput.textComponent.text.Contains("Seeyam"),
+            "The input's visible text component did not update while typing."
         );
 
         nameInput.text = "   ";
