@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenuController : MonoBehaviour
 {
@@ -8,6 +9,25 @@ public class MainMenuController : MonoBehaviour
 
     [Header("Panels")]
     [SerializeField] private GameObject settingsPanel;
+
+    private void Awake()
+    {
+        // The current MainMenu scene has a designed Settings button but no
+        // serialized OnClick target. Wire it without replacing its styling.
+        GameObject settingsButtonObject =
+            GameObject.Find("SettingsButton");
+
+        Button settingsButton =
+            settingsButtonObject != null
+                ? settingsButtonObject.GetComponent<Button>()
+                : null;
+
+        if (settingsButton != null)
+        {
+            settingsButton.onClick.RemoveListener(OpenSettings);
+            settingsButton.onClick.AddListener(OpenSettings);
+        }
+    }
 
     // ============================================================
     // PLAY LOCAL
@@ -57,13 +77,10 @@ public class MainMenuController : MonoBehaviour
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(true);
+            return;
         }
-        else
-        {
-            GameNotificationUI.Show(
-                "SETTINGS IS COMING SOON"
-            );
-        }
+
+        GameAudioSettingsUI.Open();
     }
 
     // ============================================================
