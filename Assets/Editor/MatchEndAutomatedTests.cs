@@ -47,6 +47,14 @@ public static class MatchEndAutomatedTests
         );
 
         RunCase(
+            "Master volume and mute settings apply and clamp correctly",
+            TestAudioSettingsVolumeAndMute,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
             "Bankruptcy blocks money changes and hides the token",
             TestBankruptcyState,
             ref passed,
@@ -433,6 +441,76 @@ public static class MatchEndAutomatedTests
         );
 
         UnityEngine.Object.DestroyImmediate(rowObject);
+    }
+
+    private static void TestAudioSettingsVolumeAndMute()
+    {
+        const string volumeKey = "BoardGame.MasterVolume";
+        const string mutedKey = "BoardGame.AudioMuted";
+
+        bool hadPreviousVolume = PlayerPrefs.HasKey(volumeKey);
+        float previousVolume = PlayerPrefs.GetFloat(volumeKey, 1f);
+        bool hadPreviousMuted = PlayerPrefs.HasKey(mutedKey);
+        int previousMuted = PlayerPrefs.GetInt(mutedKey, 0);
+        float previousListenerVolume = AudioListener.volume;
+
+        try
+        {
+            GameAudioSettingsUI.SetMuted(false);
+            GameAudioSettingsUI.SetMasterVolume(0.35f);
+
+            Require(
+                Mathf.Abs(GameAudioSettingsUI.GetMasterVolume() - 0.35f) < 0.001f,
+                "Master volume setting was not stored."
+            );
+            Require(
+                Mathf.Abs(AudioListener.volume - 0.35f) < 0.001f,
+                "Master volume did not apply to AudioListener."
+            );
+
+            GameAudioSettingsUI.SetMuted(true);
+            Require(
+                GameAudioSettingsUI.IsMuted(),
+                "Mute setting was not stored."
+            );
+            Require(
+                Mathf.Approximately(AudioListener.volume, 0f),
+                "Mute did not silence the AudioListener."
+            );
+
+            GameAudioSettingsUI.SetMasterVolume(0.65f);
+            Require(
+                Mathf.Approximately(AudioListener.volume, 0f),
+                "Changing the master volume while muted unexpectedly unmuted audio."
+            );
+
+            GameAudioSettingsUI.SetMuted(false);
+            Require(
+                Mathf.Abs(AudioListener.volume - 0.65f) < 0.001f,
+                "Unmuting did not restore the selected master volume."
+            );
+
+            GameAudioSettingsUI.SetMasterVolume(1.5f);
+            Require(
+                Mathf.Approximately(GameAudioSettingsUI.GetMasterVolume(), 1f),
+                "Master volume was not clamped to the 0–1 range."
+            );
+        }
+        finally
+        {
+            if (hadPreviousVolume)
+                PlayerPrefs.SetFloat(volumeKey, previousVolume);
+            else
+                PlayerPrefs.DeleteKey(volumeKey);
+
+            if (hadPreviousMuted)
+                PlayerPrefs.SetInt(mutedKey, previousMuted);
+            else
+                PlayerPrefs.DeleteKey(mutedKey);
+
+            AudioListener.volume = previousListenerVolume;
+            PlayerPrefs.Save();
+        }
     }
 
     private static void TestBankruptcyState()
