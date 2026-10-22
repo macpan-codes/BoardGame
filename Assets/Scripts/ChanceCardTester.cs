@@ -45,9 +45,15 @@ public class ChanceCardTester : MonoBehaviour
 
     private void Start()
     {
+#if !UNITY_EDITOR
+        // Keep the tester out of Android and other player builds.
+        enabled = false;
+        return;
+#else
         BuildTesterUI();
         RefreshCards();
         SetVisible(openOnStart);
+#endif
     }
 
     private void Update()
