@@ -34,7 +34,9 @@ public class PlayerRowUI : MonoBehaviour
 
     public void Setup(
         int number,
-        Color color)
+        Color color,
+        string initialName = null,
+        bool initialBot = false)
     {
         playerNumber =
             Mathf.Max(
@@ -48,6 +50,25 @@ public class PlayerRowUI : MonoBehaviour
         SetupNameInput();
         UpdateName();
         SetupDropdown();
+
+        if (playerNameInput != null)
+        {
+            string nameToUse =
+                string.IsNullOrWhiteSpace(initialName)
+                    ? $"Player {playerNumber}"
+                    : initialName.Trim();
+
+            playerNameInput.SetTextWithoutNotify(nameToUse);
+        }
+
+        if (playerTypeDropdown != null)
+        {
+            playerTypeDropdown.SetValueWithoutNotify(
+                initialBot ? 1 : 0
+            );
+            playerTypeDropdown.RefreshShownValue();
+        }
+
         ApplyColor();
     }
 
@@ -91,11 +112,34 @@ public class PlayerRowUI : MonoBehaviour
         inputRect.anchorMin = anchorMin;
         inputRect.anchorMax = anchorMax;
         inputRect.anchoredPosition = anchoredPosition;
-        inputRect.sizeDelta = sizeDelta;
+        inputRect.sizeDelta = new Vector2(
+            sizeDelta.x,
+            Mathf.Max(sizeDelta.y, 32f)
+        );
         inputRect.pivot = pivot;
 
         Image background =
             inputObject.GetComponent<Image>();
+
+        Image rowBackground =
+            GetComponent<Image>();
+
+        if (rowBackground != null)
+        {
+            background.sprite = rowBackground.sprite;
+            background.type = rowBackground.type;
+        }
+        else if (playerColorButton != null)
+        {
+            Image colorButtonImage =
+                playerColorButton.GetComponent<Image>();
+
+            if (colorButtonImage != null)
+            {
+                background.sprite = colorButtonImage.sprite;
+                background.type = Image.Type.Sliced;
+            }
+        }
 
         background.color =
             new Color(0.025f, 0.045f, 0.075f, 0.92f);
