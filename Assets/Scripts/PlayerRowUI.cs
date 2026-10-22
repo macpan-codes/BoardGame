@@ -80,8 +80,11 @@ public class PlayerRowUI : MonoBehaviour
             return;
         }
 
-        RectTransform originalRect =
-            playerNameText.rectTransform;
+        // Preserve the original prefab label's sizing and font, but use a
+        // fresh TMP text component for the input. This avoids the old label's
+        // layout/state from interfering with live typing and caret rendering.
+        TMP_Text originalText = playerNameText;
+        RectTransform originalRect = originalText.rectTransform;
 
         Vector2 anchorMin = originalRect.anchorMin;
         Vector2 anchorMax = originalRect.anchorMax;
@@ -89,175 +92,162 @@ public class PlayerRowUI : MonoBehaviour
         Vector2 sizeDelta = originalRect.sizeDelta;
         Vector2 pivot = originalRect.pivot;
 
-        GameObject inputObject =
-            new GameObject(
-                "PlayerNameInput",
-                typeof(RectTransform),
-                typeof(Image)
-            );
-
-        // Add TMP_InputField while inactive so its Awake/OnEnable methods
-        // run only after its text and viewport references are assigned.
-        inputObject.SetActive(false);
-        inputObject.AddComponent<TMP_InputField>();
-
-        inputObject.transform.SetParent(
-            transform,
-            false
+        GameObject inputObject = new GameObject(
+            "PlayerNameInput",
+            typeof(RectTransform),
+            typeof(Image)
         );
 
-        RectTransform inputRect =
-            inputObject.GetComponent<RectTransform>();
+        inputObject.SetActive(false);
+        inputObject.transform.SetParent(transform, false);
 
+        RectTransform inputRect = inputObject.GetComponent<RectTransform>();
         inputRect.anchorMin = anchorMin;
         inputRect.anchorMax = anchorMax;
         inputRect.anchoredPosition = anchoredPosition;
         inputRect.sizeDelta = new Vector2(
             sizeDelta.x,
-            Mathf.Max(sizeDelta.y, 32f)
+            Mathf.Max(sizeDelta.y, 34f)
         );
         inputRect.pivot = pivot;
 
-        Image background =
-            inputObject.GetComponent<Image>();
+        Image background = inputObject.GetComponent<Image>();
+        Image rowBackground = GetComponent<Image>();
 
-        Image rowBackground =
-            GetComponent<Image>();
-
-        if (rowBackground != null)
+        if (rowBackground != null && rowBackground.sprite != null)
         {
             background.sprite = rowBackground.sprite;
             background.type = rowBackground.type;
         }
-        else if (playerColorButton != null)
+        else
         {
-            Image colorButtonImage =
-                playerColorButton.GetComponent<Image>();
-
-            if (colorButtonImage != null)
-            {
-                background.sprite = colorButtonImage.sprite;
-                background.type = Image.Type.Sliced;
-            }
+            background.sprite = null;
+            background.type = Image.Type.Simple;
         }
 
-        background.color =
-            new Color(0.025f, 0.045f, 0.075f, 0.92f);
-
+        // Navy is intentionally lighter than the row panel so the editable
+        // field remains visibly distinct instead of looking pitch black.
+        background.color = new Color(0.055f, 0.095f, 0.17f, 1f);
         background.raycastTarget = true;
 
-        GameObject viewportObject =
-            new GameObject(
-                "Text Area",
-                typeof(RectTransform),
-                typeof(RectMask2D)
-            );
+        Outline outline = inputObject.AddComponent<Outline>();
+        outline.effectColor = new Color(0.24f, 0.39f, 0.62f, 0.95f);
+        outline.effectDistance = new Vector2(1.25f, 1.25f);
+        outline.useGraphicAlpha = false;
 
-        viewportObject.transform.SetParent(
-            inputObject.transform,
-            false
+        GameObject viewportObject = new GameObject(
+            "Text Area",
+            typeof(RectTransform),
+            typeof(RectMask2D)
         );
+        viewportObject.transform.SetParent(inputObject.transform, false);
 
-        RectTransform viewport =
-            viewportObject.GetComponent<RectTransform>();
-
+        RectTransform viewport = viewportObject.GetComponent<RectTransform>();
         viewport.anchorMin = Vector2.zero;
         viewport.anchorMax = Vector2.one;
-        viewport.offsetMin = new Vector2(8f, 2f);
-        viewport.offsetMax = new Vector2(-8f, -2f);
+        viewport.offsetMin = new Vector2(10f, 2f);
+        viewport.offsetMax = new Vector2(-10f, -2f);
 
-        TMP_Text placeholder =
-            CreateInputText(
-                viewport,
-                "Enter player name",
-                new Color(0.65f, 0.70f, 0.78f, 0.85f)
-            );
-
-        placeholder.fontStyle = FontStyles.Italic;
-        placeholder.gameObject.name = "Placeholder";
-
-        playerNameText.transform.SetParent(
+        TMP_Text inputText = CreateInputText(
             viewport,
-            false
+            $"Player {playerNumber}",
+            originalText.fontSize,
+            Color.white
+        );
+        inputText.gameObject.name = "Input Text";
+        inputText.fontStyle = FontStyles.Bold;
+        inputText.alignment = TextAlignmentOptions.MidlineLeft;
+        inputText.overflowMode = TextOverflowModes.Ellipsis;
+
+        TMP_Text placeholder = CreateInputText(
+            viewport,
+            "Enter player name",
+            Mathf.Min(originalText.fontSize, 20f),
+            new Color(0.68f, 0.75f, 0.88f, 1f)
+        );
+        placeholder.gameObject.name = "Placeholder";
+        placeholder.fontStyle = FontStyles.Italic;
+
+        // The prefab label is no longer rendered; the fresh text object is
+        // now the one TMP_InputField updates on every typed character.
+        originalText.gameObject.SetActive(false);
+        playerNameText = inputText;
+
+        TMP_InputField inputField =
+            inputObject.AddComponent<TMP_InputField>();
+
+        inputField.targetGraphic = background;
+        inputField.textViewport = viewport;
+        inputField.textComponent = inputText;
+        inputField.placeholder = placeholder;
+        inputField.contentType = TMP_InputField.ContentType.Standard;
+        inputField.lineType = TMP_InputField.LineType.SingleLine;
+        inputField.characterLimit = 16;
+        inputField.readOnly = false;
+        inputField.interactable = true;
+        inputField.selectionColor = new Color(0.25f, 0.48f, 0.88f, 0.55f);
+
+        inputField.SetTextWithoutNotify($"Player {playerNumber}");
+
+        inputField.onSelect.AddListener(
+            _ => SetInputFocus(outline, true)
+        );
+        inputField.onDeselect.AddListener(
+            _ => SetInputFocus(outline, false)
         );
 
-        RectTransform textRect =
-            playerNameText.rectTransform;
-
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = Vector2.zero;
-        textRect.offsetMax = Vector2.zero;
-
-        // The placeholder must appear behind the input text.
+        // Set explicit sibling ordering so the placeholder is behind the
+        // editable text and both remain inside the clipping viewport.
         placeholder.transform.SetAsFirstSibling();
-        playerNameText.transform.SetAsLastSibling();
-        playerNameText.alignment = TextAlignmentOptions.Left;
-        playerNameText.textWrappingMode = TextWrappingModes.NoWrap;
-        playerNameText.overflowMode = TextOverflowModes.Ellipsis;
-        playerNameText.raycastTarget = false;
+        inputText.transform.SetAsLastSibling();
 
-        playerNameInput =
-            inputObject.GetComponent<TMP_InputField>();
-
-        playerNameInput.targetGraphic = background;
-        playerNameInput.textViewport = viewport;
-        playerNameInput.textComponent = playerNameText;
-        playerNameInput.placeholder = placeholder;
-        playerNameInput.contentType =
-            TMP_InputField.ContentType.Standard;
-        playerNameInput.lineType =
-            TMP_InputField.LineType.SingleLine;
-        playerNameInput.characterLimit = 16;
-        playerNameInput.selectionColor =
-            new Color(0.2f, 0.45f, 0.85f, 0.45f);
-
-        playerNameInput.SetTextWithoutNotify(
-            $"Player {playerNumber}"
-        );
-
+        playerNameInput = inputField;
         inputObject.SetActive(true);
     }
 
     private TMP_Text CreateInputText(
         Transform parent,
         string value,
+        float fontSize,
         Color color)
     {
-        GameObject textObject =
-            new GameObject(
-                "InputText",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(TextMeshProUGUI)
-            );
-
-        textObject.transform.SetParent(
-            parent,
-            false
+        GameObject textObject = new GameObject(
+            "InputText",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(TextMeshProUGUI)
         );
 
-        RectTransform rect =
-            textObject.GetComponent<RectTransform>();
+        textObject.transform.SetParent(parent, false);
 
+        RectTransform rect = textObject.GetComponent<RectTransform>();
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
 
-        TextMeshProUGUI text =
-            textObject.GetComponent<TextMeshProUGUI>();
-
-        text.text = value;
+        TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
         text.font = playerNameText.font;
-        text.fontSize = playerNameText.fontSize;
-        text.fontStyle = playerNameText.fontStyle;
+        text.fontSize = Mathf.Clamp(fontSize, 18f, 24f);
+        text.fontStyle = FontStyles.Normal;
         text.color = color;
-        text.alignment = TextAlignmentOptions.Left;
-        text.enableWordWrapping = false;
+        text.alignment = TextAlignmentOptions.MidlineLeft;
+        text.enableAutoSizing = false;
+        text.textWrappingMode = TextWrappingModes.NoWrap;
+        text.overflowMode = TextOverflowModes.Ellipsis;
         text.raycastTarget = false;
 
         return text;
+    }
+
+    private void SetInputFocus(Outline outline, bool focused)
+    {
+        if (outline == null)
+            return;
+
+        outline.effectColor = focused
+            ? new Color(1f, 0.78f, 0.24f, 1f)
+            : new Color(0.24f, 0.39f, 0.62f, 0.95f);
     }
 
     // ============================================================
