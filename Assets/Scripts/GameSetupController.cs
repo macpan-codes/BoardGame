@@ -127,6 +127,25 @@ public class GameSetupController : MonoBehaviour
 
     private void BuildPlayerRows()
     {
+        // Keep each row's selections when the player count changes.
+        List<LocalGameSettings.PlayerConfig> previousPlayers =
+            new List<LocalGameSettings.PlayerConfig>();
+
+        foreach (PlayerRowUI existingRow in rows)
+        {
+            if (existingRow == null)
+                continue;
+
+            previousPlayers.Add(
+                new LocalGameSettings.PlayerConfig
+                {
+                    playerName = existingRow.GetPlayerName(),
+                    isBot = existingRow.IsBot(),
+                    color = existingRow.GetColor()
+                }
+            );
+        }
+
         ClearRows();
 
         if (playerList == null)
@@ -168,10 +187,25 @@ public class GameSetupController : MonoBehaviour
                 continue;
             }
 
-            row.Setup(
-                i + 1,
-                GetDefaultColor(i)
-            );
+            if (i < previousPlayers.Count)
+            {
+                LocalGameSettings.PlayerConfig previous =
+                    previousPlayers[i];
+
+                row.Setup(
+                    i + 1,
+                    previous.color,
+                    previous.playerName,
+                    previous.isBot
+                );
+            }
+            else
+            {
+                row.Setup(
+                    i + 1,
+                    GetDefaultColor(i)
+                );
+            }
 
             rows.Add(row);
         }
