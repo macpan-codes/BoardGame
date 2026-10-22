@@ -55,6 +55,14 @@ public static class MatchEndAutomatedTests
         );
 
         RunCase(
+            "Left-game HUD row is muted without adding overlapping status text",
+            TestLeftGameHUDRow,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
             "A 2-player match ends when one player is eliminated",
             TestTwoPlayerMatchEnd,
             ref passed,
@@ -391,6 +399,66 @@ public static class MatchEndAutomatedTests
             Require(
                 fixture.Manager.ActivePlayerCount == 2,
                 "The left-game player was not excluded from the active count."
+            );
+        }
+    }
+
+    private static void TestLeftGameHUDRow()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            BoardPlayer player = fixture.Players[1];
+            player.MarkLeftGame();
+
+            GameObject rowObject = new GameObject("TestPlayerBalanceRow");
+            rowObject.transform.SetParent(fixture.Root.transform, false);
+
+            TMP_Text playerNameText =
+                CreateTestTMPText(rowObject.transform, "PlayerNameText");
+            TMP_Text balanceText =
+                CreateTestTMPText(rowObject.transform, "BalanceText");
+
+            GameObject indicatorObject = new GameObject(
+                "ColorIndicator",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image)
+            );
+            indicatorObject.transform.SetParent(rowObject.transform, false);
+            Image colorIndicator = indicatorObject.GetComponent<Image>();
+
+            PlayerBalanceRowUI row =
+                rowObject.AddComponent<PlayerBalanceRowUI>();
+
+            SetPrivateField(row, "playerNameText", playerNameText);
+            SetPrivateField(row, "balanceText", balanceText);
+            SetPrivateField(row, "colorIndicator", colorIndicator);
+
+            Color originalNameColor = playerNameText.color;
+            Color originalBalanceColor = balanceText.color;
+            Color originalTokenColor = player.TokenColor;
+
+            row.Setup(player);
+
+            Require(
+                playerNameText.text == player.PlayerName,
+                "Left-game row added a status suffix that can overlap the balance column."
+            );
+            Require(
+                balanceText.text == "$0",
+                "Left-game player balance was not shown as zero."
+            );
+            Require(
+                playerNameText.color.a < originalNameColor.a,
+                "Left-game player name was not dimmed."
+            );
+            Require(
+                balanceText.color.a < originalBalanceColor.a,
+                "Left-game balance was not dimmed."
+            );
+            Require(
+                colorIndicator.color.a < originalTokenColor.a,
+                "Left-game color indicator was not dimmed."
             );
         }
     }
