@@ -13,7 +13,6 @@ public class RentTester : MonoBehaviour
 
     [Header("Keyboard")]
     [SerializeField] private KeyCode toggleKey = KeyCode.F5;
-    [SerializeField] private bool openOnStart = true;
 
     [Header("Utility")]
     [Range(2, 12)]
@@ -57,7 +56,7 @@ public class RentTester : MonoBehaviour
 #else
         BuildUI();
         RefreshProperties();
-        SetVisible(openOnStart);
+        SetVisible(false);
 #endif
     }
 
