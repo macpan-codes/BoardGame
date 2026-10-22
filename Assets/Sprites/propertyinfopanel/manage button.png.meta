@@ -1,0 +1,3536 @@
+fileFormatVersion: 2
+guid: 5ec1098d53c5f4d4a8594ffa4e0635d0
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5993033315558108926
+    second: manage button_0
+  - first:
+      213: -3070183123271953744
+    second: manage button_1
+  - first:
+      213: -8970192095786337596
+    second: manage button_2
+  - first:
+      213: -7420499726278551832
+    second: manage button_3
+  - first:
+      213: -443039578143920847
+    second: manage button_4
+  - first:
+      213: 4362541345344315115
+    second: manage button_5
+  - first:
+      213: -3316575759758756704
+    second: manage button_6
+  - first:
+      213: -2243883381453141517
+    second: manage button_7
+  - first:
+      213: 2109606131883788003
+    second: manage button_8
+  - first:
+      213: -4187742001939622789
+    second: manage button_9
+  - first:
+      213: -4906585494188608990
+    second: manage button_10
+  - first:
+      213: -7863650509403059532
+    second: manage button_11
+  - first:
+      213: 3333081449036825339
+    second: manage button_12
+  - first:
+      213: -7392884419156789023
+    second: manage button_13
+  - first:
+      213: 8912066632983067947
+    second: manage button_14
+  - first:
+      213: 7920437600284803156
+    second: manage button_15
+  - first:
+      213: -1437144634555632253
+    second: manage button_16
+  - first:
+      213: -2467739903835113175
+    second: manage button_17
+  - first:
+      213: -1856313079519317778
+    second: manage button_18
+  - first:
+      213: 8393852643155331821
+    second: manage button_19
+  - first:
+      213: -452822718406321552
+    second: manage button_20
+  - first:
+      213: -3443092646219234373
+    second: manage button_21
+  - first:
+      213: -1837408217745006460
+    second: manage button_22
+  - first:
+      213: -2734152022640726303
+    second: manage button_23
+  - first:
+      213: 4344812940123161327
+    second: manage button_24
+  - first:
+      213: -218924713410704002
+    second: manage button_25
+  - first:
+      213: 2053291888518822873
+    second: manage button_26
+  - first:
+      213: 7485267211792964428
+    second: manage button_27
+  - first:
+      213: 5939014104899300633
+    second: manage button_28
+  - first:
+      213: -2107454237913868445
+    second: manage button_29
+  - first:
+      213: 2441792433703930847
+    second: manage button_30
+  - first:
+      213: -2144120268953755127
+    second: manage button_31
+  - first:
+      213: 2732672993071425277
+    second: manage button_32
+  - first:
+      213: -6657695999947104943
+    second: manage button_33
+  - first:
+      213: 6445449954400286090
+    second: manage button_34
+  - first:
+      213: -2893929853633106844
+    second: manage button_35
+  - first:
+      213: -48825266780925466
+    second: manage button_36
+  - first:
+      213: 4088599457340335341
+    second: manage button_37
+  - first:
+      213: -8076528139133146081
+    second: manage button_38
+  - first:
+      213: -8108887579656240302
+    second: manage button_39
+  - first:
+      213: 1865589436522486986
+    second: manage button_40
+  - first:
+      213: 9171881964031340163
+    second: manage button_41
+  - first:
+      213: 1526418884550445004
+    second: manage button_42
+  - first:
+      213: -3894023496091745170
+    second: manage button_43
+  - first:
+      213: -6898063026395561090
+    second: manage button_44
+  - first:
+      213: -2551760319092600322
+    second: manage button_45
+  - first:
+      213: 7819600851066278914
+    second: manage button_46
+  - first:
+      213: 2051897725302703304
+    second: manage button_47
+  - first:
+      213: -4722124074484918038
+    second: manage button_48
+  - first:
+      213: 7268079536361743717
+    second: manage button_49
+  - first:
+      213: 6028276900299323528
+    second: manage button_50
+  - first:
+      213: -8102157050146715283
+    second: manage button_51
+  - first:
+      213: -2572391756128918335
+    second: manage button_52
+  - first:
+      213: -775516942794513961
+    second: manage button_53
+  - first:
+      213: -5777820992784374841
+    second: manage button_54
+  - first:
+      213: 3909251365073490635
+    second: manage button_55
+  - first:
+      213: 5394547170029371129
+    second: manage button_56
+  - first:
+      213: 2938907552878866583
+    second: manage button_57
+  - first:
+      213: -5286254064556263466
+    second: manage button_58
+  - first:
+      213: -6717329896754447124
+    second: manage button_59
+  - first:
+      213: 6364910891883415469
+    second: manage button_60
+  - first:
+      213: 7606549354287519297
+    second: manage button_61
+  - first:
+      213: -1068859474784798921
+    second: manage button_62
+  - first:
+      213: 2953769032280658543
+    second: manage button_63
+  - first:
+      213: 3087053833985607782
+    second: manage button_64
+  - first:
+      213: -2414468673128242329
+    second: manage button_65
+  - first:
+      213: -6821941859107273750
+    second: manage button_66
+  - first:
+      213: -7297814172607231654
+    second: manage button_67
+  - first:
+      213: 7316504746811234866
+    second: manage button_68
+  - first:
+      213: 6983349057979896802
+    second: manage button_69
+  - first:
+      213: -2937367833875693763
+    second: manage button_70
+  - first:
+      213: -8765568652135945566
+    second: manage button_71
+  - first:
+      213: -5531767837801710378
+    second: manage button_72
+  - first:
+      213: -3768450526384166247
+    second: manage button_73
+  - first:
+      213: -2275966189121165614
+    second: manage button_74
+  - first:
+      213: -2889286309674682635
+    second: manage button_75
+  - first:
+      213: -7762570854711279895
+    second: manage button_76
+  - first:
+      213: 587310284350646670
+    second: manage button_77
+  - first:
+      213: -5487862200413943765
+    second: manage button_78
+  - first:
+      213: 4942832847667729605
+    second: manage button_79
+  - first:
+      213: 6289239217728213504
+    second: manage button_80
+  - first:
+      213: 3280308887401275973
+    second: manage button_81
+  - first:
+      213: 2861490366412551014
+    second: manage button_82
+  - first:
+      213: 2650214953953219211
+    second: manage button_83
+  - first:
+      213: -6470902748993338212
+    second: manage button_84
+  - first:
+      213: 4523901871590162269
+    second: manage button_85
+  - first:
+      213: 4935741202263433124
+    second: manage button_86
+  - first:
+      213: -8668507075022081470
+    second: manage button_87
+  - first:
+      213: 3901357872467831782
+    second: manage button_88
+  - first:
+      213: 1764774029378130011
+    second: manage button_89
+  - first:
+      213: 5918056528534236441
+    second: manage button_90
+  - first:
+      213: 8543961217143797283
+    second: manage button_91
+  - first:
+      213: 2742050317224196745
+    second: manage button_92
+  - first:
+      213: -2698714300049927076
+    second: manage button_93
+  - first:
+      213: 5948608393053202690
+    second: manage button_94
+  - first:
+      213: -8551968790474212802
+    second: manage button_95
+  - first:
+      213: 3117081357019093846
+    second: manage button_96
+  - first:
+      213: 3241560044075323643
+    second: manage button_97
+  - first:
+      213: -4258111863812019795
+    second: manage button_98
+  - first:
+      213: -2259162007797303576
+    second: manage button_99
+  - first:
+      213: 5550251432664395372
+    second: manage button_100
+  - first:
+      213: -6120535800787014757
+    second: manage button_101
+  - first:
+      213: 5843579563865230321
+    second: manage button_102
+  - first:
+      213: 7308848276494365579
+    second: manage button_103
+  - first:
+      213: 390159950268401837
+    second: manage button_104
+  - first:
+      213: 7508858641849212297
+    second: manage button_105
+  - first:
+      213: 7612683585373756752
+    second: manage button_106
+  - first:
+      213: -5705061425680261254
+    second: manage button_107
+  - first:
+      213: 795332871152229219
+    second: manage button_108
+  - first:
+      213: 3370911590049610279
+    second: manage button_109
+  - first:
+      213: 2858062956504611677
+    second: manage button_110
+  - first:
+      213: 1206425634918014770
+    second: manage button_111
+  - first:
+      213: 1384723461696945378
+    second: manage button_112
+  - first:
+      213: -3758888435204875484
+    second: manage button_113
+  - first:
+      213: -8591282613420953491
+    second: manage button_114
+  - first:
+      213: -6891453901264688140
+    second: manage button_115
+  - first:
+      213: -2980176829291443994
+    second: manage button_116
+  - first:
+      213: -693251859462074994
+    second: manage button_117
+  - first:
+      213: 1971455501935676804
+    second: manage button_118
+  - first:
+      213: 8080954605859193683
+    second: manage button_119
+  - first:
+      213: -876437714325192537
+    second: manage button_120
+  - first:
+      213: -2963771873305024567
+    second: manage button_121
+  - first:
+      213: -8591664476240081429
+    second: manage button_122
+  - first:
+      213: 1594021468519255645
+    second: manage button_123
+  - first:
+      213: -1622151527251684044
+    second: manage button_124
+  - first:
+      213: 5359729138968896762
+    second: manage button_125
+  - first:
+      213: 3734070378271753571
+    second: manage button_126
+  - first:
+      213: 5597729045312393211
+    second: manage button_127
+  - first:
+      213: -5985450649921025008
+    second: manage button_128
+  - first:
+      213: -8311684298702119730
+    second: manage button_129
+  - first:
+      213: -6548047281823961310
+    second: manage button_130
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: manage button_0
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 15
+        width: 1779
+        height: 619
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efe2cec4c088b2350800000000000000
+      internalID: 5993033315558108926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_1
+      rect:
+        serializedVersion: 2
+        x: 377
+        y: 629
+        width: 73
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b2d9f547b48465d0800000000000000
+      internalID: -3070183123271953744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_2
+      rect:
+        serializedVersion: 2
+        x: 423
+        y: 597
+        width: 19
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ca73a3a0d9738380800000000000000
+      internalID: -8970192095786337596
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_3
+      rect:
+        serializedVersion: 2
+        x: 435
+        y: 711
+        width: 29
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e6984f70d6150990800000000000000
+      internalID: -7420499726278551832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_4
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 613
+        width: 33
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13dea4bd9d10ad9f0800000000000000
+      internalID: -443039578143920847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_5
+      rect:
+        serializedVersion: 2
+        x: 455
+        y: 623
+        width: 122
+        height: 105
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: beed3376d3cda8c30800000000000000
+      internalID: 4362541345344315115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_6
+      rect:
+        serializedVersion: 2
+        x: 563
+        y: 669
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a478e02be729f1d0800000000000000
+      internalID: -3316575759758756704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_7
+      rect:
+        serializedVersion: 2
+        x: 571
+        y: 625
+        width: 12
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f9451304ff1cd0e0800000000000000
+      internalID: -2243883381453141517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_8
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 647
+        width: 26
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e64bea8993d64d10800000000000000
+      internalID: 2109606131883788003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_9
+      rect:
+        serializedVersion: 2
+        x: 583
+        y: 621
+        width: 22
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b74d76b36d622e5c0800000000000000
+      internalID: -4187742001939622789
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_10
+      rect:
+        serializedVersion: 2
+        x: 595
+        y: 629
+        width: 40
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 222bdce3d7e48ebb0800000000000000
+      internalID: -4906585494188608990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_11
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 671
+        width: 14
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ba063d6683bed290800000000000000
+      internalID: -7863650509403059532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_12
+      rect:
+        serializedVersion: 2
+        x: 601
+        y: 677
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf2c8412beb714e20800000000000000
+      internalID: 3333081449036825339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_13
+      rect:
+        serializedVersion: 2
+        x: 603
+        y: 625
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e8b3aa3ac2376990800000000000000
+      internalID: -7392884419156789023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_14
+      rect:
+        serializedVersion: 2
+        x: 609
+        y: 668
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2d319172650eab70800000000000000
+      internalID: 8912066632983067947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_15
+      rect:
+        serializedVersion: 2
+        x: 615
+        y: 655
+        width: 20
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4508f9e780c0bed60800000000000000
+      internalID: 7920437600284803156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_16
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 687
+        width: 22
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 385f376b19c3e0ce0800000000000000
+      internalID: -1437144634555632253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_17
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 656
+        width: 9
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 929f9d1d1a3d0cdd0800000000000000
+      internalID: -2467739903835113175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_18
+      rect:
+        serializedVersion: 2
+        x: 650
+        y: 625
+        width: 21
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee0f65fd61d0d36e0800000000000000
+      internalID: -1856313079519317778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_19
+      rect:
+        serializedVersion: 2
+        x: 658
+        y: 653
+        width: 67
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dea4f34a184fc7470800000000000000
+      internalID: 8393852643155331821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_20
+      rect:
+        serializedVersion: 2
+        x: 666
+        y: 647
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07a1a23032047b9f0800000000000000
+      internalID: -452822718406321552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_21
+      rect:
+        serializedVersion: 2
+        x: 670
+        y: 625
+        width: 21
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb3c7550b7da730d0800000000000000
+      internalID: -3443092646219234373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_22
+      rect:
+        serializedVersion: 2
+        x: 674
+        y: 629
+        width: 209
+        height: 123
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 480ece106f63086e0800000000000000
+      internalID: -1837408217745006460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_23
+      rect:
+        serializedVersion: 2
+        x: 722
+        y: 615
+        width: 33
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ee6598b8375e0ad0800000000000000
+      internalID: -2734152022640726303
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_24
+      rect:
+        serializedVersion: 2
+        x: 760
+        y: 642
+        width: 23
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe2cf876950eb4c30800000000000000
+      internalID: 4344812940123161327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_25
+      rect:
+        serializedVersion: 2
+        x: 770
+        y: 631
+        width: 17
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7dc990122936fcf0800000000000000
+      internalID: -218924713410704002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_26
+      rect:
+        serializedVersion: 2
+        x: 786
+        y: 647
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dbfa530812ce7c10800000000000000
+      internalID: 2053291888518822873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_27
+      rect:
+        serializedVersion: 2
+        x: 810
+        y: 679
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4b5cc7ded201e760800000000000000
+      internalID: 7485267211792964428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_28
+      rect:
+        serializedVersion: 2
+        x: 898
+        y: 629
+        width: 99
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91dae86bcdd9b6250800000000000000
+      internalID: 5939014104899300633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_29
+      rect:
+        serializedVersion: 2
+        x: 964
+        y: 615
+        width: 16
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36790c05981d0c2e0800000000000000
+      internalID: -2107454237913868445
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_30
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 623
+        width: 14
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdbc822084df2e120800000000000000
+      internalID: 2441792433703930847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_31
+      rect:
+        serializedVersion: 2
+        x: 1002
+        y: 671
+        width: 22
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 902eb45b9fd8e32e0800000000000000
+      internalID: -2144120268953755127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_32
+      rect:
+        serializedVersion: 2
+        x: 1026
+        y: 633
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df6635fdb976ce520800000000000000
+      internalID: 2732672993071425277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_33
+      rect:
+        serializedVersion: 2
+        x: 1051
+        y: 677
+        width: 27
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15d1d9413cc1b93a0800000000000000
+      internalID: -6657695999947104943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_34
+      rect:
+        serializedVersion: 2
+        x: 1067
+        y: 647
+        width: 13
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8536958596d27950800000000000000
+      internalID: 6445449954400286090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_35
+      rect:
+        serializedVersion: 2
+        x: 1073
+        y: 631
+        width: 27
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46cec4d7122b6d7d0800000000000000
+      internalID: -2893929853633106844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_36
+      rect:
+        serializedVersion: 2
+        x: 1127
+        y: 653
+        width: 39
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e19575bda9825ff0800000000000000
+      internalID: -48825266780925466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_37
+      rect:
+        serializedVersion: 2
+        x: 1162
+        y: 630
+        width: 36
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de420ab4b8f9db830800000000000000
+      internalID: 4088599457340335341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_38
+      rect:
+        serializedVersion: 2
+        x: 1163
+        y: 661
+        width: 86
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1ca580e2786aef80800000000000000
+      internalID: -8076528139133146081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_39
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 643
+        width: 19
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 253430385b1777f80800000000000000
+      internalID: -8108887579656240302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_40
+      rect:
+        serializedVersion: 2
+        x: 1207
+        y: 621
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: accd4ac45b7e3e910800000000000000
+      internalID: 1865589436522486986
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_41
+      rect:
+        serializedVersion: 2
+        x: 1210
+        y: 633
+        width: 14
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38e66e33d02194f70800000000000000
+      internalID: 9171881964031340163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_42
+      rect:
+        serializedVersion: 2
+        x: 1222
+        y: 637
+        width: 6
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc7c31063edee2510800000000000000
+      internalID: 1526418884550445004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_43
+      rect:
+        serializedVersion: 2
+        x: 1227
+        y: 629
+        width: 41
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e644d600346a5f9c0800000000000000
+      internalID: -3894023496091745170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_44
+      rect:
+        serializedVersion: 2
+        x: 1269
+        y: 663
+        width: 57
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e73cf6999382540a0800000000000000
+      internalID: -6898063026395561090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_45
+      rect:
+        serializedVersion: 2
+        x: 1290
+        y: 613
+        width: 50
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef15c847283569cd0800000000000000
+      internalID: -2551760319092600322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_46
+      rect:
+        serializedVersion: 2
+        x: 1345
+        y: 665
+        width: 32
+        height: 84
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 204d5254b8dc48c60800000000000000
+      internalID: 7819600851066278914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_47
+      rect:
+        serializedVersion: 2
+        x: 1355
+        y: 661
+        width: 7
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c489181c1ec97c10800000000000000
+      internalID: 2051897725302703304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_48
+      rect:
+        serializedVersion: 2
+        x: 1355
+        y: 629
+        width: 26
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae891035c25a77eb0800000000000000
+      internalID: -4722124074484918038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_49
+      rect:
+        serializedVersion: 2
+        x: 1379
+        y: 641
+        width: 96
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 565a02494d76dd460800000000000000
+      internalID: 7268079536361743717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_50
+      rect:
+        serializedVersion: 2
+        x: 1435
+        y: 607
+        width: 48
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 888b802d6edb8a350800000000000000
+      internalID: 6028276900299323528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_51
+      rect:
+        serializedVersion: 2
+        x: 1482
+        y: 626
+        width: 11
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d690497071b5f8f80800000000000000
+      internalID: -8102157050146715283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_52
+      rect:
+        serializedVersion: 2
+        x: 1508
+        y: 630
+        width: 44
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c4eac0b3570d4cd0800000000000000
+      internalID: -2572391756128918335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_53
+      rect:
+        serializedVersion: 2
+        x: 1548
+        y: 623
+        width: 17
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d1af6b037fcc35f0800000000000000
+      internalID: -775516942794513961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_54
+      rect:
+        serializedVersion: 2
+        x: 1572
+        y: 651
+        width: 17
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c3ea455b6e01dfa0800000000000000
+      internalID: -5777820992784374841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_55
+      rect:
+        serializedVersion: 2
+        x: 1586
+        y: 629
+        width: 21
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc29ae88763704630800000000000000
+      internalID: 3909251365073490635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_56
+      rect:
+        serializedVersion: 2
+        x: 1593
+        y: 667
+        width: 10
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fe70b1d1184dda40800000000000000
+      internalID: 5394547170029371129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_57
+      rect:
+        serializedVersion: 2
+        x: 1601
+        y: 661
+        width: 14
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 790be0d29d819c820800000000000000
+      internalID: 2938907552878866583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_58
+      rect:
+        serializedVersion: 2
+        x: 543
+        y: 615
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d7b8a1afe373a6b0800000000000000
+      internalID: -5286254064556263466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_59
+      rect:
+        serializedVersion: 2
+        x: 607
+        y: 615
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cecf6d08c0047c2a0800000000000000
+      internalID: -6717329896754447124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_60
+      rect:
+        serializedVersion: 2
+        x: 968
+        y: 613
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da7c9b1cbb4b45850800000000000000
+      internalID: 6364910891883415469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_61
+      rect:
+        serializedVersion: 2
+        x: 1243
+        y: 609
+        width: 7
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 146d8c42654ef8960800000000000000
+      internalID: 7606549354287519297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_62
+      rect:
+        serializedVersion: 2
+        x: 1484
+        y: 615
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73734a288f5aa21f0800000000000000
+      internalID: -1068859474784798921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_63
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 217
+        width: 194
+        height: 246
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6253adf845edf820800000000000000
+      internalID: 2953769032280658543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_64
+      rect:
+        serializedVersion: 2
+        x: 551
+        y: 143
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66848392b1b67da20800000000000000
+      internalID: 3087053833985607782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_65
+      rect:
+        serializedVersion: 2
+        x: 714
+        y: 143
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 763e1e0c8851e7ed0800000000000000
+      internalID: -2414468673128242329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_66
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 111
+        width: 19
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae30b89f5089351a0800000000000000
+      internalID: -6821941859107273750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_67
+      rect:
+        serializedVersion: 2
+        x: 593
+        y: 113
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a594fececa4f8ba90800000000000000
+      internalID: -7297814172607231654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_68
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 117
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23a942f7d42798560800000000000000
+      internalID: 7316504746811234866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_69
+      rect:
+        serializedVersion: 2
+        x: 600
+        y: 111
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e3537708f6d9e060800000000000000
+      internalID: 6983349057979896802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_70
+      rect:
+        serializedVersion: 2
+        x: 784
+        y: 117
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3f3e27948f5c37d0800000000000000
+      internalID: -2937367833875693763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_71
+      rect:
+        serializedVersion: 2
+        x: 912
+        y: 117
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2aa232bb0c17a5680800000000000000
+      internalID: -8765568652135945566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_72
+      rect:
+        serializedVersion: 2
+        x: 1181
+        y: 115
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6dcf5e7c5763b33b0800000000000000
+      internalID: -5531767837801710378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_73
+      rect:
+        serializedVersion: 2
+        x: 1291
+        y: 115
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99aec3d5636c3bbc0800000000000000
+      internalID: -3768450526384166247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_74
+      rect:
+        serializedVersion: 2
+        x: 1369
+        y: 108
+        width: 12
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d622a04fc42a60e0800000000000000
+      internalID: -2275966189121165614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_75
+      rect:
+        serializedVersion: 2
+        x: 977
+        y: 97
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f6f071d86137e7d0800000000000000
+      internalID: -2889286309674682635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_76
+      rect:
+        serializedVersion: 2
+        x: 1107
+        y: 95
+        width: 15
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ee322d7feec54490800000000000000
+      internalID: -7762570854711279895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_77
+      rect:
+        serializedVersion: 2
+        x: 698
+        y: 71
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8967a7879b862800800000000000000
+      internalID: 587310284350646670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_78
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 81
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b288808976237d3b0800000000000000
+      internalID: -5487862200413943765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_79
+      rect:
+        serializedVersion: 2
+        x: 1626
+        y: 79
+        width: 7
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c41e556948789440800000000000000
+      internalID: 4942832847667729605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_80
+      rect:
+        serializedVersion: 2
+        x: 342
+        y: 19
+        width: 86
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00255282fbdd74750800000000000000
+      internalID: 6289239217728213504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_81
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 71
+        width: 12
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5422c13ad8ff58d20800000000000000
+      internalID: 3280308887401275973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_82
+      rect:
+        serializedVersion: 2
+        x: 1369
+        y: 73
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 663f832d35e06b720800000000000000
+      internalID: 2861490366412551014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_83
+      rect:
+        serializedVersion: 2
+        x: 1522
+        y: 65
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b825fcc857477c420800000000000000
+      internalID: 2650214953953219211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_84
+      rect:
+        serializedVersion: 2
+        x: 1532
+        y: 73
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c94472eeb3cb236a0800000000000000
+      internalID: -6470902748993338212
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_85
+      rect:
+        serializedVersion: 2
+        x: 427
+        y: 15
+        width: 37
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5f3bd698c028ce30800000000000000
+      internalID: 4523901871590162269
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_86
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 47
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4afdb2809764f7440800000000000000
+      internalID: 4935741202263433124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_87
+      rect:
+        serializedVersion: 2
+        x: 497
+        y: 51
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24239543eb643b780800000000000000
+      internalID: -8668507075022081470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_88
+      rect:
+        serializedVersion: 2
+        x: 583
+        y: 47
+        width: 14
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6eb6e129058642630800000000000000
+      internalID: 3901357872467831782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_89
+      rect:
+        serializedVersion: 2
+        x: 820
+        y: 23
+        width: 44
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b501be921acbd7810800000000000000
+      internalID: 1764774029378130011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_90
+      rect:
+        serializedVersion: 2
+        x: 896
+        y: 19
+        width: 81
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91de6f7be09212250800000000000000
+      internalID: 5918056528534236441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_91
+      rect:
+        serializedVersion: 2
+        x: 976
+        y: 45
+        width: 6
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 326f19a857f329670800000000000000
+      internalID: 8543961217143797283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_92
+      rect:
+        serializedVersion: 2
+        x: 1016
+        y: 47
+        width: 6
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98a356a4c38bd0620800000000000000
+      internalID: 2742050317224196745
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_93
+      rect:
+        serializedVersion: 2
+        x: 1059
+        y: 34
+        width: 27
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c54d14b74ad3c8ad0800000000000000
+      internalID: -2698714300049927076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_94
+      rect:
+        serializedVersion: 2
+        x: 1089
+        y: 54
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 209e7dff0d3bd8250800000000000000
+      internalID: 5948608393053202690
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_95
+      rect:
+        serializedVersion: 2
+        x: 1093
+        y: 34
+        width: 39
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3abe8102bd415980800000000000000
+      internalID: -8551968790474212802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_96
+      rect:
+        serializedVersion: 2
+        x: 1155
+        y: 51
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65b9d1daaf8124b20800000000000000
+      internalID: 3117081357019093846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_97
+      rect:
+        serializedVersion: 2
+        x: 1229
+        y: 50
+        width: 15
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf095318fa55cfc20800000000000000
+      internalID: 3241560044075323643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_98
+      rect:
+        serializedVersion: 2
+        x: 1277
+        y: 35
+        width: 53
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da9ab9ff1d528e4c0800000000000000
+      internalID: -4258111863812019795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_99
+      rect:
+        serializedVersion: 2
+        x: 1401
+        y: 41
+        width: 14
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e6fe2b9f18d5a0e0800000000000000
+      internalID: -2259162007797303576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_100
+      rect:
+        serializedVersion: 2
+        x: 1410
+        y: 42
+        width: 27
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6e60128544760d40800000000000000
+      internalID: 5550251432664395372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_101
+      rect:
+        serializedVersion: 2
+        x: 1442
+        y: 23
+        width: 33
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9b670ffd1d7f0ba0800000000000000
+      internalID: -6120535800787014757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_102
+      rect:
+        serializedVersion: 2
+        x: 1612
+        y: 33
+        width: 49
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fb4be817a0981150800000000000000
+      internalID: 5843579563865230321
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_103
+      rect:
+        serializedVersion: 2
+        x: 543
+        y: 17
+        width: 42
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b833ca598ce3e6560800000000000000
+      internalID: 7308848276494365579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_104
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 39
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da8055958602a6500800000000000000
+      internalID: 390159950268401837
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_105
+      rect:
+        serializedVersion: 2
+        x: 631
+        y: 39
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98d5b00b623d43860800000000000000
+      internalID: 7508858641849212297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_106
+      rect:
+        serializedVersion: 2
+        x: 662
+        y: 17
+        width: 45
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05d56ad136fa5a960800000000000000
+      internalID: 7612683585373756752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_107
+      rect:
+        serializedVersion: 2
+        x: 704
+        y: 19
+        width: 15
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7f5b8c2cdc83d0b0800000000000000
+      internalID: -5705061425680261254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_108
+      rect:
+        serializedVersion: 2
+        x: 718
+        y: 19
+        width: 29
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36b583f4807990b00800000000000000
+      internalID: 795332871152229219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_109
+      rect:
+        serializedVersion: 2
+        x: 860
+        y: 33
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72a77263b32e7ce20800000000000000
+      internalID: 3370911590049610279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_110
+      rect:
+        serializedVersion: 2
+        x: 874
+        y: 39
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5bf824cd11e9a720800000000000000
+      internalID: 2858062956504611677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_111
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 33
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23f963919b51eb010800000000000000
+      internalID: 1206425634918014770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_112
+      rect:
+        serializedVersion: 2
+        x: 1005
+        y: 35
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ec789ed6a6873310800000000000000
+      internalID: 1384723461696945378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_113
+      rect:
+        serializedVersion: 2
+        x: 1053
+        y: 35
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42b1a4532eeb5dbc0800000000000000
+      internalID: -3758888435204875484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_114
+      rect:
+        serializedVersion: 2
+        x: 1099
+        y: 33
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d60fd0e4bf1a5c880800000000000000
+      internalID: -8591282613420953491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_115
+      rect:
+        serializedVersion: 2
+        x: 1131
+        y: 32
+        width: 7
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fb63257033ac50a0800000000000000
+      internalID: -6891453901264688140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_116
+      rect:
+        serializedVersion: 2
+        x: 1152
+        y: 29
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e8cb32a6f844a6d0800000000000000
+      internalID: -2980176829291443994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_117
+      rect:
+        serializedVersion: 2
+        x: 1161
+        y: 33
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8d42e85b131166f0800000000000000
+      internalID: -693251859462074994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_118
+      rect:
+        serializedVersion: 2
+        x: 1291
+        y: 23
+        width: 9
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48d8d5375540c5b10800000000000000
+      internalID: 1971455501935676804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_119
+      rect:
+        serializedVersion: 2
+        x: 1506
+        y: 35
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3534b483661552070800000000000000
+      internalID: 8080954605859193683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_120
+      rect:
+        serializedVersion: 2
+        x: 1550
+        y: 21
+        width: 39
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a044e9da8446d3f0800000000000000
+      internalID: -876437714325192537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_121
+      rect:
+        serializedVersion: 2
+        x: 1588
+        y: 33
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c72c581f219ed6d0800000000000000
+      internalID: -2963771873305024567
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_122
+      rect:
+        serializedVersion: 2
+        x: 1668
+        y: 39
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bed0e50fda644c880800000000000000
+      internalID: -8591664476240081429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_123
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 23
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5ecf63841a1f1610800000000000000
+      internalID: 1594021468519255645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_124
+      rect:
+        serializedVersion: 2
+        x: 642
+        y: 17
+        width: 7
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4355e4ec7c5fc79e0800000000000000
+      internalID: -1622151527251684044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_125
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 19
+        width: 19
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af42d8c3145916a40800000000000000
+      internalID: 5359729138968896762
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_126
+      rect:
+        serializedVersion: 2
+        x: 1266
+        y: 22
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 365423f993512d330800000000000000
+      internalID: 3734070378271753571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_127
+      rect:
+        serializedVersion: 2
+        x: 1277
+        y: 27
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bff4bbe98e02fad40800000000000000
+      internalID: 5597729045312393211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_128
+      rect:
+        serializedVersion: 2
+        x: 1363
+        y: 18
+        width: 20
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01c83de98586feca0800000000000000
+      internalID: -5985450649921025008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_129
+      rect:
+        serializedVersion: 2
+        x: 1540
+        y: 23
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecc1ba2ea27f6ac80800000000000000
+      internalID: -8311684298702119730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: manage button_130
+      rect:
+        serializedVersion: 2
+        x: 1387
+        y: 17
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22fab62b0b9a025a0800000000000000
+      internalID: -6548047281823961310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      manage button_0: 5993033315558108926
+      manage button_1: -3070183123271953744
+      manage button_10: -4906585494188608990
+      manage button_100: 5550251432664395372
+      manage button_101: -6120535800787014757
+      manage button_102: 5843579563865230321
+      manage button_103: 7308848276494365579
+      manage button_104: 390159950268401837
+      manage button_105: 7508858641849212297
+      manage button_106: 7612683585373756752
+      manage button_107: -5705061425680261254
+      manage button_108: 795332871152229219
+      manage button_109: 3370911590049610279
+      manage button_11: -7863650509403059532
+      manage button_110: 2858062956504611677
+      manage button_111: 1206425634918014770
+      manage button_112: 1384723461696945378
+      manage button_113: -3758888435204875484
+      manage button_114: -8591282613420953491
+      manage button_115: -6891453901264688140
+      manage button_116: -2980176829291443994
+      manage button_117: -693251859462074994
+      manage button_118: 1971455501935676804
+      manage button_119: 8080954605859193683
+      manage button_12: 3333081449036825339
+      manage button_120: -876437714325192537
+      manage button_121: -2963771873305024567
+      manage button_122: -8591664476240081429
+      manage button_123: 1594021468519255645
+      manage button_124: -1622151527251684044
+      manage button_125: 5359729138968896762
+      manage button_126: 3734070378271753571
+      manage button_127: 5597729045312393211
+      manage button_128: -5985450649921025008
+      manage button_129: -8311684298702119730
+      manage button_13: -7392884419156789023
+      manage button_130: -6548047281823961310
+      manage button_14: 8912066632983067947
+      manage button_15: 7920437600284803156
+      manage button_16: -1437144634555632253
+      manage button_17: -2467739903835113175
+      manage button_18: -1856313079519317778
+      manage button_19: 8393852643155331821
+      manage button_2: -8970192095786337596
+      manage button_20: -452822718406321552
+      manage button_21: -3443092646219234373
+      manage button_22: -1837408217745006460
+      manage button_23: -2734152022640726303
+      manage button_24: 4344812940123161327
+      manage button_25: -218924713410704002
+      manage button_26: 2053291888518822873
+      manage button_27: 7485267211792964428
+      manage button_28: 5939014104899300633
+      manage button_29: -2107454237913868445
+      manage button_3: -7420499726278551832
+      manage button_30: 2441792433703930847
+      manage button_31: -2144120268953755127
+      manage button_32: 2732672993071425277
+      manage button_33: -6657695999947104943
+      manage button_34: 6445449954400286090
+      manage button_35: -2893929853633106844
+      manage button_36: -48825266780925466
+      manage button_37: 4088599457340335341
+      manage button_38: -8076528139133146081
+      manage button_39: -8108887579656240302
+      manage button_4: -443039578143920847
+      manage button_40: 1865589436522486986
+      manage button_41: 9171881964031340163
+      manage button_42: 1526418884550445004
+      manage button_43: -3894023496091745170
+      manage button_44: -6898063026395561090
+      manage button_45: -2551760319092600322
+      manage button_46: 7819600851066278914
+      manage button_47: 2051897725302703304
+      manage button_48: -4722124074484918038
+      manage button_49: 7268079536361743717
+      manage button_5: 4362541345344315115
+      manage button_50: 6028276900299323528
+      manage button_51: -8102157050146715283
+      manage button_52: -2572391756128918335
+      manage button_53: -775516942794513961
+      manage button_54: -5777820992784374841
+      manage button_55: 3909251365073490635
+      manage button_56: 5394547170029371129
+      manage button_57: 2938907552878866583
+      manage button_58: -5286254064556263466
+      manage button_59: -6717329896754447124
+      manage button_6: -3316575759758756704
+      manage button_60: 6364910891883415469
+      manage button_61: 7606549354287519297
+      manage button_62: -1068859474784798921
+      manage button_63: 2953769032280658543
+      manage button_64: 3087053833985607782
+      manage button_65: -2414468673128242329
+      manage button_66: -6821941859107273750
+      manage button_67: -7297814172607231654
+      manage button_68: 7316504746811234866
+      manage button_69: 6983349057979896802
+      manage button_7: -2243883381453141517
+      manage button_70: -2937367833875693763
+      manage button_71: -8765568652135945566
+      manage button_72: -5531767837801710378
+      manage button_73: -3768450526384166247
+      manage button_74: -2275966189121165614
+      manage button_75: -2889286309674682635
+      manage button_76: -7762570854711279895
+      manage button_77: 587310284350646670
+      manage button_78: -5487862200413943765
+      manage button_79: 4942832847667729605
+      manage button_8: 2109606131883788003
+      manage button_80: 6289239217728213504
+      manage button_81: 3280308887401275973
+      manage button_82: 2861490366412551014
+      manage button_83: 2650214953953219211
+      manage button_84: -6470902748993338212
+      manage button_85: 4523901871590162269
+      manage button_86: 4935741202263433124
+      manage button_87: -8668507075022081470
+      manage button_88: 3901357872467831782
+      manage button_89: 1764774029378130011
+      manage button_9: -4187742001939622789
+      manage button_90: 5918056528534236441
+      manage button_91: 8543961217143797283
+      manage button_92: 2742050317224196745
+      manage button_93: -2698714300049927076
+      manage button_94: 5948608393053202690
+      manage button_95: -8551968790474212802
+      manage button_96: 3117081357019093846
+      manage button_97: 3241560044075323643
+      manage button_98: -4258111863812019795
+      manage button_99: -2259162007797303576
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
