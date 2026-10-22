@@ -39,6 +39,14 @@ public static class MatchEndAutomatedTests
         );
 
         RunCase(
+            "Local game setup accepts custom player names",
+            TestCustomPlayerNames,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
             "Bankruptcy blocks money changes and hides the token",
             TestBankruptcyState,
             ref passed,
@@ -340,6 +348,45 @@ public static class MatchEndAutomatedTests
                 );
             }
         }
+    }
+
+    private static void TestCustomPlayerNames()
+    {
+        GameObject rowObject = new GameObject("TestPlayerRow");
+        TMP_Text nameText = CreateTestTMPText(rowObject.transform, "PlayerNameText");
+
+        PlayerRowUI row = rowObject.AddComponent<PlayerRowUI>();
+        SetPrivateField(row, "playerNameText", nameText);
+
+        row.Setup(1, Color.red);
+
+        Require(
+            row.GetPlayerName() == "Player 1",
+            "A new row did not default to Player 1."
+        );
+
+        TMP_InputField nameInput =
+            (TMP_InputField)typeof(PlayerRowUI)
+                .GetField("playerNameInput", BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetValue(row);
+
+        Require(nameInput != null, "Custom player name input was not created.");
+
+        nameInput.text = "  Seeyam  ";
+
+        Require(
+            row.GetPlayerName() == "Seeyam",
+            "Custom player name was not trimmed and returned correctly."
+        );
+
+        nameInput.text = "   ";
+
+        Require(
+            row.GetPlayerName() == "Player 1",
+            "Blank player names did not fall back to the default."
+        );
+
+        UnityEngine.Object.DestroyImmediate(rowObject);
     }
 
     private static void TestBankruptcyState()
