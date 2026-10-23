@@ -207,6 +207,14 @@ public static class MatchEndAutomatedTests
         );
 
         RunCase(
+            "Declining a mixed trade preserves both players' money and properties",
+            TestDeclinedMixedTradePreservesAssets,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
             "Stale trade offers are rejected without moving assets",
             TestStaleTradeOfferRejected,
             ref passed,
@@ -1148,6 +1156,43 @@ public static class MatchEndAutomatedTests
             Require(receiver.Money == 225, "Receiver did not receive the offered amount after acceptance.");
             Require(property.Owner == receiver, "Property did not transfer after acceptance.");
             Require(!tradeManager.HasPendingOffer, "Accepted offer remained pending.");
+        }
+    }
+
+    private static void TestDeclinedMixedTradePreservesAssets()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+
+            proposer.SetMoney(100);
+            receiver.SetMoney(200);
+
+            BoardSpace offeredProperty =
+                CreateTestProperty(fixture.Root.transform, proposer, 100);
+            BoardSpace requestedProperty =
+                CreateTestProperty(fixture.Root.transform, receiver, 150);
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 25,
+                RequestedMoney = 30
+            };
+            offer.OfferedProperties.Add(offeredProperty);
+            offer.RequestedProperties.Add(requestedProperty);
+
+            Require(tradeManager.SendOffer(offer), "Valid mixed trade offer was rejected.");
+            Require(tradeManager.DeclineOffer(receiver), "Receiver could not decline the mixed offer.");
+
+            Require(proposer.Money == 100, "Declined offer changed the proposer's balance.");
+            Require(receiver.Money == 200, "Declined offer changed the receiver's balance.");
+            Require(offeredProperty.Owner == proposer, "Declined offer transferred the offered property.");
+            Require(requestedProperty.Owner == receiver, "Declined offer transferred the requested property.");
+            Require(!tradeManager.HasPendingOffer, "Declined mixed offer remained pending.");
         }
     }
 
