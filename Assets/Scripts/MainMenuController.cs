@@ -74,12 +74,8 @@ public class MainMenuController : MonoBehaviour
 
     public void OpenSettings()
     {
-        if (settingsPanel != null)
-        {
-            settingsPanel.SetActive(true);
-            return;
-        }
-
+        // Always use the shared editable Settings UI, rather than a legacy
+        // scene-specific panel that can bypass saved audio preferences.
         GameAudioSettingsUI.Open();
     }
 
@@ -106,9 +102,10 @@ public class MainMenuController : MonoBehaviour
 
     public void CloseSettings()
     {
+        GameAudioSettingsUI.CloseOpenSettings();
+
+        // Keep legacy panel references harmless for older scene setups.
         if (settingsPanel != null)
-        {
             settingsPanel.SetActive(false);
-        }
     }
 }
