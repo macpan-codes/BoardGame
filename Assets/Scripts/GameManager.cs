@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private GamePhase currentPhase = GamePhase.WaitingToRoll;
+
+    private Coroutine botTurnRoutine;
 
     [Header("Dice")]
     [SerializeField] private int lastDiceRoll;
@@ -516,6 +519,86 @@ public class GameManager : MonoBehaviour
 
         if (tradeManager != null)
             tradeManager.NotifyReceiverTurnStarted(player);
+
+        // Bot turns must be driven by code rather than the human dice button.
+        if (botTurnRoutine != null)
+        {
+            StopCoroutine(botTurnRoutine);
+            botTurnRoutine = null;
+        }
+
+        if (player.IsBot)
+            botTurnRoutine = StartCoroutine(RunBotTurn(player));
+    }
+
+    private IEnumerator RunBotTurn(BoardPlayer bot)
+    {
+        // Let the turn UI and queued notifications settle before acting.
+        yield return new WaitForSeconds(0.6f);
+
+        DiceManager diceManager = FindFirstObjectByType<DiceManager>();
+        if (diceManager == null)
+        {
+            Debug.LogError("GameManager: Bot cannot act because DiceManager was not found.");
+            botTurnRoutine = null;
+            yield break;
+        }
+
+        int safety = 0;
+        while (!gameOver && !endGameVoteInProgress &&
+               CurrentPlayer == bot && bot != null && bot.IsActive && safety++ < 1200)
+        {
+            if (bot.IsMoving || diceManager.IsRolling)
+            {
+                yield return null;
+                continue;
+            }
+
+            if (waitingForPlayerAction)
+            {
+                LandingActionPanel landingPanel =
+                    FindFirstObjectByType<LandingActionPanel>(FindObjectsInactive.Include);
+                if (landingPanel != null && landingPanel.CurrentSpace != null)
+                {
+                    BoardSpace space = landingPanel.CurrentSpace;
+                    bool purchased = !IsMarketFrozen(bot) && BuySpace(space);
+                    landingPanel.ResolveForBot(purchased);
+                    yield return null;
+                    continue;
+                }
+
+                PropertyManagementPanel propertyPanel =
+                    FindFirstObjectByType<PropertyManagementPanel>(FindObjectsInactive.Include);
+                if (propertyPanel != null && propertyPanel.ResolveForBot())
+                {
+                    yield return null;
+                    continue;
+                }
+
+                // Avoid an endless loop if another modal action needs a dedicated bot policy.
+                Debug.LogWarning("GameManager: Bot reached an unsupported player action; pausing bot automation.");
+                botTurnRoutine = null;
+                yield break;
+            }
+
+            if (currentPhase == GamePhase.WaitingToRoll)
+            {
+                diceManager.RollDice();
+                yield return null;
+                continue;
+            }
+
+            if (currentPhase == GamePhase.WaitingToFinishTurn)
+            {
+                EndTurn();
+                yield return null;
+                continue;
+            }
+
+            yield return null;
+        }
+
+        botTurnRoutine = null;
     }
 
     public void EndTurn()
