@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool gameStarted;
     [SerializeField] private bool gameOver;
     [SerializeField] private bool endGameVoteInProgress;
+    private int completedTurnsThisMatch;
 
     // ============================================================
     // CHANCE / TURN HISTORY
@@ -403,6 +404,8 @@ public class GameManager : MonoBehaviour
         endGameVoteInProgress = false;
 
         GetFinancialRecoveryManager().ResetForNewGame();
+        completedTurnsThisMatch = 0;
+        BotLearningSystem.BeginMatch(players);
 
         StartTurn();
     }
@@ -508,6 +511,11 @@ public class GameManager : MonoBehaviour
         // of this player's turn.
         turnStartBalances[player] =
             player.Money;
+        BotLearningSystem.BeginTurn(
+            player,
+            players,
+            FindObjectsByType<BoardSpace>(FindObjectsSortMode.None)
+        );
 
         Debug.Log(
             $"TURN STARTED: {player.PlayerName}"
@@ -588,6 +596,8 @@ public class GameManager : MonoBehaviour
                     BoardSpace space = landingPanel.CurrentSpace;
                     bool purchased = ShouldBotBuySpace(bot, space) &&
                         !IsMarketFrozen(bot) && BuySpace(space);
+                    if (purchased)
+                        BotLearningSystem.RecordAction(bot, BotLearningSystem.ActionType.Purchase);
 
                     // Develop owned property when the return is worth the cost.
                     if (!purchased && space.Owner == bot)
@@ -692,7 +702,9 @@ public class GameManager : MonoBehaviour
             return false;
 
         // Preserve enough liquidity for rent, fees and unexpected cards.
-        int reserve = GetBotCashReserve(bot);
+        int reserve = Mathf.Max(100, GetBotCashReserve(bot) +
+            BotLearningSystem.GetCashReserveAdjustment(
+                BotLearningSystem.ActionType.Purchase, 200));
         int cashAfterPurchase = bot.Money - price;
 
         int ownedInCategory = 0;
@@ -777,18 +789,22 @@ public class GameManager : MonoBehaviour
             IsMarketFrozen(bot) || IsFinancialRecoveryActive(bot))
             return;
 
-        int reserve = GetBotCashReserve(bot);
+        int reserve = Mathf.Max(100, GetBotCashReserve(bot) +
+            BotLearningSystem.GetCashReserveAdjustment(
+                BotLearningSystem.ActionType.Development, 200));
 
         // Hotels are the best return when already unlocked, but keep a cash buffer.
         if (CanBuildHotel(space) && bot.Money - space.EffectiveHotelCost >= reserve)
         {
-            BuildHotel(space);
+            if (BuildHotel(space))
+                BotLearningSystem.RecordAction(bot, BotLearningSystem.ActionType.Development);
             return;
         }
 
-        if (CanBuildHouse(space) && bot.Money - space.EffectiveHouseCost >= reserve)
+        if (CanBuildHouse(space) && bot.Money - space.EffectiveHouseCost >= reserve &&
+            BuildHouse(space))
         {
-            BuildHouse(space);
+            BotLearningSystem.RecordAction(bot, BotLearningSystem.ActionType.Development);
         }
     }
 
@@ -801,7 +817,9 @@ public class GameManager : MonoBehaviour
             IsFinancialRecoveryActive(bot))
             return;
 
-        int reserve = GetBotCashReserve(bot);
+        int reserve = Mathf.Max(100, GetBotCashReserve(bot) +
+            BotLearningSystem.GetCashReserveAdjustment(
+                BotLearningSystem.ActionType.Development, 200));
         BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
 
         // Prefer a legal hotel upgrade, then a legal house upgrade.
@@ -813,7 +831,10 @@ public class GameManager : MonoBehaviour
             if (CanBuildHotel(space) &&
                 bot.Money - space.EffectiveHotelCost >= reserve &&
                 BuildHotel(space))
+            {
+                BotLearningSystem.RecordAction(bot, BotLearningSystem.ActionType.Development);
                 return;
+            }
         }
 
         foreach (BoardSpace space in allSpaces)
@@ -824,14 +845,23 @@ public class GameManager : MonoBehaviour
             if (CanBuildHouse(space) &&
                 bot.Money - space.EffectiveHouseCost >= reserve &&
                 BuildHouse(space))
+            {
+                BotLearningSystem.RecordAction(bot, BotLearningSystem.ActionType.Development);
                 return;
+            }
         }
     }
 
     private void TryBotCashRecovery(BoardPlayer bot)
     {
         if (bot == null || bot != CurrentPlayer || IsFinancialRecoveryActive(bot) ||
-            IsMarketFrozen(bot) || bot.Money >= GetBotCashReserve(bot))
+            IsMarketFrozen(bot))
+            return;
+
+        int recoveryThreshold = Mathf.Max(100, GetBotCashReserve(bot) +
+            Mathf.RoundToInt(BotLearningSystem.GetPreference(
+                BotLearningSystem.ActionType.Mortgage) * 150f));
+        if (bot.Money >= recoveryThreshold)
             return;
 
         BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
@@ -857,6 +887,7 @@ public class GameManager : MonoBehaviour
 
         if (best != null && MortgageProperty(best))
         {
+            BotLearningSystem.RecordAction(bot, BotLearningSystem.ActionType.Mortgage);
             GameNotificationUI.Show(
                 bot.PlayerName.ToUpperInvariant() + " RAISED CASH TO PROTECT ITS FINANCES");
         }
@@ -897,9 +928,13 @@ public class GameManager : MonoBehaviour
             (resultingCash >= GetBotCashReserve(player) ||
              offer.RequestedMoney == 0);
 
-        if (receivedValue > givenValue && liquiditySafe)
+        long tradeTolerance = Mathf.RoundToInt(
+            BotLearningSystem.GetPreference(BotLearningSystem.ActionType.Trade) *
+            Mathf.Max(100, player.Money / 10));
+        if (receivedValue + tradeTolerance > givenValue && liquiditySafe)
         {
             tradeManager.AcceptOffer(player, offer);
+            BotLearningSystem.RecordAction(player, BotLearningSystem.ActionType.Trade);
             Debug.Log("BOT TRADE: " + player.PlayerName + " accepted a value-positive offer.");
         }
         else
@@ -996,6 +1031,7 @@ public class GameManager : MonoBehaviour
 
             if (tradeManager.SendOffer(offer))
             {
+                BotLearningSystem.RecordAction(bot, BotLearningSystem.ActionType.Trade);
                 // A declined offer is still a useful signal. Give the other bot
                 // time to acquire assets or change its evaluation before retrying.
                 botTradeOfferCooldownUntil[tradeKey] = Time.time + 180f;
@@ -1044,6 +1080,12 @@ public class GameManager : MonoBehaviour
         if (consecutiveDoubles == 0 &&
             endingPlayer != null)
         {
+            completedTurnsThisMatch++;
+            BotLearningSystem.CompleteTurn(
+                endingPlayer,
+                players,
+                FindObjectsByType<BoardSpace>(FindObjectsSortMode.None)
+            );
             RecordCompletedTurn(
                 endingPlayer
             );
@@ -1930,6 +1972,7 @@ public class GameManager : MonoBehaviour
         }
 
         gameOver = true;
+        BotLearningSystem.CompleteMatch(remainingPlayer, players, completedTurnsThisMatch);
         endGameVoteInProgress = false;
         isTurnActive = false;
         waitingForPlayerAction = false;
