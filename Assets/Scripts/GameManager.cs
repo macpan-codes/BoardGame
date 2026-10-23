@@ -634,6 +634,7 @@ public class GameManager : MonoBehaviour
                 // If cash is dangerously low, raise funds from a legal mortgage
                 // before taking another risky turn.
                 TryBotCashRecovery(bot);
+                TryBotPortfolioDevelopment(bot);
 
                 // Pause before each roll, including extra rolls after doubles.
                 yield return new WaitForSeconds(botThinkBeforeRoll);
@@ -785,6 +786,42 @@ public class GameManager : MonoBehaviour
         if (CanBuildHouse(space) && bot.Money - space.EffectiveHouseCost >= reserve)
         {
             BuildHouse(space);
+        }
+    }
+
+    // Build across the bot's portfolio rather than only when it happens to
+    // land on one of its own properties. At most one upgrade is made per roll
+    // decision so development remains paced and leaves cash for rent/cards.
+    private void TryBotPortfolioDevelopment(BoardPlayer bot)
+    {
+        if (bot == null || bot != CurrentPlayer || IsMarketFrozen(bot) ||
+            IsFinancialRecoveryActive(bot))
+            return;
+
+        int reserve = GetBotCashReserve(bot);
+        BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
+
+        // Prefer a legal hotel upgrade, then a legal house upgrade.
+        foreach (BoardSpace space in allSpaces)
+        {
+            if (space == null || space.Owner != bot || !space.IsProperty)
+                continue;
+
+            if (CanBuildHotel(space) &&
+                bot.Money - space.EffectiveHotelCost >= reserve &&
+                BuildHotel(space))
+                return;
+        }
+
+        foreach (BoardSpace space in allSpaces)
+        {
+            if (space == null || space.Owner != bot || !space.IsProperty)
+                continue;
+
+            if (CanBuildHouse(space) &&
+                bot.Money - space.EffectiveHouseCost >= reserve &&
+                BuildHouse(space))
+                return;
         }
     }
 
