@@ -11,8 +11,10 @@ public static class BotLearningTools
     {
         string status = BotLearningSystem.GetPolicySummary() +
             "\n\nLast result: " + BotLearningSystem.LastMatchSummary +
+            "\nTurn limit: " + BotLearningSystem.MaxTurnsPerMatch + " completed player turns" +
             "\nAuto-restart self-play: " +
             (BotLearningSystem.AutoRestartEnabled ? "ON" : "OFF") +
+            "\n\nRecent evaluation results:\n" + BotLearningSystem.GetEvaluationHistorySummary(5) +
             "\n\nSaved policy file: " +
             System.IO.Path.Combine(Application.persistentDataPath, "bot_learning_data.json");
 
@@ -33,6 +35,47 @@ public static class BotLearningTools
             "OK"
         );
         Debug.Log("BOT LEARNING: auto-restart self-play " + (enabled ? "enabled." : "disabled."));
+    }
+
+    [MenuItem("Board Game/Bot Learning/Set Turn Limit/100 Completed Turns")]
+    public static void SetTurnLimit100()
+    {
+        SetTurnLimit(100);
+    }
+
+    [MenuItem("Board Game/Bot Learning/Set Turn Limit/250 Completed Turns")]
+    public static void SetTurnLimit250()
+    {
+        SetTurnLimit(250);
+    }
+
+    [MenuItem("Board Game/Bot Learning/Set Turn Limit/300 Completed Turns")]
+    public static void SetTurnLimit300()
+    {
+        SetTurnLimit(300);
+    }
+
+    [MenuItem("Board Game/Bot Learning/Set Turn Limit/500 Completed Turns")]
+    public static void SetTurnLimit500()
+    {
+        SetTurnLimit(500);
+    }
+
+    [MenuItem("Board Game/Bot Learning/Set Turn Limit/1000 Completed Turns")]
+    public static void SetTurnLimit1000()
+    {
+        SetTurnLimit(1000);
+    }
+
+    private static void SetTurnLimit(int turns)
+    {
+        BotLearningSystem.SetMaxTurnsPerMatch(turns);
+        EditorUtility.DisplayDialog(
+            "Bot Learning Turn Limit",
+            "All-bot evaluation matches will stop after " + turns +
+            " completed player turns. This is an evaluation result, not a bankruptcy win.",
+            "OK");
+        Debug.Log("BOT LEARNING: turn limit set to " + turns + " completed player turns.");
     }
 
     [MenuItem("Board Game/Bot Learning/Reset Saved Learning")]
