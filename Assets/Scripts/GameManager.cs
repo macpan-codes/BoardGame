@@ -935,6 +935,12 @@ public class GameManager : MonoBehaviour
             if (offered == null || bestDifference > Mathf.Max(100, target.PurchasePrice / 2))
                 continue;
 
+            string tradeKey = bot.GetInstanceID() + ":" +
+                offered.GetInstanceID() + ":" + target.GetInstanceID();
+            if (botTradeOfferCooldownUntil.TryGetValue(tradeKey, out float cooldownUntil) &&
+                Time.time < cooldownUntil)
+                continue;
+
             TradeOffer offer = new TradeOffer
             {
                 Proposer = bot,
@@ -947,8 +953,12 @@ public class GameManager : MonoBehaviour
 
             if (tradeManager.SendOffer(offer))
             {
+                // A declined offer is still a useful signal. Give the other bot
+                // time to acquire assets or change its evaluation before retrying.
+                botTradeOfferCooldownUntil[tradeKey] = Time.time + 180f;
                 Debug.Log("BOT TRADE: " + bot.PlayerName + " offered " +
-                    offered.SpaceName + " for " + target.SpaceName + ".");
+                    offered.SpaceName + " for " + target.SpaceName +
+                    " (retry cooldown: 180 seconds).");
                 return; // one strategic offer at a time
             }
         }
