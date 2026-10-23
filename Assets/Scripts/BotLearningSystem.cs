@@ -62,6 +62,38 @@ public static class BotLearningSystem
         get { EnsureLoaded(); return data.completedTrainingMatches; }
     }
 
+    public static bool IsTrainingMatch => trainingMatch;
+
+    public static bool AutoRestartEnabled =>
+        PlayerPrefs.GetInt("BotLearning.AutoRestart", 0) == 1;
+
+    public static void SetAutoRestartEnabled(bool enabled)
+    {
+        PlayerPrefs.SetInt("BotLearning.AutoRestart", enabled ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static void ResetSavedLearning()
+    {
+        EnsureLoaded();
+        data = new LearningData();
+        matchStats.Clear();
+        turnStartScores.Clear();
+        currentTurnActions.Clear();
+        currentTurnPlayer = null;
+        trainingMatch = false;
+        try
+        {
+            if (File.Exists(DataPath))
+                File.Delete(DataPath);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning("BOT LEARNING: Could not remove saved policy. " + exception.Message);
+        }
+        Save();
+    }
+
     public static string LastMatchSummary
     {
         get { EnsureLoaded(); return data.lastMatchSummary; }
@@ -196,14 +228,17 @@ public static class BotLearningSystem
             opponentCount++;
         }
 
-        if (opponentCount > 0 && currentTurnActions.Count > 0)
+        if (opponentCount > 0)
         {
-            double relativeChange = ownChange - (opponentChangeTotal / opponentCount);
-            float reward = Mathf.Clamp((float)(relativeChange / 500.0), -1f, 1f);
-            foreach (KeyValuePair<ActionType, int> action in currentTurnActions)
+            if (currentTurnActions.Count > 0)
             {
-                float scaledReward = reward / Mathf.Max(1, action.Value);
-                AdjustPreference(action.Key, scaledReward * OnlineLearningRate);
+                double relativeChange = ownChange - (opponentChangeTotal / opponentCount);
+                float reward = Mathf.Clamp((float)(relativeChange / 500.0), -1f, 1f);
+                foreach (KeyValuePair<ActionType, int> action in currentTurnActions)
+                {
+                    float scaledReward = reward / Mathf.Max(1, action.Value);
+                    AdjustPreference(action.Key, scaledReward * OnlineLearningRate);
+                }
             }
 
             data.completedTrainingTurns++;
@@ -319,9 +354,9 @@ public static class BotLearningSystem
             if (space.IsProperty)
             {
                 propertyValue += (long)Mathf.Max(0, space.EffectiveHouseCost) *
-                    Mathf.Max(0, space.Houses) / 2;
+                    Mathf.Max(0, space.Houses);
                 if (space.HasHotel)
-                    propertyValue += Mathf.Max(0, space.EffectiveHotelCost) / 2;
+                    propertyValue += Mathf.Max(0, space.EffectiveHotelCost);
             }
 
             if (space.IsMortgaged)
