@@ -526,10 +526,6 @@ public class GameManager : MonoBehaviour
             tradeManager.NotifyReceiverTurnStarted(player);
 
 
-        // A bot evaluates incoming trades at the start of its turn. Human
-        // responses remain entirely under player control.
-        EvaluateIncomingBotTrade(player);
-
         // Bot turns must be driven by code rather than the human dice button.
         if (botTurnRoutine != null)
         {
@@ -545,6 +541,10 @@ public class GameManager : MonoBehaviour
     {
         // Let the turn UI and queued notifications settle before acting.
         yield return new WaitForSeconds(0.6f);
+
+        // Give a bot time to review a trade request before deciding.
+        EvaluateIncomingBotTrade(bot);
+        yield return new WaitForSeconds(0.7f);
 
         DiceManager diceManager = FindFirstObjectByType<DiceManager>();
         if (diceManager == null)
