@@ -17,6 +17,11 @@ public class GameManager : MonoBehaviour
 
     private Coroutine botTurnRoutine;
 
+    [Header("Bot Timing")]
+    [SerializeField, Min(0f)] private float botThinkBeforeRoll = 0.9f;
+    [SerializeField, Min(0f)] private float botThinkBeforeAction = 1.2f;
+    [SerializeField, Min(0f)] private float botThinkBeforeEndingTurn = 0.6f;
+
     [Header("Dice")]
     [SerializeField] private int lastDiceRoll;
     [SerializeField] private int consecutiveDoubles;
@@ -556,6 +561,13 @@ public class GameManager : MonoBehaviour
 
             if (waitingForPlayerAction)
             {
+                // Give the landing/action panel time to be visible, like a human
+                // reading the options before choosing.
+                yield return new WaitForSeconds(botThinkBeforeAction);
+
+                if (CurrentPlayer != bot || !waitingForPlayerAction)
+                    continue;
+
                 LandingActionPanel landingPanel =
                     FindFirstObjectByType<LandingActionPanel>(FindObjectsInactive.Include);
                 if (landingPanel != null && landingPanel.CurrentSpace != null)
@@ -583,14 +595,34 @@ public class GameManager : MonoBehaviour
 
             if (currentPhase == GamePhase.WaitingToRoll)
             {
-                diceManager.RollDice();
+                // Pause before each roll, including extra rolls after doubles.
+                yield return new WaitForSeconds(botThinkBeforeRoll);
+
+                if (CurrentPlayer == bot &&
+                    isTurnActive &&
+                    currentPhase == GamePhase.WaitingToRoll &&
+                    !waitingForPlayerAction &&
+                    !bot.IsMoving &&
+                    !diceManager.IsRolling)
+                {
+                    diceManager.RollDice();
+                }
+
                 yield return null;
                 continue;
             }
 
             if (currentPhase == GamePhase.WaitingToFinishTurn)
             {
-                EndTurn();
+                yield return new WaitForSeconds(botThinkBeforeEndingTurn);
+
+                if (CurrentPlayer == bot &&
+                    currentPhase == GamePhase.WaitingToFinishTurn &&
+                    !waitingForPlayerAction)
+                {
+                    EndTurn();
+                }
+
                 yield return null;
                 continue;
             }
