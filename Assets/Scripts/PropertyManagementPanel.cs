@@ -435,10 +435,21 @@ public class PropertyManagementPanel : MonoBehaviour
         }
     }
 
-    // Called by GameManager when a bot lands on its own property.
+    // Called by GameManager when a bot has an unresolved property action.
+    // Some UI paths open this panel through Show() rather than ShowForLanding();
+    // accept either path when the active bot is waiting on a landing action.
     public bool ResolveForBot()
     {
-        if (!actionOpenedFromLanding || selectedSpace == null)
+        if (selectedSpace == null)
+            return false;
+
+        if (gameManager == null)
+            gameManager = FindFirstObjectByType<GameManager>();
+
+        if (gameManager == null ||
+            gameManager.CurrentPlayer == null ||
+            !gameManager.CurrentPlayer.IsBot ||
+            !gameManager.WaitingForPlayerAction)
             return false;
 
         CompleteLandingAction();
