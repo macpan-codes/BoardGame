@@ -119,6 +119,7 @@ public class CardManager : MonoBehaviour
         new List<BoardSpace>();
 
     private int targetIndex;
+    private bool botAutoActionRunning;
 
     private BoardPlayer selectedPlayerTarget;
     private BoardSpace selectedPropertyTarget;
@@ -166,6 +167,69 @@ public class CardManager : MonoBehaviour
 
         chanceCardUI.Initialize(this);
         chanceCardUI.HideImmediate();
+    }
+
+    private void Update()
+    {
+        if (botAutoActionRunning || activePlayer == null || !activePlayer.IsBot)
+            return;
+
+        if (waitingForChoice || waitingForPlayerTarget || waitingForPropertyTarget)
+            StartCoroutine(ResolveBotCardInteraction());
+    }
+
+    private IEnumerator ResolveBotCardInteraction()
+    {
+        botAutoActionRunning = true;
+        yield return new WaitForSeconds(0.85f);
+
+        int safety = 0;
+        while (activePlayer != null && activePlayer.IsBot && safety++ < 8)
+        {
+            if (waitingForChoice)
+            {
+                // Prefer the free house when an eligible property exists; otherwise take cash.
+                bool hasEligibleProperty = false;
+                foreach (BoardSpace space in FindObjectsByType<BoardSpace>(FindObjectsSortMode.None))
+                {
+                    if (space != null && space.Owner == activePlayer &&
+                        space.IsProperty && !space.IsMortgaged &&
+                        !space.HasHotel && space.Houses < 4)
+                    {
+                        hasEligibleProperty = true;
+                        break;
+                    }
+                }
+
+                SelectChoice(hasEligibleProperty ? 1 : 0);
+                yield return new WaitForSeconds(0.65f);
+                continue;
+            }
+
+            if (waitingForPropertyTarget)
+            {
+                TargetPropertyButtonPressed();
+                yield return new WaitForSeconds(0.35f);
+                if (waitingForPropertyTarget)
+                    TargetPropertyButtonPressed();
+                yield return new WaitForSeconds(0.65f);
+                continue;
+            }
+
+            if (waitingForPlayerTarget)
+            {
+                TargetPlayerButtonPressed();
+                yield return new WaitForSeconds(0.35f);
+                if (waitingForPlayerTarget)
+                    TargetPlayerButtonPressed();
+                yield return new WaitForSeconds(0.65f);
+                continue;
+            }
+
+            break;
+        }
+
+        botAutoActionRunning = false;
     }
 
     // ============================================================
@@ -2575,6 +2639,19 @@ public class CardManager : MonoBehaviour
     {
         if (chanceCardUI != null)
             chanceCardUI.SetCloseInteractable(true);
+
+        // Bots must dismiss completed card results themselves so the turn can continue.
+        if (activePlayer != null && activePlayer.IsBot)
+            StartCoroutine(CloseCompletedBotCard());
+    }
+
+    private IEnumerator CloseCompletedBotCard()
+    {
+        yield return new WaitForSeconds(1.2f);
+
+        if (activePlayer != null && activePlayer.IsBot &&
+            !waitingForChoice && !waitingForPlayerTarget && !waitingForPropertyTarget)
+            CloseCard();
     }
 
     private string GetPropertyTargetHeader()
