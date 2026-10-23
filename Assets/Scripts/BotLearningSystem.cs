@@ -358,10 +358,10 @@ public static class BotLearningSystem
         data.completedTrainingMatches++;
         long leaderNetWorth = EstimateNetWorth(
             winner,
-            FindObjectsByType<BoardSpace>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+            UnityEngine.Object.FindObjectsByType<BoardSpace>(FindObjectsInactive.Include, FindObjectsSortMode.None));
         string standings = BuildStandingsSummary(
             players,
-            FindObjectsByType<BoardSpace>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+            UnityEngine.Object.FindObjectsByType<BoardSpace>(FindObjectsInactive.Include, FindObjectsSortMode.None));
 
         if (data.evaluationHistory == null)
             data.evaluationHistory = new List<EvaluationRecord>();
