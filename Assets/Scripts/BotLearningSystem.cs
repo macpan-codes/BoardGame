@@ -19,9 +19,20 @@ public static class BotLearningSystem
     }
 
     [Serializable]
+    private class EvaluationRecord
+    {
+        public int matchNumber;
+        public string leaderName;
+        public long leaderNetWorth;
+        public int completedTurns;
+        public bool turnLimitReached;
+        public string standings;
+    }
+
+    [Serializable]
     private class LearningData
     {
-        public int schemaVersion = 1;
+        public int schemaVersion = 2;
         public int completedTrainingMatches;
         public int completedTrainingTurns;
         public int totalRecordedActions;
@@ -30,6 +41,7 @@ public static class BotLearningSystem
         public float mortgagePreference;
         public float tradePreference;
         public string lastMatchSummary = "No completed training matches yet.";
+        public List<EvaluationRecord> evaluationHistory = new List<EvaluationRecord>();
     }
 
     private sealed class PlayerStats
@@ -67,6 +79,15 @@ public static class BotLearningSystem
     public static bool AutoRestartEnabled =>
         PlayerPrefs.GetInt("BotLearning.AutoRestart", 0) == 1;
 
+    public static int MaxTurnsPerMatch =>
+        Mathf.Clamp(PlayerPrefs.GetInt("BotLearning.MaxTurnsPerMatch", 300), 50, 5000);
+
+    public static void SetMaxTurnsPerMatch(int turns)
+    {
+        PlayerPrefs.SetInt("BotLearning.MaxTurnsPerMatch", Mathf.Clamp(turns, 50, 5000));
+        PlayerPrefs.Save();
+    }
+
     public static void SetAutoRestartEnabled(bool enabled)
     {
         PlayerPrefs.SetInt("BotLearning.AutoRestart", enabled ? 1 : 0);
@@ -97,6 +118,35 @@ public static class BotLearningSystem
     public static string LastMatchSummary
     {
         get { EnsureLoaded(); return data.lastMatchSummary; }
+    }
+
+    public static string GetEvaluationHistorySummary(int maximumRecords = 10)
+    {
+        EnsureLoaded();
+        if (data.evaluationHistory == null || data.evaluationHistory.Count == 0)
+            return "No saved evaluation results yet.";
+
+        int start = Mathf.Max(0, data.evaluationHistory.Count - Mathf.Max(1, maximumRecords));
+        System.Text.StringBuilder summary = new System.Text.StringBuilder();
+        for (int i = start; i < data.evaluationHistory.Count; i++)
+        {
+            EvaluationRecord record = data.evaluationHistory[i];
+            if (record == null)
+                continue;
+
+            if (summary.Length > 0)
+                summary.AppendLine();
+
+            summary.Append("#").Append(record.matchNumber).Append(" — ")
+                .Append(record.leaderName).Append(" led at ")
+                .Append(record.completedTurns).Append(" turns; net worth ")
+                .Append(record.leaderNetWorth.ToString("N0"));
+
+            if (record.turnLimitReached)
+                summary.Append(" (turn-limit evaluation)");
+        }
+
+        return summary.ToString();
     }
 
     public static float GetPreference(ActionType action)
@@ -258,7 +308,11 @@ public static class BotLearningSystem
         turnStartScores.Clear();
     }
 
-    public static void CompleteMatch(BoardPlayer winner, BoardPlayer[] players, int completedTurns)
+    public static void CompleteMatch(
+        BoardPlayer winner,
+        BoardPlayer[] players,
+        int completedTurns,
+        bool turnLimitReached = false)
     {
         if (!trainingMatch || winner == null || !winner.IsBot)
         {
@@ -302,12 +356,41 @@ public static class BotLearningSystem
         }
 
         data.completedTrainingMatches++;
-        data.lastMatchSummary = "Match " + data.completedTrainingMatches +
-            ": " + winner.PlayerName + " won; " + Mathf.Max(0, completedTurns) +
-            " completed turns; policy updated.";
+        long leaderNetWorth = EstimateNetWorth(
+            winner,
+            FindObjectsByType<BoardSpace>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+        string standings = BuildStandingsSummary(
+            players,
+            FindObjectsByType<BoardSpace>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+
+        if (data.evaluationHistory == null)
+            data.evaluationHistory = new List<EvaluationRecord>();
+
+        data.evaluationHistory.Add(new EvaluationRecord
+        {
+            matchNumber = data.completedTrainingMatches,
+            leaderName = winner.PlayerName,
+            leaderNetWorth = leaderNetWorth,
+            completedTurns = Mathf.Max(0, completedTurns),
+            turnLimitReached = turnLimitReached,
+            standings = standings
+        });
+
+        // Keep the persistent file bounded while retaining a useful recent history.
+        while (data.evaluationHistory.Count > 100)
+            data.evaluationHistory.RemoveAt(0);
+
+        data.lastMatchSummary = turnLimitReached
+            ? "Match " + data.completedTrainingMatches + ": " + winner.PlayerName +
+              " led by estimated net worth at the " + Mathf.Max(0, completedTurns) +
+              "-turn limit; net worth " + leaderNetWorth.ToString("N0") +
+              "; evaluation only, not a bankruptcy win."
+            : "Match " + data.completedTrainingMatches + ": " + winner.PlayerName +
+              " won; " + Mathf.Max(0, completedTurns) + " completed turns; policy updated.";
         Save();
 
-        Debug.Log("BOT LEARNING: " + data.lastMatchSummary + " " + GetPolicySummary());
+        Debug.Log("BOT LEARNING: " + data.lastMatchSummary + " Standings: " +
+            standings + " " + GetPolicySummary());
         trainingMatch = false;
         currentTurnPlayer = null;
         matchStats.Clear();
@@ -334,6 +417,85 @@ public static class BotLearningSystem
         int count;
         stats.actions.TryGetValue(action, out count);
         return (float)count / stats.turns;
+    }
+
+    public static long GetEstimatedNetWorth(BoardPlayer player, BoardSpace[] spaces)
+    {
+        return EstimateNetWorth(player, spaces);
+    }
+
+    public static BoardPlayer GetHighestNetWorthPlayer(BoardPlayer[] players, BoardSpace[] spaces)
+    {
+        if (players == null || players.Length == 0)
+            return null;
+
+        BoardPlayer leader = null;
+        long bestNetWorth = long.MinValue;
+        foreach (BoardPlayer player in players)
+        {
+            if (player == null || !player.IsActive)
+                continue;
+
+            long netWorth = EstimateNetWorth(player, spaces);
+            if (leader == null || netWorth > bestNetWorth ||
+                (netWorth == bestNetWorth && player.PlayerNumber < leader.PlayerNumber))
+            {
+                leader = player;
+                bestNetWorth = netWorth;
+            }
+        }
+
+        // Defensive fallback for unusual matches where every player is inactive.
+        if (leader == null)
+        {
+            foreach (BoardPlayer player in players)
+            {
+                if (player == null)
+                    continue;
+
+                long netWorth = EstimateNetWorth(player, spaces);
+                if (leader == null || netWorth > bestNetWorth ||
+                    (netWorth == bestNetWorth && player.PlayerNumber < leader.PlayerNumber))
+                {
+                    leader = player;
+                    bestNetWorth = netWorth;
+                }
+            }
+        }
+
+        return leader;
+    }
+
+    private static string BuildStandingsSummary(BoardPlayer[] players, BoardSpace[] spaces)
+    {
+        if (players == null)
+            return string.Empty;
+
+        List<BoardPlayer> ranked = new List<BoardPlayer>();
+        foreach (BoardPlayer player in players)
+            if (player != null)
+                ranked.Add(player);
+
+        ranked.Sort((a, b) =>
+        {
+            int worthOrder = EstimateNetWorth(b, spaces).CompareTo(EstimateNetWorth(a, spaces));
+            if (worthOrder != 0)
+                return worthOrder;
+            return a.PlayerNumber.CompareTo(b.PlayerNumber);
+        });
+
+        System.Text.StringBuilder summary = new System.Text.StringBuilder();
+        foreach (BoardPlayer player in ranked)
+        {
+            if (summary.Length > 0)
+                summary.Append(" | ");
+            summary.Append(player.PlayerName).Append("=$")
+                .Append(EstimateNetWorth(player, spaces).ToString("N0"));
+            if (!player.IsActive)
+                summary.Append(" (inactive)");
+        }
+
+        return summary.ToString();
     }
 
     private static long EstimateNetWorth(BoardPlayer player, BoardSpace[] spaces)
@@ -400,8 +562,13 @@ public static class BotLearningSystem
             if (File.Exists(DataPath))
             {
                 LearningData saved = JsonUtility.FromJson<LearningData>(File.ReadAllText(DataPath));
-                if (saved != null && saved.schemaVersion == 1)
+                if (saved != null && (saved.schemaVersion == 1 || saved.schemaVersion == 2))
+                {
                     data = saved;
+                    data.schemaVersion = 2;
+                    if (data.evaluationHistory == null)
+                        data.evaluationHistory = new List<EvaluationRecord>();
+                }
             }
         }
         catch (Exception exception)
