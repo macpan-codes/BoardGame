@@ -1145,6 +1145,15 @@ public class GameManager : MonoBehaviour
             );
         }
 
+        // The limit applies only to all-bot training matches. Normal human or
+        // mixed matches continue using the existing Monopoly end conditions.
+        if (BotLearningSystem.IsTrainingMatch &&
+            completedTurnsThisMatch >= BotLearningSystem.MaxTurnsPerMatch)
+        {
+            EndTrainingMatchAtTurnLimit();
+            return;
+        }
+
         MoveToNextPlayer();
     }
 
@@ -2003,6 +2012,58 @@ public class GameManager : MonoBehaviour
                 "MATCH WON BY ELIMINATION"
             );
         }
+
+        if (restartSelfPlay)
+            StartCoroutine(RestartSelfPlayMatch());
+    }
+
+    private void EndTrainingMatchAtTurnLimit()
+    {
+        if (gameOver || !BotLearningSystem.IsTrainingMatch)
+            return;
+
+        BoardSpace[] spaces = FindObjectsByType<BoardSpace>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        BoardPlayer leader = BotLearningSystem.GetHighestNetWorthPlayer(players, spaces);
+        if (leader == null)
+        {
+            Debug.LogWarning("BOT LEARNING: Turn limit reached, but no player could be ranked.");
+            return;
+        }
+
+        bool restartSelfPlay = BotLearningSystem.AutoRestartEnabled;
+        long leaderNetWorth = BotLearningSystem.GetEstimatedNetWorth(leader, spaces);
+
+        // This is an evaluation stop, not a bankruptcy win. It does not alter
+        // player assets or mark anyone bankrupt; it only closes this training run.
+        gameOver = true;
+        endGameVoteInProgress = false;
+        isTurnActive = false;
+        waitingForPlayerAction = false;
+        currentPhase = GamePhase.GameOver;
+
+        BotLearningSystem.CompleteMatch(
+            leader,
+            players,
+            completedTurnsThisMatch,
+            true);
+
+        string reason = "TURN LIMIT REACHED — TOP NET WORTH: " +
+            leader.PlayerName.ToUpperInvariant() + " ($" +
+            leaderNetWorth.ToString("N0") +
+            "). EVALUATION ONLY — NOT A BANKRUPTCY WIN.";
+
+        Debug.Log("BOT LEARNING: " + reason +
+            " | Completed turns: " + completedTurnsThisMatch +
+            " | " + BotLearningSystem.GetPolicySummary());
+
+        MatchEndUI matchEndUI = EnsureMatchEndUI();
+        if (matchEndUI != null)
+            matchEndUI.ShowFinalResults(this, null, reason);
+        else
+            GameNotificationUI.Show("BOT EVALUATION COMPLETE");
 
         if (restartSelfPlay)
             StartCoroutine(RestartSelfPlayMatch());
