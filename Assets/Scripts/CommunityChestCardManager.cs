@@ -52,6 +52,7 @@ public class CommunityChestCardManager : MonoBehaviour
 
     private int propertyTargetIndex;
     private bool waitingForPropertyTarget;
+    private bool botAutoActionRunning;
 
     // Player purchase / development restrictions from Market Freeze.
     private readonly Dictionary<BoardPlayer, int> marketFreezeTurns =
@@ -221,6 +222,32 @@ public class CommunityChestCardManager : MonoBehaviour
         Resolve(
             gm
         );
+    }
+
+    private void Update()
+    {
+        if (botAutoActionRunning || activePlayer == null || !activePlayer.IsBot ||
+            !waitingForPropertyTarget)
+            return;
+
+        StartCoroutine(ResolveBotPropertyTarget());
+    }
+
+    private System.Collections.IEnumerator ResolveBotPropertyTarget()
+    {
+        botAutoActionRunning = true;
+        yield return new WaitForSeconds(0.85f);
+
+        if (activePlayer != null && activePlayer.IsBot && waitingForPropertyTarget)
+        {
+            // First eligible property is a valid, deterministic choice.
+            if (activeCard != null && activeCard.effect == Effect.ForcedPropertyPayment)
+                ConfirmForcedPropertyPayment();
+            else
+                ConfirmPropertyTarget();
+        }
+
+        botAutoActionRunning = false;
     }
 
     public void NextPropertyTarget()
@@ -1471,11 +1498,15 @@ public class CommunityChestCardManager : MonoBehaviour
             keepTargetVisible
         );
 
+        if (activePlayer != null && activePlayer.IsBot)
+        {
+            StartCoroutine(FinishBotCard(gm));
+            return;
+        }
+
         gm.EndPlayerAction();
         gm.EndTurn();
-
     }
-
 
     private void FinishTurn(
         GameManager gm)
@@ -1483,9 +1514,32 @@ public class CommunityChestCardManager : MonoBehaviour
         if (gm == null)
             return;
 
+        if (activePlayer != null && activePlayer.IsBot)
+        {
+            StartCoroutine(FinishBotCard(gm));
+            return;
+        }
+
         gm.EndPlayerAction();
         gm.EndTurn();
+    }
 
+    private System.Collections.IEnumerator FinishBotCard(GameManager gm)
+    {
+        yield return new WaitForSeconds(1.2f);
+
+        if (ui != null)
+            ui.HideImmediate();
+
+        if (gm != null)
+        {
+            gm.EndPlayerAction();
+            gm.EndTurn();
+        }
+
+        activePlayer = null;
+        activeCard = null;
+        ResetState();
     }
 
     public void AdvanceMarketFreezeTurn(
