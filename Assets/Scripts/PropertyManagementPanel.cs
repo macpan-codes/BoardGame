@@ -435,6 +435,16 @@ public class PropertyManagementPanel : MonoBehaviour
         }
     }
 
+    // Called by GameManager when a bot lands on its own property.
+    public bool ResolveForBot()
+    {
+        if (!actionOpenedFromLanding || selectedSpace == null)
+            return false;
+
+        CompleteLandingAction();
+        return true;
+    }
+
     // ============================================================
     // LANDING ACTION COMPLETE
     // ============================================================
