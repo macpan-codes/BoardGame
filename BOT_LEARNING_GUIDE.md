@@ -21,9 +21,11 @@ The saved policy is written to `bot_learning_data.json` under Unity's `Applicati
 2. Open the game in Unity and let scripts compile.
 3. In the Unity menu, open **Board Game → Bot Learning → Show Learning Status** to see the current preferences and saved-data location.
 4. Start a local match with every player set to **Bot**. Learning updates during completed bot turns; a completed match adds the final-outcome update.
-5. To run unattended repeated matches, select **Board Game → Bot Learning → Toggle Auto-Restart Self-Play** once to turn it ON. All-bot matches then reload the active scene three seconds after the results screen and start another match. Toggle it OFF to stop the automatic restart.
-6. Use **Show Learning Status** between runs to verify the completed-match count and preferences are changing.
-7. Use **Board Game → Bot Learning → Reset Saved Learning** only if you intentionally want to discard the saved policy and start fresh.
+5. The default evaluation limit is **300 completed player turns** (not dice rolls). Change it through **Board Game → Bot Learning → Set Turn Limit** (100, 250, 300, 500, or 1000). This limit applies only to all-bot training matches; human and mixed matches keep normal Monopoly end conditions.
+6. At the limit, the match is closed as an **evaluation result**, not a bankruptcy victory. The player with the highest estimated net worth among active players is recorded as the leader. Assets and bankruptcy states are not changed by the evaluation. The saved JSON keeps the last 100 match records, including the leader, net worth, turn count, and standings.
+7. To run unattended repeated matches, select **Board Game → Bot Learning → Toggle Auto-Restart Self-Play** to turn it ON. After a normal bankruptcy win or turn-limit evaluation, the active scene reloads after 3 seconds. Toggle it OFF to stop automatic restarts. Auto-restart remains OFF by default to avoid unexpectedly reloading a manually played match.
+8. Use **Board Game → Bot Learning → Show Learning Status** to inspect the turn limit, latest result, recent standings, completed-match count and preferences.
+9. Use **Board Game → Bot Learning → Reset Saved Learning** only if you intentionally want to discard the saved policy and evaluation history and start fresh.
 
 ## Important limits
 
