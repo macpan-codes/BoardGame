@@ -566,6 +566,9 @@ public class GameManager : MonoBehaviour
                 continue;
             }
 
+            if (!waitingForPlayerAction)
+                unresolvedActionSince = -1f;
+
             if (waitingForPlayerAction)
             {
                 // Give the landing/action panel time to be visible, like a human
