@@ -878,9 +878,12 @@ public class GameManager : MonoBehaviour
         long receivedValue = offer.OfferedMoney;
         long givenValue = offer.RequestedMoney;
 
-        foreach (BoardSpace space in offer.RequestedProperties)
-            receivedValue += EstimateBotPropertyValue(player, space);
+        // The receiver gains the proposer's offered assets and gives up the
+        // requested assets. Keep these sides correctly oriented or bots can
+        // accept bad deals and reject genuinely beneficial ones.
         foreach (BoardSpace space in offer.OfferedProperties)
+            receivedValue += EstimateBotPropertyValue(player, space);
+        foreach (BoardSpace space in offer.RequestedProperties)
             givenValue += EstimateBotPropertyValue(player, space);
 
         // Don't accept a deal that leaves the bot unable to cover ordinary costs.
