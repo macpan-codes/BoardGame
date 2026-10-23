@@ -826,9 +826,8 @@ public class GameManager : MonoBehaviour
             givenValue += EstimateBotPropertyValue(player, space);
 
         // Don't accept a deal that leaves the bot unable to cover ordinary costs.
-        int resultingCash = player.Money + (int)Mathf.Clamp(
-            offer.OfferedMoney - offer.RequestedMoney,
-            int.MinValue, int.MaxValue);
+        long resultingCash = (long)player.Money +
+            offer.OfferedMoney - offer.RequestedMoney;
 
         bool liquiditySafe = resultingCash >= 0 &&
             (resultingCash >= GetBotCashReserve(player) ||
