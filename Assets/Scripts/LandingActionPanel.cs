@@ -729,6 +729,23 @@ public class LandingActionPanel : MonoBehaviour
         gameManager.EndTurn();
     }
 
+    // Called by GameManager when the current player is a bot.
+    public void ResolveForBot(bool purchased)
+    {
+        if (selectedSpace == null)
+            return;
+
+        GameManager manager = FindFirstObjectByType<GameManager>();
+        HidePanel();
+
+        if (manager == null)
+            return;
+
+        // GameManager has already attempted the purchase; finish the landing action.
+        manager.EndPlayerAction();
+        manager.EndTurn();
+    }
+
     // ============================================================
     // DECLINE / CONTINUE
     // ============================================================
