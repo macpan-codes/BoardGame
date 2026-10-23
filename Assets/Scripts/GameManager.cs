@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     private GamePhase currentPhase = GamePhase.WaitingToRoll;
 
     private Coroutine botTurnRoutine;
+    private readonly Dictionary<string, float> botTradeOfferCooldownUntil =
+        new Dictionary<string, float>();
 
     [Header("Bot Timing")]
     [SerializeField, Min(0f)] private float botThinkBeforeRoll = 0.9f;
@@ -554,9 +556,9 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
-        int safety = 0;
+        float unresolvedActionSince = -1f;
         while (!gameOver && !endGameVoteInProgress &&
-               CurrentPlayer == bot && bot != null && bot.IsActive && safety++ < 1200)
+               CurrentPlayer == bot && bot != null && bot.IsActive)
         {
             if (bot.IsMoving || diceManager.IsRolling)
             {
@@ -568,6 +570,9 @@ public class GameManager : MonoBehaviour
             {
                 // Give the landing/action panel time to be visible, like a human
                 // reading the options before choosing.
+                if (unresolvedActionSince < 0f)
+                    unresolvedActionSince = Time.time;
+
                 yield return new WaitForSeconds(botThinkBeforeAction);
 
                 if (CurrentPlayer != bot || !waitingForPlayerAction)
@@ -585,6 +590,7 @@ public class GameManager : MonoBehaviour
                     if (!purchased && space.Owner == bot)
                         TryBotDevelopment(bot, space);
 
+                    unresolvedActionSince = -1f;
                     landingPanel.ResolveForBot(purchased);
                     yield return null;
                     continue;
@@ -594,20 +600,35 @@ public class GameManager : MonoBehaviour
                     FindFirstObjectByType<PropertyManagementPanel>(FindObjectsInactive.Include);
                 if (propertyPanel != null && propertyPanel.ResolveForBot())
                 {
+                    unresolvedActionSince = -1f;
                     yield return null;
                     continue;
                 }
 
-                // Avoid an endless loop if another modal action needs a dedicated bot policy.
-                Debug.LogWarning("GameManager: Bot reached an unsupported player action; pausing bot automation.");
-                botTurnRoutine = null;
-                yield break;
+                // Card and target panels normally resolve themselves. Keep checking instead
+                // of killing the entire bot coroutine if a panel is still animating.
+                if (Time.time - unresolvedActionSince < 12f)
+                {
+                    yield return new WaitForSeconds(0.75f);
+                    continue;
+                }
+
+                // Last-resort watchdog: an invisible or unsupported modal must not freeze
+                // every player after a bot landing. This only runs after all known handlers
+                // have had time to finish their action.
+                Debug.LogWarning("GameManager: Bot action watchdog released an unresolved action after 12 seconds.");
+                unresolvedActionSince = -1f;
+                EndPlayerAction();
+                if (CurrentPlayer == bot && currentPhase == GamePhase.WaitingToFinishTurn)
+                    EndTurn();
+                yield return null;
+                continue;
             }
 
             if (currentPhase == GamePhase.WaitingToRoll)
             {
-                // Try a conservative, high-value trade before rolling. The offer
-                // remains queued for the receiver's next turn, just like a human offer.
+                // Offer a group-completing trade only when this exact proposal is not
+                // on cooldown; rejected deals should not repeat every turn.
                 TryBotOfferGroupCompletingTrade(bot);
 
                 // If cash is dangerously low, raise funds from a legal mortgage
