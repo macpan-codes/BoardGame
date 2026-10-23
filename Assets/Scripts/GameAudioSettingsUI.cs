@@ -59,6 +59,17 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
         settings.Show();
     }
 
+    public static void CloseOpenSettings()
+    {
+        GameAudioSettingsUI existing =
+            FindFirstObjectByType<GameAudioSettingsUI>(
+                FindObjectsInactive.Include
+            );
+
+        if (existing != null)
+            existing.Close();
+    }
+
     private void Awake()
     {
         if (instance != null && instance != this)
