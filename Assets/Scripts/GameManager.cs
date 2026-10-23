@@ -525,6 +525,11 @@ public class GameManager : MonoBehaviour
         if (tradeManager != null)
             tradeManager.NotifyReceiverTurnStarted(player);
 
+
+        // A bot evaluates incoming trades at the start of its turn. Human
+        // responses remain entirely under player control.
+        EvaluateIncomingBotTrade(player);
+
         // Bot turns must be driven by code rather than the human dice button.
         if (botTurnRoutine != null)
         {
@@ -573,7 +578,13 @@ public class GameManager : MonoBehaviour
                 if (landingPanel != null && landingPanel.CurrentSpace != null)
                 {
                     BoardSpace space = landingPanel.CurrentSpace;
-                    bool purchased = !IsMarketFrozen(bot) && BuySpace(space);
+                    bool purchased = ShouldBotBuySpace(bot, space) &&
+                        !IsMarketFrozen(bot) && BuySpace(space);
+
+                    // Develop owned property when the return is worth the cost.
+                    if (!purchased && space.Owner == bot)
+                        TryBotDevelopment(bot, space);
+
                     landingPanel.ResolveForBot(purchased);
                     yield return null;
                     continue;
@@ -595,6 +606,14 @@ public class GameManager : MonoBehaviour
 
             if (currentPhase == GamePhase.WaitingToRoll)
             {
+                // Try a conservative, high-value trade before rolling. The offer
+                // remains queued for the receiver's next turn, just like a human offer.
+                TryBotOfferGroupCompletingTrade(bot);
+
+                // If cash is dangerously low, raise funds from a legal mortgage
+                // before taking another risky turn.
+                TryBotCashRecovery(bot);
+
                 // Pause before each roll, including extra rolls after doubles.
                 yield return new WaitForSeconds(botThinkBeforeRoll);
 
@@ -631,6 +650,288 @@ public class GameManager : MonoBehaviour
         }
 
         botTurnRoutine = null;
+    }
+
+
+    // ============================================================
+    // BOT ECONOMY / STRATEGY
+    // ============================================================
+
+    private bool ShouldBotBuySpace(BoardPlayer bot, BoardSpace space)
+    {
+        if (bot == null || space == null || !space.CanBePurchased())
+            return false;
+
+        int price = space.PurchasePrice;
+        if (price <= 0 || bot.Money < price)
+            return false;
+
+        // Preserve enough liquidity for rent, fees and unexpected cards.
+        int reserve = GetBotCashReserve(bot);
+        int cashAfterPurchase = bot.Money - price;
+
+        int ownedInCategory = 0;
+        int activeOpponents = 0;
+        foreach (BoardPlayer other in players)
+        {
+            if (other != null && other.IsActive && other != bot)
+                activeOpponents++;
+        }
+
+        BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
+        if (space.IsProperty && space.PropertyGroup != null)
+        {
+            foreach (BoardSpace candidate in allSpaces)
+            {
+                if (candidate != null && candidate.PropertyGroup == space.PropertyGroup &&
+                    candidate.Owner == bot)
+                    ownedInCategory++;
+            }
+
+            int groupSize = space.GetPropertyGroupSize();
+            bool completesGroup = ownedInCategory + 1 >= groupSize;
+            if (completesGroup)
+                return cashAfterPurchase >= Mathf.Max(100, reserve / 2);
+
+            // Prefer properties that bring the bot closer to a monopoly,
+            // but don't spend nearly all available cash on a low-impact asset.
+            return cashAfterPurchase >= reserve &&
+                   (cashAfterPurchase >= price / 2 ||
+                    ownedInCategory > 0 ||
+                    activeOpponents <= 1);
+        }
+
+        // Airports and utilities scale in value as the collection grows.
+        if (space.IsRailroad)
+        {
+            int ownedRailroads = 0;
+            foreach (BoardSpace candidate in allSpaces)
+                if (candidate != null && candidate.IsRailroad && candidate.Owner == bot)
+                    ownedRailroads++;
+
+            return cashAfterPurchase >= reserve / 2 &&
+                   (ownedRailroads > 0 || cashAfterPurchase >= reserve);
+        }
+
+        if (space.IsUtility)
+        {
+            int ownedUtilities = 0;
+            foreach (BoardSpace candidate in allSpaces)
+                if (candidate != null && candidate.IsUtility && candidate.Owner == bot)
+                    ownedUtilities++;
+
+            return cashAfterPurchase >= reserve &&
+                   (ownedUtilities > 0 || cashAfterPurchase >= price);
+        }
+
+        return cashAfterPurchase >= reserve;
+    }
+
+    private int GetBotCashReserve(BoardPlayer bot)
+    {
+        if (bot == null) return 0;
+
+        // Increase the reserve as opponents develop their portfolios.
+        int largestRent = 0;
+        BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
+        foreach (BoardSpace space in allSpaces)
+        {
+            if (space == null || space.Owner == null || space.Owner == bot ||
+                !space.IsOwned || space.IsMortgaged)
+                continue;
+
+            largestRent = Mathf.Max(largestRent, space.GetRent());
+        }
+
+        return Mathf.Clamp(Mathf.Max(200, largestRent * 2), 200, 600);
+    }
+
+    private void TryBotDevelopment(BoardPlayer bot, BoardSpace space)
+    {
+        if (bot == null || space == null || bot != CurrentPlayer ||
+            IsMarketFrozen(bot) || IsFinancialRecoveryActive(bot))
+            return;
+
+        int reserve = GetBotCashReserve(bot);
+
+        // Hotels are the best return when already unlocked, but keep a cash buffer.
+        if (CanBuildHotel(space) && bot.Money - space.EffectiveHotelCost >= reserve)
+        {
+            BuildHotel(space);
+            return;
+        }
+
+        if (CanBuildHouse(space) && bot.Money - space.EffectiveHouseCost >= reserve)
+        {
+            BuildHouse(space);
+        }
+    }
+
+    private void TryBotCashRecovery(BoardPlayer bot)
+    {
+        if (bot == null || bot != CurrentPlayer || IsFinancialRecoveryActive(bot) ||
+            IsMarketFrozen(bot) || bot.Money >= GetBotCashReserve(bot))
+            return;
+
+        BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
+        BoardSpace best = null;
+        int bestValue = 0;
+
+        foreach (BoardSpace space in allSpaces)
+        {
+            if (space == null || space.Owner != bot || !space.CanMortgage())
+                continue;
+
+            // Mortgage the least strategically valuable asset first.
+            int value = space.MortgageValue;
+            if (space.IsProperty && space.HasCompletePropertyGroup())
+                value -= space.PurchasePrice / 2;
+
+            if (value > bestValue)
+            {
+                bestValue = value;
+                best = space;
+            }
+        }
+
+        if (best != null && MortgageProperty(best))
+        {
+            GameNotificationUI.Show(
+                bot.PlayerName.ToUpperInvariant() + " RAISED CASH TO PROTECT ITS FINANCES");
+        }
+    }
+
+    private void EvaluateIncomingBotTrade(BoardPlayer player)
+    {
+        TradeManager tradeManager = FindFirstObjectByType<TradeManager>(FindObjectsInactive.Include);
+        if (tradeManager == null || !tradeManager.HasPendingOffer ||
+            player == null || !player.IsBot ||
+            tradeManager.PendingOffer == null ||
+            tradeManager.PendingOffer.Receiver != player)
+            return;
+
+        TradeOffer offer = tradeManager.PendingOffer;
+        if (!tradeManager.ValidatePendingOffer(offer, out _))
+        {
+            tradeManager.DeclineOffer(player, offer);
+            return;
+        }
+
+        long receivedValue = offer.OfferedMoney;
+        long givenValue = offer.RequestedMoney;
+
+        foreach (BoardSpace space in offer.RequestedProperties)
+            receivedValue += EstimateBotPropertyValue(player, space);
+        foreach (BoardSpace space in offer.OfferedProperties)
+            givenValue += EstimateBotPropertyValue(player, space);
+
+        // Don't accept a deal that leaves the bot unable to cover ordinary costs.
+        int resultingCash = player.Money + (int)Mathf.Clamp(
+            offer.OfferedMoney - offer.RequestedMoney,
+            int.MinValue, int.MaxValue);
+
+        bool liquiditySafe = resultingCash >= 0 &&
+            (resultingCash >= GetBotCashReserve(player) ||
+             offer.RequestedMoney == 0);
+
+        if (receivedValue > givenValue && liquiditySafe)
+        {
+            tradeManager.AcceptOffer(player, offer);
+            Debug.Log("BOT TRADE: " + player.PlayerName + " accepted a value-positive offer.");
+        }
+        else
+        {
+            tradeManager.DeclineOffer(player, offer);
+            Debug.Log("BOT TRADE: " + player.PlayerName + " declined an unfavorable offer.");
+        }
+    }
+
+    private long EstimateBotPropertyValue(BoardPlayer bot, BoardSpace space)
+    {
+        if (space == null) return 0;
+        long value = Mathf.Max(0, space.PurchasePrice);
+
+        if (space.IsMortgaged) value = value * 3 / 4;
+        if (space.IsProperty && space.PropertyGroup != null)
+        {
+            int owned = 0;
+            BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
+            foreach (BoardSpace candidate in allSpaces)
+                if (candidate != null && candidate.PropertyGroup == space.PropertyGroup &&
+                    candidate.Owner == bot)
+                    owned++;
+
+            int groupSize = space.GetPropertyGroupSize();
+            if (space.Owner != bot && owned + 1 >= groupSize)
+                value += space.PurchasePrice; // monopoly-completion premium
+            if (space.Owner == bot && owned >= groupSize)
+                value += space.PurchasePrice / 2; // penalty for breaking a completed group
+        }
+
+        return value;
+    }
+
+    private void TryBotOfferGroupCompletingTrade(BoardPlayer bot)
+    {
+        TradeManager tradeManager = FindFirstObjectByType<TradeManager>(FindObjectsInactive.Include);
+        if (tradeManager == null || tradeManager.HasPendingOffer ||
+            !tradeManager.CanOpenTrade(bot) || IsMarketFrozen(bot))
+            return;
+
+        BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
+        foreach (BoardSpace target in allSpaces)
+        {
+            if (target == null || !target.IsProperty || target.PropertyGroup == null ||
+                target.Owner == null || target.Owner == bot || target.IsMortgaged ||
+                target.Houses > 0 || target.HasHotel)
+                continue;
+
+            int ownedInGroup = 0;
+            foreach (BoardSpace candidate in allSpaces)
+                if (candidate != null && candidate.PropertyGroup == target.PropertyGroup &&
+                    candidate.Owner == bot)
+                    ownedInGroup++;
+
+            if (ownedInGroup == 0 || ownedInGroup + 1 < target.GetPropertyGroupSize())
+                continue;
+
+            BoardSpace offered = null;
+            int bestDifference = int.MaxValue;
+            foreach (BoardSpace candidate in allSpaces)
+            {
+                if (candidate == null || candidate.Owner != bot || candidate == target ||
+                    !candidate.IsProperty || candidate.IsMortgaged ||
+                    candidate.Houses > 0 || candidate.HasHotel)
+                    continue;
+
+                int difference = Mathf.Abs(candidate.PurchasePrice - target.PurchasePrice);
+                if (difference < bestDifference)
+                {
+                    bestDifference = difference;
+                    offered = candidate;
+                }
+            }
+
+            if (offered == null || bestDifference > Mathf.Max(100, target.PurchasePrice / 2))
+                continue;
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = bot,
+                Receiver = target.Owner,
+                OfferedMoney = 0,
+                RequestedMoney = 0
+            };
+            offer.OfferedProperties.Add(offered);
+            offer.RequestedProperties.Add(target);
+
+            if (tradeManager.SendOffer(offer))
+            {
+                Debug.Log("BOT TRADE: " + bot.PlayerName + " offered " +
+                    offered.SpaceName + " for " + target.SpaceName + ".");
+                return; // one strategic offer at a time
+            }
+        }
     }
 
     public void EndTurn()
