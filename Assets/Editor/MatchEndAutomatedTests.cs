@@ -199,6 +199,14 @@ public static class MatchEndAutomatedTests
         );
 
         RunCase(
+            "Pending trade does not move assets before receiver acceptance",
+            TestTradeAssetsMoveOnlyAfterAcceptance,
+            ref passed,
+            ref failed,
+            failures
+        );
+
+        RunCase(
             "Stale trade offers are rejected without moving assets",
             TestStaleTradeOfferRejected,
             ref passed,
@@ -1104,6 +1112,42 @@ public static class MatchEndAutomatedTests
             Require(property.IsOwned, "Traded property was no longer marked as owned.");
             Require(property.MaximumAllowedHouses == 0, "Traded property kept the previous owner's development progress.");
             Require(!tradeManager.HasPendingOffer, "Completed property trade remained pending.");
+        }
+    }
+
+    private static void TestTradeAssetsMoveOnlyAfterAcceptance()
+    {
+        using (TestFixture fixture = new TestFixture(3))
+        {
+            TradeManager tradeManager = CreateTestTradeManager(fixture);
+            BoardPlayer proposer = fixture.Players[0];
+            BoardPlayer receiver = fixture.Players[1];
+
+            proposer.SetMoney(100);
+            receiver.SetMoney(200);
+
+            BoardSpace property =
+                CreateTestProperty(fixture.Root.transform, proposer, 100);
+
+            TradeOffer offer = new TradeOffer
+            {
+                Proposer = proposer,
+                Receiver = receiver,
+                OfferedMoney = 25
+            };
+            offer.OfferedProperties.Add(property);
+
+            Require(tradeManager.SendOffer(offer), "Valid trade offer was rejected.");
+            Require(proposer.Money == 100, "Proposer's money changed before acceptance.");
+            Require(receiver.Money == 200, "Receiver's money changed before acceptance.");
+            Require(property.Owner == proposer, "Property ownership changed before acceptance.");
+            Require(tradeManager.HasPendingOffer, "Offer was not kept pending for receiver response.");
+
+            Require(tradeManager.AcceptOffer(receiver), "Receiver could not accept the pending offer.");
+            Require(proposer.Money == 75, "Proposer did not pay the offered amount after acceptance.");
+            Require(receiver.Money == 225, "Receiver did not receive the offered amount after acceptance.");
+            Require(property.Owner == receiver, "Property did not transfer after acceptance.");
+            Require(!tradeManager.HasPendingOffer, "Accepted offer remained pending.");
         }
     }
 
