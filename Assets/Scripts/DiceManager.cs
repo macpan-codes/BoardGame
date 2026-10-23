@@ -188,7 +188,11 @@ public class DiceManager : MonoBehaviour
 
         float elapsed = 0f;
 
-        while (elapsed < rollAnimationDuration)
+        // Ensure the dice animation is visibly readable even if an older
+        // scene has a shorter serialized duration.
+        float visibleRollDuration = Mathf.Max(rollAnimationDuration, 1.25f);
+
+        while (elapsed < visibleRollDuration)
         {
             int randomFirst =
                 Random.Range(1, 7);
