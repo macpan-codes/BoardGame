@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -1971,6 +1972,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        bool restartSelfPlay = BotLearningSystem.AutoRestartEnabled &&
+            BotLearningSystem.IsTrainingMatch;
         gameOver = true;
         BotLearningSystem.CompleteMatch(remainingPlayer, players, completedTurnsThisMatch);
         endGameVoteInProgress = false;
@@ -2000,6 +2003,18 @@ public class GameManager : MonoBehaviour
                 "MATCH WON BY ELIMINATION"
             );
         }
+
+        if (restartSelfPlay)
+            StartCoroutine(RestartSelfPlayMatch());
+    }
+
+    private IEnumerator RestartSelfPlayMatch()
+    {
+        Debug.Log("BOT LEARNING: next self-play match starts in 3 seconds.");
+        yield return new WaitForSeconds(3f);
+        Scene activeScene = SceneManager.GetActiveScene();
+        if (activeScene.IsValid() && !string.IsNullOrEmpty(activeScene.name))
+            SceneManager.LoadScene(activeScene.name);
     }
 
     public bool StartEndGameVote()
