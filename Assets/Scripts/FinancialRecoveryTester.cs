@@ -28,6 +28,7 @@ public class FinancialRecoveryTester : MonoBehaviour
     public enum TestScenario
     {
         CashZeroWithMortgageableProperty,
+        BotAutomaticMortgageRecovery,
         RentDebtToPlayer,
         BankDebt,
         BankruptcyToCreditor,
@@ -347,6 +348,14 @@ public class FinancialRecoveryTester : MonoBehaviour
                         10L,
                         debtAmount
                     );
+
+                break;
+
+            case TestScenario.BotAutomaticMortgageRecovery:
+
+                PrepareSingleMortgageProperty();
+
+                debtAmount = Math.Max(10L, debtAmount);
 
                 break;
 
@@ -1072,7 +1081,7 @@ public class FinancialRecoveryTester : MonoBehaviour
 
         batchResults.Clear();
         batchTestRunning = true;
-        batchTestSummary = "Running six scenarios...";
+        batchTestSummary = "Running seven scenarios...";
 
         try
         {
@@ -1105,6 +1114,7 @@ public class FinancialRecoveryTester : MonoBehaviour
         string[] names =
         {
             "CashZeroWithMortgageableProperty",
+            "BotAutomaticMortgageRecovery",
             "RentDebtToPlayer",
             "BankDebt",
             "BankruptcyToCreditor",
@@ -1115,6 +1125,7 @@ public class FinancialRecoveryTester : MonoBehaviour
         TestScenario[] scenarios =
         {
             TestScenario.CashZeroWithMortgageableProperty,
+            TestScenario.BotAutomaticMortgageRecovery,
             TestScenario.RentDebtToPlayer,
             TestScenario.BankDebt,
             TestScenario.BankruptcyToCreditor,
@@ -1146,9 +1157,20 @@ public class FinancialRecoveryTester : MonoBehaviour
                     continue;
                 }
 
-                // Allow FinancialRecoveryManager.Update to complete the
-                // normal debt resolution path before asserting outcomes.
-                yield return null;
+                // Allow automatic bot recovery several frames to mortgage and
+                // settle the debt; bounded waiting makes hangs a test failure.
+                int waitFrames = scenarios[i] == TestScenario.BotAutomaticMortgageRecovery
+                    ? 120
+                    : 1;
+
+                for (int frame = 0; frame < waitFrames; frame++)
+                {
+                    if (scenarios[i] == TestScenario.BotAutomaticMortgageRecovery &&
+                        (!recoveryManager.IsRecoveryActive || batchDebtor.IsBankrupt))
+                        break;
+
+                    yield return null;
+                }
 
                 string result = null;
                 bool waitForSecondMortgageResult = false;
@@ -1295,6 +1317,12 @@ public class FinancialRecoveryTester : MonoBehaviour
         SetPrivateField(gameManager, "currentPhase", GamePhase.WaitingToRoll);
 
         scenario = nextScenario;
+
+        // Exercise the real automatic bot recovery path. The batch snapshot
+        // captures the private player fields and restores the original bot flag.
+        if (nextScenario == TestScenario.BotAutomaticMortgageRecovery)
+            SetPrivateField(FindPlayerByNumber(debtorPlayerNumber), "isBot", true);
+
         debtAmount =
             nextScenario == TestScenario.BankDebt
                 ? 100L
@@ -1366,7 +1394,18 @@ public class FinancialRecoveryTester : MonoBehaviour
             return "Recovery did not start: " + lastResult;
         }
 
-        if (nextScenario == TestScenario.CashZeroWithMortgageableProperty ||
+        if (nextScenario == TestScenario.BotAutomaticMortgageRecovery)
+        {
+            if (!batchDebtor.IsBot)
+                return "The debtor was not configured as a bot for automatic recovery.";
+
+            if (!recoveryManager.IsRecovering(batchDebtor))
+                return "Expected active debt recovery before the bot's automatic mortgage.";
+
+            // Do not manually mortgage here. The next Update frames must invoke
+            // FinancialRecoveryManager's automatic bot recovery logic.
+        }
+        else if (nextScenario == TestScenario.CashZeroWithMortgageableProperty ||
             nextScenario == TestScenario.RentDebtToPlayer)
         {
             if (!recoveryManager.IsRecovering(batchDebtor))
@@ -1404,6 +1443,18 @@ public class FinancialRecoveryTester : MonoBehaviour
 
         switch (checkedScenario)
         {
+            case TestScenario.BotAutomaticMortgageRecovery:
+                if (batchDebtor.IsBankrupt)
+                    return "Bot was eliminated despite having a mortgageable property.";
+                if (recoveryManager.IsRecoveryActive)
+                    return "Debt recovery remained active; bot may be stuck waiting for property selection.";
+                if (batchPrimaryProperty == null || !batchPrimaryProperty.IsMortgaged)
+                    return "Bot did not automatically mortgage its prepared property.";
+                if (batchCreditor == null ||
+                    batchCreditor.Money != batchCreditorBalanceBefore + batchExpectedDebt)
+                    return "Debt was not transferred to the creditor after automatic mortgage.";
+                return null;
+
             case TestScenario.CashZeroWithMortgageableProperty:
                 if (batchDebtor.IsBankrupt || recoveryManager.IsRecoveryActive)
                     return "Debtor was eliminated or recovery remained active after one mortgage.";
