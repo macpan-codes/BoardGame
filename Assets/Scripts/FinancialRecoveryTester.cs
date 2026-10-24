@@ -1157,6 +1157,17 @@ public class FinancialRecoveryTester : MonoBehaviour
                 if (!string.IsNullOrEmpty(startError))
                 {
                     RecordBatchResult(names[i], false, startError);
+
+                    if (scenarios[i] == TestScenario.BotAutomaticMortgageRecovery &&
+                        batchDebtor != null)
+                    {
+                        SetPrivateField(
+                            batchDebtor,
+                            "isBot",
+                            originalConfiguredDebtorIsBot
+                        );
+                    }
+
                     yield return null;
                     continue;
                 }
@@ -1417,6 +1428,25 @@ public class FinancialRecoveryTester : MonoBehaviour
 
             if (!recoveryManager.IsRecovering(batchDebtor))
                 return "Expected active debt recovery before the bot's automatic mortgage.";
+
+            // Prove the property panel cannot accidentally end the recovery action.
+            PropertyManagementPanel panel =
+                FindFirstObjectByType<PropertyManagementPanel>(
+                    FindObjectsInactive.Include
+                );
+
+            if (panel == null)
+                return "PropertyManagementPanel was not found for the recovery-action regression check.";
+
+            SetPrivateField(panel, "selectedSpace", batchPrimaryProperty);
+            bool panelResolvedAction = panel.ResolveForBot();
+
+            if (panelResolvedAction ||
+                !recoveryManager.IsRecovering(batchDebtor) ||
+                !gameManager.WaitingForPlayerAction)
+            {
+                return "Property panel incorrectly resolved or ended the active debt-recovery action.";
+            }
 
             // Do not manually mortgage here. The next Update frames must invoke
             // FinancialRecoveryManager's automatic bot recovery logic.
