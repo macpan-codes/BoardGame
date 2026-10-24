@@ -327,6 +327,10 @@ public static class BotLearningSystem
             return;
         }
 
+        // A turn-limit leader is an evaluation result, not a match winner.
+        // Do not train winner-only preferences from an incomplete match.
+        if (!turnLimitReached)
+        {
         foreach (ActionType action in Enum.GetValues(typeof(ActionType)))
         {
             float winnerRate = ActionRate(winnerStats, action);
@@ -353,6 +357,8 @@ public static class BotLearningSystem
                 // become modestly more attractive in future matches.
                 AdjustPreference(action, (winnerRate - loserRate) * MatchLearningRate);
             }
+        }
+
         }
 
         data.completedTrainingMatches++;
