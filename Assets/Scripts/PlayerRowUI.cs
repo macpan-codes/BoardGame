@@ -22,15 +22,6 @@ public class PlayerRowUI : MonoBehaviour
     [SerializeField]
     private float colorButtonAlpha = 1f;
 
-    [Header("Sizing Controls (adjust in Inspector)")]
-    [SerializeField, Min(120f)] private float nameFieldWidth = 190f;
-    [SerializeField, Min(32f)] private float nameFieldHeight = 42f;
-    [SerializeField, Range(18f, 36f)] private float nameFontSize = 30f;
-    [SerializeField, Min(24f)] private float colorSwatchSize = 34f;
-    [SerializeField, Min(80f)] private float playerTypeWidth = 112f;
-    [SerializeField, Min(32f)] private float playerTypeHeight = 40f;
-    [SerializeField, Range(14f, 30f)] private float playerTypeFontSize = 22f;
-
     private int playerNumber;
     private TMP_InputField playerNameInput;
 
@@ -107,51 +98,6 @@ public class PlayerRowUI : MonoBehaviour
         );
     }
 
-    private TMP_Text CreateInputText(
-        Transform parent,
-        string value,
-        float fontSize,
-        Color color)
-    {
-        GameObject textObject = new GameObject(
-            "InputText",
-            typeof(RectTransform),
-            typeof(CanvasRenderer),
-            typeof(TextMeshProUGUI)
-        );
-
-        textObject.transform.SetParent(parent, false);
-
-        RectTransform rect = textObject.GetComponent<RectTransform>();
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-
-        TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
-        text.font = playerNameText.font;
-        text.fontSize = Mathf.Clamp(fontSize, 18f, 32f);
-        text.fontStyle = FontStyles.Normal;
-        text.color = color;
-        text.alignment = TextAlignmentOptions.MidlineLeft;
-        text.enableAutoSizing = false;
-        text.textWrappingMode = TextWrappingModes.NoWrap;
-        text.overflowMode = TextOverflowModes.Ellipsis;
-        text.raycastTarget = false;
-
-        return text;
-    }
-
-    private void SetInputFocus(Outline outline, bool focused)
-    {
-        if (outline == null)
-            return;
-
-        outline.effectColor = focused
-            ? new Color(1f, 0.78f, 0.24f, 1f)
-            : new Color(0.24f, 0.39f, 0.62f, 0.95f);
-    }
-
     // ============================================================
     // NAME
     // ============================================================
@@ -202,30 +148,6 @@ public class PlayerRowUI : MonoBehaviour
         }
 
         playerTypeDropdown.RefreshShownValue();
-    }
-
-    private static Sprite GetRoundedUISprite()
-    {
-        const int size = 64;
-        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
-        texture.name = "RoundedPlayerRowUI";
-        texture.wrapMode = TextureWrapMode.Clamp;
-        texture.filterMode = FilterMode.Bilinear;
-        for (int y = 0; y < size; y++)
-        {
-            for (int x = 0; x < size; x++)
-            {
-                const float radius = 13f;
-                float cx = Mathf.Clamp(x, radius, size - 1 - radius);
-                float cy = Mathf.Clamp(y, radius, size - 1 - radius);
-                float distance = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
-                float alpha = Mathf.Clamp01(radius + 0.5f - distance);
-                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
-            }
-        }
-        texture.Apply();
-        return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f),
-            size, 0, SpriteMeshType.FullRect, new Vector4(16f, 16f, 16f, 16f));
     }
 
     private static Sprite GetCircleSprite()
