@@ -214,8 +214,7 @@ public class PlayerRowUI : MonoBehaviour
                 buttonImage.sprite = GetCircleSprite();
                 buttonImage.type = Image.Type.Simple;
                 buttonImage.color = displayColor;
-                RectTransform colorRect = playerColorButton.transform as RectTransform;
-                if (colorRect != null) colorRect.sizeDelta = new Vector2(colorSwatchSize, colorSwatchSize);
+                // Preserve the prefab-authored swatch size so it stays editable in Unity.
             }
         }
 
