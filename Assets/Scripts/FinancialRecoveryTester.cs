@@ -103,6 +103,8 @@ public class FinancialRecoveryTester : MonoBehaviour
     private readonly List<string> batchResults =
         new List<string>();
 
+    private bool originalConfiguredDebtorIsBot;
+
     public bool BatchTestRunning =>
         batchTestRunning;
 
@@ -1080,6 +1082,8 @@ public class FinancialRecoveryTester : MonoBehaviour
         }
 
         batchResults.Clear();
+        originalConfiguredDebtorIsBot =
+            GetPrivateField<bool>(FindPlayerByNumber(debtorPlayerNumber), "isBot");
         batchTestRunning = true;
         batchTestSummary = "Running seven scenarios...";
 
@@ -1223,6 +1227,18 @@ public class FinancialRecoveryTester : MonoBehaviour
                     string.IsNullOrEmpty(result),
                     string.IsNullOrEmpty(result) ? "Expected result confirmed." : result
                 );
+
+                // Restore the configured debtor's bot/human mode immediately
+                // so later scenarios run under their original setup.
+                if (scenarios[i] == TestScenario.BotAutomaticMortgageRecovery &&
+                    batchDebtor != null)
+                {
+                    SetPrivateField(
+                        batchDebtor,
+                        "isBot",
+                        originalConfiguredDebtorIsBot
+                    );
+                }
 
                 yield return null;
             }
