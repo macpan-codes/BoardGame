@@ -34,7 +34,7 @@ public class FinancialRecoveryTesterEditor : Editor
             !Application.isPlaying || tester.BatchTestRunning))
         {
             if (GUILayout.Button(
-                    "RUN ALL 6 FINANCIAL RECOVERY TESTS",
+                    "RUN ALL 7 FINANCIAL RECOVERY TESTS",
                     GUILayout.Height(40f)))
             {
                 tester.RunAllAutomatedScenarios();
