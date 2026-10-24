@@ -449,7 +449,8 @@ public class PropertyManagementPanel : MonoBehaviour
         if (gameManager == null ||
             gameManager.CurrentPlayer == null ||
             !gameManager.CurrentPlayer.IsBot ||
-            !gameManager.WaitingForPlayerAction)
+            !gameManager.WaitingForPlayerAction ||
+            gameManager.IsFinancialRecoveryActive(gameManager.CurrentPlayer))
             return false;
 
         CompleteLandingAction();
@@ -466,6 +467,15 @@ public class PropertyManagementPanel : MonoBehaviour
         {
             gameManager =
                 FindFirstObjectByType<GameManager>();
+        }
+
+        if (gameManager != null &&
+            gameManager.CurrentPlayer != null &&
+            gameManager.IsFinancialRecoveryActive(gameManager.CurrentPlayer))
+        {
+            // Debt recovery owns the current action until the debt is paid
+            // or the debtor is eliminated. Never advance the turn from this panel.
+            return;
         }
 
         actionOpenedFromLanding = false;
