@@ -22,6 +22,15 @@ public class PlayerRowUI : MonoBehaviour
     [SerializeField]
     private float colorButtonAlpha = 1f;
 
+    [Header("Sizing Controls (adjust in Inspector)")]
+    [SerializeField, Min(120f)] private float nameFieldWidth = 190f;
+    [SerializeField, Min(32f)] private float nameFieldHeight = 42f;
+    [SerializeField, Range(18f, 32f)] private float nameFontSize = 24f;
+    [SerializeField, Min(24f)] private float colorSwatchSize = 34f;
+    [SerializeField, Min(80f)] private float playerTypeWidth = 112f;
+    [SerializeField, Min(32f)] private float playerTypeHeight = 40f;
+    [SerializeField, Range(14f, 24f)] private float playerTypeFontSize = 18f;
+
     private int playerNumber;
     private TMP_InputField playerNameInput;
 
@@ -106,8 +115,8 @@ public class PlayerRowUI : MonoBehaviour
         inputRect.anchorMax = anchorMax;
         inputRect.anchoredPosition = anchoredPosition;
         inputRect.sizeDelta = new Vector2(
-            Mathf.Max(sizeDelta.x, 150f),
-            Mathf.Max(sizeDelta.y, 42f)
+            Mathf.Max(sizeDelta.x, nameFieldWidth),
+            Mathf.Max(sizeDelta.y, nameFieldHeight)
         );
         inputRect.pivot = pivot;
 
@@ -153,7 +162,7 @@ public class PlayerRowUI : MonoBehaviour
         TMP_Text inputText = CreateInputText(
             viewport,
             $"Player {playerNumber}",
-            originalText.fontSize,
+            nameFontSize,
             Color.white
         );
         inputText.gameObject.name = "Input Text";
@@ -164,7 +173,7 @@ public class PlayerRowUI : MonoBehaviour
         TMP_Text placeholder = CreateInputText(
             viewport,
             "Enter player name",
-            Mathf.Min(originalText.fontSize, 20f),
+            Mathf.Min(nameFontSize - 2f, 22f),
             new Color(0.68f, 0.75f, 0.88f, 1f)
         );
         placeholder.gameObject.name = "Placeholder";
@@ -234,7 +243,7 @@ public class PlayerRowUI : MonoBehaviour
 
         TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
         text.font = playerNameText.font;
-        text.fontSize = Mathf.Clamp(fontSize, 21f, 25f);
+        text.fontSize = Mathf.Clamp(fontSize, 18f, 32f);
         text.fontStyle = FontStyles.Normal;
         text.color = color;
         text.alignment = TextAlignmentOptions.MidlineLeft;
@@ -292,22 +301,57 @@ public class PlayerRowUI : MonoBehaviour
 
     private void SetupDropdown()
     {
-        if (playerTypeDropdown == null)
-            return;
-
+        if (playerTypeDropdown == null) return;
         playerTypeDropdown.ClearOptions();
-
-        playerTypeDropdown.AddOptions(
-            new List<string>
-            {
-                "Human",
-                "Bot"
-            }
-        );
-
-        playerTypeDropdown.value = 0;
-
+        playerTypeDropdown.AddOptions(new List<string> { "Human", "Bot" });
         playerTypeDropdown.RefreshShownValue();
+        RectTransform dropdownRect = playerTypeDropdown.transform as RectTransform;
+        if (dropdownRect != null) dropdownRect.sizeDelta = new Vector2(playerTypeWidth, playerTypeHeight);
+        Image dropdownImage = playerTypeDropdown.GetComponent<Image>();
+        if (dropdownImage != null)
+        {
+            dropdownImage.sprite = GetRoundedUISprite();
+            dropdownImage.type = Image.Type.Sliced;
+            dropdownImage.color = new Color(0.035f, 0.075f, 0.13f, 0.98f);
+        }
+        if (playerTypeDropdown.captionText != null)
+        {
+            playerTypeDropdown.captionText.fontSize = playerTypeFontSize;
+            playerTypeDropdown.captionText.color = new Color(0.97f, 0.94f, 0.86f, 1f);
+            playerTypeDropdown.captionText.alignment = TextAlignmentOptions.Center;
+            playerTypeDropdown.captionText.fontStyle = FontStyles.Bold;
+        }
+        if (playerTypeDropdown.template != null)
+        {
+            Image templateImage = playerTypeDropdown.template.GetComponent<Image>();
+            if (templateImage != null)
+            {
+                templateImage.sprite = GetRoundedUISprite();
+                templateImage.type = Image.Type.Sliced;
+                templateImage.color = new Color(0.025f, 0.055f, 0.10f, 0.99f);
+            }
+            Outline outline = playerTypeDropdown.template.GetComponent<Outline>();
+            if (outline == null) outline = playerTypeDropdown.template.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0.72f, 0.55f, 0.27f, 0.9f);
+            outline.effectDistance = new Vector2(1f, 1f);
+            Transform item = playerTypeDropdown.template.Find("Viewport/Content/Item");
+            if (item != null)
+            {
+                TMP_Text itemText = item.Find("Item Label")?.GetComponent<TMP_Text>();
+                if (itemText != null)
+                {
+                    itemText.fontSize = playerTypeFontSize;
+                    itemText.color = new Color(0.97f, 0.94f, 0.86f, 1f);
+                }
+                Image itemImage = item.GetComponent<Image>();
+                if (itemImage != null)
+                {
+                    itemImage.sprite = GetRoundedUISprite();
+                    itemImage.type = Image.Type.Sliced;
+                    itemImage.color = new Color(0.06f, 0.10f, 0.16f, 0.98f);
+                }
+            }
+        }
     }
 
     private static Sprite GetRoundedUISprite()
@@ -399,7 +443,7 @@ public class PlayerRowUI : MonoBehaviour
                 buttonImage.type = Image.Type.Simple;
                 buttonImage.color = displayColor;
                 RectTransform colorRect = playerColorButton.transform as RectTransform;
-                if (colorRect != null) colorRect.sizeDelta = new Vector2(34f, 34f);
+                if (colorRect != null) colorRect.sizeDelta = new Vector2(colorSwatchSize, colorSwatchSize);
             }
         }
 
