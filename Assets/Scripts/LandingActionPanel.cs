@@ -770,20 +770,28 @@ public class LandingActionPanel : MonoBehaviour
 
     public void HidePanel()
     {
-        // Keep the component itself active so existing game logic
-        // can still find this panel.
-        gameObject.SetActive(
-            true
-        );
+        // Keep the selected landing space while another existing panel is
+        // temporarily open. The purchase decision is still pending.
+        gameObject.SetActive(true);
 
         if (cardRoot != null)
-        {
-            cardRoot.SetActive(
-                false
-            );
-        }
+            cardRoot.SetActive(false);
+    }
 
-        selectedSpace = null;
+    public void RestorePendingLanding()
+    {
+        GameManager gameManager = FindFirstObjectByType<GameManager>();
+
+        if (selectedSpace == null ||
+            gameManager == null ||
+            !gameManager.WaitingForPlayerAction ||
+            gameManager.CurrentPlayer == null ||
+            gameManager.CurrentPlayer.IsBot ||
+            !selectedSpace.CanBePurchased())
+            return;
+
+        ShowPanel();
+        RefreshContent(gameManager, gameManager.CurrentPlayer);
     }
 
     private void ShowPanel()
