@@ -28,6 +28,9 @@ public class PropertyManagementPanel : MonoBehaviour
     // landed on their own property.
     private bool actionOpenedFromLanding;
 
+    public bool IsVisible =>
+        panel != null && panel.activeSelf;
+
     private void Awake()
     {
         gameManager =
@@ -519,6 +522,11 @@ public class PropertyManagementPanel : MonoBehaviour
         }
 
         Hide();
+
+        LandingActionPanel landingPanel =
+            FindFirstObjectByType<LandingActionPanel>();
+        if (landingPanel != null)
+            landingPanel.RestorePendingLanding();
     }
 
     // ============================================================
