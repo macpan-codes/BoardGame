@@ -61,16 +61,55 @@ public class FinancialRecoveryManager : MonoBehaviour
             return;
         }
 
+        // Bots cannot interact with the property panel themselves. Liquidate
+        // one legal asset per frame so recovery never depends on a human click.
+        if (activeDebtor.IsBot)
+        {
+            GameManager gameManager = FindFirstObjectByType<GameManager>();
+            if (gameManager != null && gameManager.CurrentPlayer == activeDebtor)
+            {
+                List<BoardSpace> mortgageable = GetMortgageableProperties(activeDebtor);
+                mortgageable.Sort((a, b) =>
+                    b.GetRecoveryLiquidationValue().CompareTo(a.GetRecoveryLiquidationValue()));
+
+                foreach (BoardSpace space in mortgageable)
+                {
+                    if (space == null)
+                        continue;
+
+                    if (gameManager.MortgageProperty(space))
+                    {
+                        Debug.Log("FINANCIAL RECOVERY: Bot " + activeDebtor.PlayerName +
+                            " automatically liquidated " + space.SpaceName + ".");
+                        return;
+                    }
+                }
+
+                // If assets appear valuable but none can actually be liquidated,
+                // do not leave self-play blocked forever on an impossible action.
+                long remainingShortfall = System.Math.Max(0L, remainingDebt - activeDebtor.Money);
+                int availableRecovery = GetTotalRecoveryValue(activeDebtor);
+                if (availableRecovery >= remainingShortfall)
+                {
+                    Debug.LogWarning("FINANCIAL RECOVERY: " + activeDebtor.PlayerName +
+                        " has estimated recovery value but no executable mortgage. " +
+                        "Eliminating rather than leaving the match stuck.");
+                    EliminateForDebt();
+                    return;
+                }
+            }
+        }
+
         // Cash already raised by mortgages counts toward the debt.
         // Only eliminate when the player's remaining recoverable assets
         // cannot cover the amount still missing after current cash.
-        long remainingShortfall =
+        long shortfall =
             System.Math.Max(
                 0L,
                 remainingDebt - activeDebtor.Money
             );
 
-        if (GetTotalRecoveryValue(activeDebtor) < remainingShortfall)
+        if (GetTotalRecoveryValue(activeDebtor) < shortfall)
         {
             EliminateForDebt();
         }
