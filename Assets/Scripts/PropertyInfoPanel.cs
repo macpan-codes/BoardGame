@@ -819,17 +819,17 @@ public class PropertyInfoPanel : MonoBehaviour
         selectedBoardSpace = null;
 
         if (cardRoot != null)
-        {
-            cardRoot.SetActive(
-                false
-            );
-        }
+            cardRoot.SetActive(false);
 
         if (managePropertyButton != null)
+            managePropertyButton.gameObject.SetActive(false);
+
+        // Don't cover the management panel when opening it from this card.
+        if (landingActionPanel != null &&
+            (propertyManagementPanel == null ||
+             !propertyManagementPanel.IsVisible))
         {
-            managePropertyButton.gameObject.SetActive(
-                false
-            );
+            landingActionPanel.RestorePendingLanding();
         }
     }
 
