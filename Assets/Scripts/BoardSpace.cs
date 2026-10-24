@@ -54,6 +54,27 @@ public class BoardSpace : MonoBehaviour
     [SerializeField]
     private RectTransform buildingVisualContainer;
 
+    [Header("Building Visual Layout (Unity Editable)")]
+    [SerializeField] private Sprite houseSprite;
+    [SerializeField] private Sprite hotelSprite;
+    [SerializeField] private Vector2 houseVisualSize = new Vector2(18f, 18f);
+    [SerializeField] private Vector2 hotelVisualSize = new Vector2(22f, 22f);
+    [SerializeField] private float buildingSpacing = 2f;
+    [SerializeField] private Vector2 bottomBuildingOffset = new Vector2(0f, 15f);
+    [SerializeField] private Vector2 topBuildingOffset = new Vector2(0f, -15f);
+    [SerializeField] private Vector2 leftBuildingOffset = new Vector2(15f, 0f);
+    [SerializeField] private Vector2 rightBuildingOffset = new Vector2(-15f, 0f);
+
+    public Sprite HouseSprite => houseSprite;
+    public Sprite HotelSprite => hotelSprite;
+    public Vector2 HouseVisualSize => houseVisualSize;
+    public Vector2 HotelVisualSize => hotelVisualSize;
+    public float BuildingSpacing => buildingSpacing;
+    public Vector2 BottomBuildingOffset => bottomBuildingOffset;
+    public Vector2 TopBuildingOffset => topBuildingOffset;
+    public Vector2 LeftBuildingOffset => leftBuildingOffset;
+    public Vector2 RightBuildingOffset => rightBuildingOffset;
+
     private PropertyBuildingVisual buildingVisual;
 
     // ============================================================
