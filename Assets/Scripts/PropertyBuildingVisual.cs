@@ -6,17 +6,9 @@ public class PropertyBuildingVisual : MonoBehaviour
     [Header("Container")]
     [SerializeField] private RectTransform buildingContainer;
 
-    [Header("House Visual")]
+    [Header("Fallback Colors (used when no sprite is assigned)")]
     [SerializeField] private Color houseColor = Color.green;
-    [SerializeField] private Vector2 houseSize = new Vector2(10f, 10f);
-
-    [Header("Hotel Visual")]
     [SerializeField] private Color hotelColor = new Color(0.65f, 0.05f, 0.05f, 1f);
-    [SerializeField] private Vector2 hotelSize = new Vector2(12f, 12f);
-
-    [Header("Layout")]
-    [SerializeField] private float spacing = 2f;
-    [SerializeField] private float inwardOffset = 15f;
 
     private BoardSpace boardSpace;
     private int lastHouseCount = -1;
@@ -33,7 +25,6 @@ public class PropertyBuildingVisual : MonoBehaviour
         boardSpace = GetComponentInParent<BoardSpace>();
         if (buildingContainer == null)
             buildingContainer = GetComponent<RectTransform>();
-
         Refresh();
     }
 
@@ -46,60 +37,43 @@ public class PropertyBuildingVisual : MonoBehaviour
                 return;
         }
 
-        if (lastHouseCount != boardSpace.Houses ||
-            lastHotelState != boardSpace.HasHotel)
-        {
+        if (lastHouseCount != boardSpace.Houses || lastHotelState != boardSpace.HasHotel)
             Refresh();
-        }
     }
 
     public void Refresh()
     {
         if (boardSpace == null)
             boardSpace = GetComponentInParent<BoardSpace>();
-
         if (boardSpace == null)
             return;
-
         if (buildingContainer == null)
             buildingContainer = GetComponent<RectTransform>();
-
         if (buildingContainer == null)
             return;
 
         ClearIndicators();
-
         lastHouseCount = Mathf.Clamp(boardSpace.Houses, 0, 4);
         lastHotelState = boardSpace.HasHotel;
 
         if (boardSpace.HasHotel)
         {
-            CreateIndicator("Hotel", hotelColor, hotelSize, 0, true);
+            CreateIndicator("Hotel", boardSpace.HotelSprite, hotelColor, boardSpace.HotelVisualSize, 0, true);
             return;
         }
 
         for (int i = 0; i < lastHouseCount; i++)
-            CreateIndicator($"House_{i + 1}", houseColor, houseSize, i, false);
+            CreateIndicator($"House_{i + 1}", boardSpace.HouseSprite, houseColor, boardSpace.HouseVisualSize, i, false);
     }
 
-    private void CreateIndicator(
-        string indicatorName,
-        Color color,
-        Vector2 size,
-        int index,
-        bool isHotel)
+    private void CreateIndicator(string indicatorName, Sprite sprite, Color fallbackColor, Vector2 size, int index, bool isHotel)
     {
-        GameObject indicator = new GameObject(
-            indicatorName,
-            typeof(RectTransform),
-            typeof(Image));
-
+        GameObject indicator = new GameObject(indicatorName, typeof(RectTransform), typeof(Image));
         indicator.transform.SetParent(buildingContainer, false);
 
         RectTransform rect = indicator.GetComponent<RectTransform>();
         if (rect == null)
             return;
-
         rect.anchorMin = new Vector2(0.5f, 0.5f);
         rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
@@ -109,10 +83,6 @@ public class PropertyBuildingVisual : MonoBehaviour
         RectTransform spaceRect = boardSpace.GetComponent<RectTransform>();
         float halfWidth = spaceRect != null ? spaceRect.rect.width * 0.5f : 0f;
         float halfHeight = spaceRect != null ? spaceRect.rect.height * 0.5f : 0f;
-
-        // The building sits outside the property slot, toward the board centre.
-        // Board indices follow the existing 40-space layout:
-        // bottom 1-9, right 11-19, top 21-29, left 31-39.
         bool bottom = boardSpace.BoardIndex >= 1 && boardSpace.BoardIndex <= 9;
         bool right = boardSpace.BoardIndex >= 11 && boardSpace.BoardIndex <= 19;
         bool top = boardSpace.BoardIndex >= 21 && boardSpace.BoardIndex <= 29;
@@ -121,38 +91,34 @@ public class PropertyBuildingVisual : MonoBehaviour
         Vector2 position;
         if (bottom || top)
         {
-            float totalWidth = isHotel ? 0f :
-                (lastHouseCount * size.x + Mathf.Max(0, lastHouseCount - 1) * spacing);
-            float x = isHotel ? 0f :
-                -totalWidth * 0.5f + size.x * 0.5f + index * (size.x + spacing);
-            float y = bottom
-                ? halfHeight + inwardOffset + size.y * 0.5f
-                : -halfHeight - inwardOffset - size.y * 0.5f;
-            position = new Vector2(x, y);
+            float gap = boardSpace.BuildingSpacing;
+            float totalWidth = isHotel ? 0f : lastHouseCount * size.x + Mathf.Max(0, lastHouseCount - 1) * gap;
+            float x = isHotel ? 0f : -totalWidth * 0.5f + size.x * 0.5f + index * (size.x + gap);
+            Vector2 offset = bottom ? boardSpace.BottomBuildingOffset : boardSpace.TopBuildingOffset;
+            float y = bottom ? halfHeight + offset.y + size.y * 0.5f : -halfHeight + offset.y - size.y * 0.5f;
+            position = new Vector2(x + offset.x, y);
         }
         else if (left || right)
         {
-            float totalHeight = isHotel ? 0f :
-                (lastHouseCount * size.y + Mathf.Max(0, lastHouseCount - 1) * spacing);
-            float y = isHotel ? 0f :
-                totalHeight * 0.5f - size.y * 0.5f - index * (size.y + spacing);
-            float x = left
-                ? halfWidth + inwardOffset + size.x * 0.5f
-                : -halfWidth - inwardOffset - size.x * 0.5f;
-            position = new Vector2(x, y);
+            float gap = boardSpace.BuildingSpacing;
+            float totalHeight = isHotel ? 0f : lastHouseCount * size.y + Mathf.Max(0, lastHouseCount - 1) * gap;
+            float y = isHotel ? 0f : totalHeight * 0.5f - size.y * 0.5f - index * (size.y + gap);
+            Vector2 offset = left ? boardSpace.LeftBuildingOffset : boardSpace.RightBuildingOffset;
+            float x = left ? halfWidth + offset.x + size.x * 0.5f : -halfWidth + offset.x - size.x * 0.5f;
+            position = new Vector2(x, y + offset.y);
         }
         else
         {
-            // Safe fallback for an unindexed property.
-            position = new Vector2(0f, halfHeight + inwardOffset + size.y * 0.5f);
+            position = new Vector2(0f, halfHeight + boardSpace.BottomBuildingOffset.y + size.y * 0.5f);
         }
 
         rect.anchoredPosition = position;
-
         Image image = indicator.GetComponent<Image>();
         if (image != null)
         {
-            image.color = color;
+            image.sprite = sprite;
+            image.color = sprite != null ? Color.white : fallbackColor;
+            image.preserveAspect = true;
             image.raycastTarget = false;
         }
     }
@@ -161,7 +127,6 @@ public class PropertyBuildingVisual : MonoBehaviour
     {
         if (buildingContainer == null)
             return;
-
         for (int i = buildingContainer.childCount - 1; i >= 0; i--)
         {
             GameObject child = buildingContainer.GetChild(i).gameObject;
