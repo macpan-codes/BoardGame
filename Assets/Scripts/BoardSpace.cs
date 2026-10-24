@@ -1260,30 +1260,14 @@ public class BoardSpace : MonoBehaviour
             buildingVisualContainer =
                 root.GetComponent<RectTransform>();
 
-            // Top-left of the property slot.
-            buildingVisualContainer.anchorMin =
-                new Vector2(0f, 1f);
-
-            buildingVisualContainer.anchorMax =
-                new Vector2(0f, 1f);
-
-            buildingVisualContainer.pivot =
-                new Vector2(0f, 1f);
-
-            buildingVisualContainer.anchoredPosition =
-                new Vector2(
-                    3f,
-                    -3f
-                );
-
-            buildingVisualContainer.sizeDelta =
-                new Vector2(
-                    Mathf.Max(
-                        60f,
-                        spaceRect.rect.width - 6f
-                    ),
-                    20f
-                );
+            // Stretch the visual container across the full property slot.
+            // PropertyBuildingVisual then places buildings just outside the
+            // correct edge, toward the centre of the board.
+            buildingVisualContainer.anchorMin = Vector2.zero;
+            buildingVisualContainer.anchorMax = Vector2.one;
+            buildingVisualContainer.pivot = new Vector2(0.5f, 0.5f);
+            buildingVisualContainer.offsetMin = Vector2.zero;
+            buildingVisualContainer.offsetMax = Vector2.zero;
         }
 
         // --------------------------------------------------------
