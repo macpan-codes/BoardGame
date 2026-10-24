@@ -19,6 +19,9 @@ public class GameManager : MonoBehaviour
     private Coroutine botTurnRoutine;
     private readonly Dictionary<string, float> botTradeOfferCooldownUntil =
         new Dictionary<string, float>();
+    // Prevent bots from repeatedly swapping the same two assets back and forth.
+    private readonly HashSet<string> botTradePairsCompletedThisMatch =
+        new HashSet<string>();
 
     [Header("Bot Timing")]
     [SerializeField, Min(0f)] private float botThinkBeforeRoll = 0.9f;
@@ -368,6 +371,8 @@ public class GameManager : MonoBehaviour
 
         turnStartBalances.Clear();
         turnLossHistory.Clear();
+        botTradeOfferCooldownUntil.Clear();
+        botTradePairsCompletedThisMatch.Clear();
 
         for (int i = 0;
              i < players.Length;
@@ -910,6 +915,16 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // A completed asset-for-asset swap is not offered again in reverse.
+        // Otherwise bots can undo each other's trades and burn turns on loops.
+        if (HasCompletedBotTradePair(offer))
+        {
+            tradeManager.DeclineOffer(player, offer);
+            Debug.Log("BOT TRADE: " + player.PlayerName +
+                " declined a repeated swap to prevent trade cycling.");
+            return;
+        }
+
         long receivedValue = offer.OfferedMoney;
         long givenValue = offer.RequestedMoney;
 
@@ -935,6 +950,7 @@ public class GameManager : MonoBehaviour
         if (receivedValue + tradeTolerance > givenValue && liquiditySafe)
         {
             tradeManager.AcceptOffer(player, offer);
+            MarkBotTradePairsCompleted(offer);
             BotLearningSystem.RecordAction(player, BotLearningSystem.ActionType.Trade);
             Debug.Log("BOT TRADE: " + player.PlayerName + " accepted a value-positive offer.");
         }
@@ -968,6 +984,55 @@ public class GameManager : MonoBehaviour
         }
 
         return value;
+    }
+
+    private string GetBotTradePairKey(BoardSpace first, BoardSpace second)
+    {
+        if (first == null || second == null)
+            return string.Empty;
+
+        int firstId = first.GetInstanceID();
+        int secondId = second.GetInstanceID();
+        return firstId < secondId
+            ? firstId + ":" + secondId
+            : secondId + ":" + firstId;
+    }
+
+    private bool HasCompletedBotTradePair(TradeOffer offer)
+    {
+        if (offer == null)
+            return false;
+
+        foreach (BoardSpace offered in offer.OfferedProperties)
+        {
+            foreach (BoardSpace requested in offer.RequestedProperties)
+            {
+                if (botTradePairsCompletedThisMatch.Contains(
+                    GetBotTradePairKey(offered, requested)))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void MarkBotTradePairsCompleted(TradeOffer offer)
+    {
+        if (offer == null)
+            return;
+
+        foreach (BoardSpace offered in offer.OfferedProperties)
+        {
+            foreach (BoardSpace requested in offer.RequestedProperties)
+            {
+                string key = GetBotTradePairKey(offered, requested);
+                if (!string.IsNullOrEmpty(key))
+                {
+                    botTradePairsCompletedThisMatch.Add(key);
+                    botTradeOfferCooldownUntil.Remove(key);
+                }
+            }
+        }
     }
 
     private void TryBotOfferGroupCompletingTrade(BoardPlayer bot)
@@ -1014,8 +1079,9 @@ public class GameManager : MonoBehaviour
             if (offered == null || bestDifference > Mathf.Max(100, target.PurchasePrice / 2))
                 continue;
 
-            string tradeKey = bot.GetInstanceID() + ":" +
-                offered.GetInstanceID() + ":" + target.GetInstanceID();
+            string tradeKey = GetBotTradePairKey(offered, target);
+            if (botTradePairsCompletedThisMatch.Contains(tradeKey))
+                continue;
             if (botTradeOfferCooldownUntil.TryGetValue(tradeKey, out float cooldownUntil) &&
                 Time.time < cooldownUntil)
                 continue;
@@ -1032,9 +1098,9 @@ public class GameManager : MonoBehaviour
 
             if (tradeManager.SendOffer(offer))
             {
-                BotLearningSystem.RecordAction(bot, BotLearningSystem.ActionType.Trade);
-                // A declined offer is still a useful signal. Give the other bot
-                // time to acquire assets or change its evaluation before retrying.
+                // Sending an offer is not a completed trade, so do not train the
+                // trade preference from it. Use an unordered pair key so the
+                // reverse offer shares the same cooldown.
                 botTradeOfferCooldownUntil[tradeKey] = Time.time + 180f;
                 Debug.Log("BOT TRADE: " + bot.PlayerName + " offered " +
                     offered.SpaceName + " for " + target.SpaceName +
