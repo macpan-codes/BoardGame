@@ -502,6 +502,16 @@ public class PropertyManagementPanel : MonoBehaviour
 
     private void CloseAction()
     {
+        if (gameManager != null &&
+            gameManager.CurrentPlayer != null &&
+            gameManager.IsFinancialRecoveryActive(gameManager.CurrentPlayer))
+        {
+            // Let the debtor close this view and select another asset, while
+            // keeping the debt-resolution action active.
+            Hide();
+            return;
+        }
+
         if (actionOpenedFromLanding)
         {
             CompleteLandingAction();
