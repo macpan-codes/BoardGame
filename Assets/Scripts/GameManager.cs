@@ -867,7 +867,7 @@ public class GameManager : MonoBehaviour
 
         BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
         BoardSpace best = null;
-        int bestValue = 0;
+        int bestValue = int.MinValue;
 
         foreach (BoardSpace space in allSpaces)
         {
