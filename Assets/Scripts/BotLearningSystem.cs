@@ -331,35 +331,35 @@ public static class BotLearningSystem
         // Do not train winner-only preferences from an incomplete match.
         if (!turnLimitReached)
         {
-        foreach (ActionType action in Enum.GetValues(typeof(ActionType)))
-        {
-            float winnerRate = ActionRate(winnerStats, action);
-            float loserRateTotal = 0f;
-            int loserCount = 0;
-
-            foreach (BoardPlayer player in players)
+            foreach (ActionType action in Enum.GetValues(typeof(ActionType)))
             {
-                if (player == null || player == winner)
-                    continue;
-
-                PlayerStats loserStats;
-                if (!matchStats.TryGetValue(player, out loserStats))
-                    continue;
-
-                loserRateTotal += ActionRate(loserStats, action);
-                loserCount++;
+                float winnerRate = ActionRate(winnerStats, action);
+                float loserRateTotal = 0f;
+                int loserCount = 0;
+    
+                foreach (BoardPlayer player in players)
+                {
+                    if (player == null || player == winner)
+                        continue;
+    
+                    PlayerStats loserStats;
+                    if (!matchStats.TryGetValue(player, out loserStats))
+                        continue;
+    
+                    loserRateTotal += ActionRate(loserStats, action);
+                    loserCount++;
+                }
+    
+                if (loserCount > 0)
+                {
+                    float loserRate = loserRateTotal / loserCount;
+                    // Actions used more frequently by the winner than by opponents
+                    // become modestly more attractive in future matches.
+                    AdjustPreference(action, (winnerRate - loserRate) * MatchLearningRate);
+                }
             }
-
-            if (loserCount > 0)
-            {
-                float loserRate = loserRateTotal / loserCount;
-                // Actions used more frequently by the winner than by opponents
-                // become modestly more attractive in future matches.
-                AdjustPreference(action, (winnerRate - loserRate) * MatchLearningRate);
+    
             }
-        }
-
-        }
 
         data.completedTrainingMatches++;
         long leaderNetWorth = EstimateNetWorth(
