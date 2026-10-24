@@ -1270,6 +1270,14 @@ public class BoardSpace : MonoBehaviour
             buildingVisualContainer.offsetMax = Vector2.zero;
         }
 
+        // Apply these anchors to both newly created and pre-existing
+        // containers so old scene objects use the corrected alignment too.
+        buildingVisualContainer.anchorMin = Vector2.zero;
+        buildingVisualContainer.anchorMax = Vector2.one;
+        buildingVisualContainer.pivot = new Vector2(0.5f, 0.5f);
+        buildingVisualContainer.offsetMin = Vector2.zero;
+        buildingVisualContainer.offsetMax = Vector2.zero;
+
         // --------------------------------------------------------
         // ADD VISUAL SCRIPT
         // --------------------------------------------------------
