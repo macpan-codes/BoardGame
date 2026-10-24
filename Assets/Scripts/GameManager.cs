@@ -708,9 +708,15 @@ public class GameManager : MonoBehaviour
             return false;
 
         // Preserve enough liquidity for rent, fees and unexpected cards.
-        int reserve = Mathf.Max(100, GetBotCashReserve(bot) +
+        // Learning may encourage purchases, but it must not erase most of the
+        // liquidity buffer. The previous 200M adjustment could collapse a
+        // 200–600M reserve to the 100M floor and trigger repeated mortgages.
+        int purchaseReserveAdjustment = Mathf.Clamp(
             BotLearningSystem.GetCashReserveAdjustment(
-                BotLearningSystem.ActionType.Purchase, 200));
+                BotLearningSystem.ActionType.Purchase, 200),
+            -75, 150);
+        int reserve = Mathf.Max(150,
+            GetBotCashReserve(bot) + purchaseReserveAdjustment);
         int cashAfterPurchase = bot.Money - price;
 
         int ownedInCategory = 0;
@@ -734,7 +740,7 @@ public class GameManager : MonoBehaviour
             int groupSize = space.GetPropertyGroupSize();
             bool completesGroup = ownedInCategory + 1 >= groupSize;
             if (completesGroup)
-                return cashAfterPurchase >= Mathf.Max(100, reserve / 2);
+                return cashAfterPurchase >= Mathf.Max(150, reserve / 2);
 
             // Prefer properties that bring the bot closer to a monopoly,
             // but don't spend nearly all available cash on a low-impact asset.
@@ -879,10 +885,12 @@ public class GameManager : MonoBehaviour
             if (space == null || space.Owner != bot || !space.CanMortgage())
                 continue;
 
-            // Mortgage the least strategically valuable asset first.
-            int value = space.MortgageValue;
+            // Prefer mortgaging a low-cost asset before damaging an expensive
+            // holding or a complete property group. The old score favored the
+            // largest mortgage payout, which often mortgaged valuable assets first.
+            int value = -space.PurchasePrice;
             if (space.IsProperty && space.HasCompletePropertyGroup())
-                value -= space.PurchasePrice / 2;
+                value -= space.PurchasePrice * 2;
 
             if (value > bestValue)
             {
