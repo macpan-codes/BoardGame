@@ -106,8 +106,8 @@ public class PlayerRowUI : MonoBehaviour
         inputRect.anchorMax = anchorMax;
         inputRect.anchoredPosition = anchoredPosition;
         inputRect.sizeDelta = new Vector2(
-            sizeDelta.x,
-            Mathf.Max(sizeDelta.y, 34f)
+            Mathf.Max(sizeDelta.x, 150f),
+            Mathf.Max(sizeDelta.y, 42f)
         );
         inputRect.pivot = pivot;
 
@@ -127,11 +127,13 @@ public class PlayerRowUI : MonoBehaviour
 
         // Navy is intentionally lighter than the row panel so the editable
         // field remains visibly distinct instead of looking pitch black.
-        background.color = new Color(0.055f, 0.095f, 0.17f, 1f);
+        background.color = new Color(0.025f, 0.055f, 0.10f, 0.55f);
+        background.sprite = GetRoundedUISprite();
+        background.type = Image.Type.Sliced;
         background.raycastTarget = true;
 
         Outline outline = inputObject.AddComponent<Outline>();
-        outline.effectColor = new Color(0.24f, 0.39f, 0.62f, 0.95f);
+        outline.effectColor = new Color(0.62f, 0.48f, 0.25f, 0.72f);
         outline.effectDistance = new Vector2(1.25f, 1.25f);
         outline.useGraphicAlpha = false;
 
@@ -232,7 +234,7 @@ public class PlayerRowUI : MonoBehaviour
 
         TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
         text.font = playerNameText.font;
-        text.fontSize = Mathf.Clamp(fontSize, 18f, 24f);
+        text.fontSize = Mathf.Clamp(fontSize, 21f, 25f);
         text.fontStyle = FontStyles.Normal;
         text.color = color;
         text.alignment = TextAlignmentOptions.MidlineLeft;
@@ -308,6 +310,50 @@ public class PlayerRowUI : MonoBehaviour
         playerTypeDropdown.RefreshShownValue();
     }
 
+    private static Sprite GetRoundedUISprite()
+    {
+        const int size = 64;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        texture.name = "RoundedPlayerRowUI";
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = FilterMode.Bilinear;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                const float radius = 13f;
+                float cx = Mathf.Clamp(x, radius, size - 1 - radius);
+                float cy = Mathf.Clamp(y, radius, size - 1 - radius);
+                float distance = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                float alpha = Mathf.Clamp01(radius + 0.5f - distance);
+                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+        }
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f),
+            size, 0, SpriteMeshType.FullRect, new Vector4(16f, 16f, 16f, 16f));
+    }
+
+    private static Sprite GetCircleSprite()
+    {
+        const int size = 64;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        texture.name = "PlayerColorCircle";
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = FilterMode.Bilinear;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float distance = Vector2.Distance(new Vector2(x, y), new Vector2(31.5f, 31.5f));
+                float alpha = Mathf.Clamp01(32f - distance);
+                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+        }
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+    }
+
     public bool IsBot()
     {
         return playerTypeDropdown != null &&
@@ -349,8 +395,11 @@ public class PlayerRowUI : MonoBehaviour
 
             if (buttonImage != null)
             {
-                buttonImage.color =
-                    displayColor;
+                buttonImage.sprite = GetCircleSprite();
+                buttonImage.type = Image.Type.Simple;
+                buttonImage.color = displayColor;
+                RectTransform colorRect = playerColorButton.transform as RectTransform;
+                if (colorRect != null) colorRect.sizeDelta = new Vector2(34f, 34f);
             }
         }
 
