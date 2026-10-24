@@ -25,11 +25,11 @@ public class PlayerRowUI : MonoBehaviour
     [Header("Sizing Controls (adjust in Inspector)")]
     [SerializeField, Min(120f)] private float nameFieldWidth = 190f;
     [SerializeField, Min(32f)] private float nameFieldHeight = 42f;
-    [SerializeField, Range(18f, 32f)] private float nameFontSize = 24f;
+    [SerializeField, Range(18f, 36f)] private float nameFontSize = 30f;
     [SerializeField, Min(24f)] private float colorSwatchSize = 34f;
     [SerializeField, Min(80f)] private float playerTypeWidth = 112f;
     [SerializeField, Min(32f)] private float playerTypeHeight = 40f;
-    [SerializeField, Range(14f, 24f)] private float playerTypeFontSize = 18f;
+    [SerializeField, Range(14f, 30f)] private float playerTypeFontSize = 22f;
 
     private int playerNumber;
     private TMP_InputField playerNameInput;
@@ -83,141 +83,28 @@ public class PlayerRowUI : MonoBehaviour
 
     private void SetupNameInput()
     {
-        if (playerNameInput != null ||
-            playerNameText == null)
+        // Prefer the TMP_InputField authored in PlayerRow.prefab. Never create
+        // a second runtime input: the prefab hierarchy remains the source of truth.
+        if (playerNameInput == null)
+            playerNameInput = GetComponentInChildren<TMP_InputField>(true);
+
+        if (playerNameInput != null)
         {
+            playerNameText = playerNameInput.textComponent;
+            playerNameInput.interactable = true;
+            playerNameInput.readOnly = false;
+            playerNameInput.contentType = TMP_InputField.ContentType.Standard;
+            playerNameInput.lineType = TMP_InputField.LineType.SingleLine;
+            playerNameInput.characterLimit = 16;
+            playerNameInput.onFocusSelectAll = true;
             return;
         }
 
-        // Preserve the original prefab label's sizing and font, but use a
-        // fresh TMP text component for the input. This avoids the old label's
-        // layout/state from interfering with live typing and caret rendering.
-        TMP_Text originalText = playerNameText;
-        RectTransform originalRect = originalText.rectTransform;
-
-        Vector2 anchorMin = originalRect.anchorMin;
-        Vector2 anchorMax = originalRect.anchorMax;
-        Vector2 anchoredPosition = originalRect.anchoredPosition;
-        Vector2 sizeDelta = originalRect.sizeDelta;
-        Vector2 pivot = originalRect.pivot;
-
-        GameObject inputObject = new GameObject(
-            "PlayerNameInput",
-            typeof(RectTransform),
-            typeof(Image)
+        Debug.LogError(
+            "PlayerRowUI: PlayerRow prefab needs one authored TMP_InputField child. " +
+            "Add it to the prefab and assign its Text Component; no runtime input will be generated.",
+            this
         );
-
-        inputObject.SetActive(false);
-        inputObject.transform.SetParent(transform, false);
-
-        RectTransform inputRect = inputObject.GetComponent<RectTransform>();
-        inputRect.anchorMin = anchorMin;
-        inputRect.anchorMax = anchorMax;
-        inputRect.anchoredPosition = anchoredPosition;
-        inputRect.sizeDelta = new Vector2(
-            Mathf.Max(sizeDelta.x, nameFieldWidth),
-            Mathf.Max(sizeDelta.y, nameFieldHeight)
-        );
-        inputRect.pivot = pivot;
-
-        Image background = inputObject.GetComponent<Image>();
-        Image rowBackground = GetComponent<Image>();
-
-        if (rowBackground != null && rowBackground.sprite != null)
-        {
-            background.sprite = rowBackground.sprite;
-            background.type = rowBackground.type;
-        }
-        else
-        {
-            background.sprite = null;
-            background.type = Image.Type.Simple;
-        }
-
-        // Navy is intentionally lighter than the row panel so the editable
-        // field remains visibly distinct instead of looking pitch black.
-        background.color = new Color(0.025f, 0.055f, 0.10f, 0.55f);
-        background.sprite = GetRoundedUISprite();
-        background.type = Image.Type.Sliced;
-        background.raycastTarget = true;
-
-        Outline outline = inputObject.AddComponent<Outline>();
-        outline.effectColor = new Color(0.62f, 0.48f, 0.25f, 0.72f);
-        outline.effectDistance = new Vector2(1.25f, 1.25f);
-        outline.useGraphicAlpha = false;
-
-        GameObject viewportObject = new GameObject(
-            "Text Area",
-            typeof(RectTransform),
-            typeof(RectMask2D)
-        );
-        viewportObject.transform.SetParent(inputObject.transform, false);
-
-        RectTransform viewport = viewportObject.GetComponent<RectTransform>();
-        viewport.anchorMin = Vector2.zero;
-        viewport.anchorMax = Vector2.one;
-        viewport.offsetMin = new Vector2(10f, 2f);
-        viewport.offsetMax = new Vector2(-10f, -2f);
-
-        TMP_Text inputText = CreateInputText(
-            viewport,
-            $"Player {playerNumber}",
-            nameFontSize,
-            Color.white
-        );
-        inputText.gameObject.name = "Input Text";
-        inputText.fontStyle = FontStyles.Bold;
-        inputText.alignment = TextAlignmentOptions.MidlineLeft;
-        inputText.overflowMode = TextOverflowModes.Ellipsis;
-
-        TMP_Text placeholder = CreateInputText(
-            viewport,
-            "Enter player name",
-            Mathf.Min(nameFontSize - 2f, 22f),
-            new Color(0.68f, 0.75f, 0.88f, 1f)
-        );
-        placeholder.gameObject.name = "Placeholder";
-        placeholder.fontStyle = FontStyles.Italic;
-
-        // The prefab label is no longer rendered; the fresh text object is
-        // now the one TMP_InputField updates on every typed character.
-        originalText.gameObject.SetActive(false);
-        playerNameText = inputText;
-
-        TMP_InputField inputField =
-            inputObject.AddComponent<TMP_InputField>();
-
-        inputField.targetGraphic = background;
-        inputField.transition = Selectable.Transition.None;
-        inputField.textViewport = viewport;
-        inputField.textComponent = inputText;
-        inputField.placeholder = placeholder;
-        inputField.contentType = TMP_InputField.ContentType.Standard;
-        inputField.lineType = TMP_InputField.LineType.SingleLine;
-        inputField.characterLimit = 16;
-        inputField.readOnly = false;
-        inputField.interactable = true;
-        inputField.onFocusSelectAll = true;
-        inputField.customCaretColor = true;
-        inputField.caretColor = Color.white;
-        inputField.selectionColor = new Color(0.25f, 0.48f, 0.88f, 0.55f);
-
-        inputField.SetTextWithoutNotify($"Player {playerNumber}");
-
-        inputField.onSelect.AddListener(
-            _ => SetInputFocus(outline, true)
-        );
-        inputField.onDeselect.AddListener(
-            _ => SetInputFocus(outline, false)
-        );
-
-        // Set explicit sibling ordering so the placeholder is behind the
-        // editable text and both remain inside the clipping viewport.
-        placeholder.transform.SetAsFirstSibling();
-        inputText.transform.SetAsLastSibling();
-
-        playerNameInput = inputField;
-        inputObject.SetActive(true);
     }
 
     private TMP_Text CreateInputText(
@@ -301,57 +188,20 @@ public class PlayerRowUI : MonoBehaviour
 
     private void SetupDropdown()
     {
-        if (playerTypeDropdown == null) return;
-        playerTypeDropdown.ClearOptions();
-        playerTypeDropdown.AddOptions(new List<string> { "Human", "Bot" });
+        if (playerTypeDropdown == null)
+            return;
+
+        // Keep the dropdown's visual design editable in the prefab Inspector.
+        // This method only maintains the options required by game setup.
+        if (playerTypeDropdown.options.Count != 2 ||
+            playerTypeDropdown.options[0].text != "Human" ||
+            playerTypeDropdown.options[1].text != "Bot")
+        {
+            playerTypeDropdown.ClearOptions();
+            playerTypeDropdown.AddOptions(new List<string> { "Human", "Bot" });
+        }
+
         playerTypeDropdown.RefreshShownValue();
-        RectTransform dropdownRect = playerTypeDropdown.transform as RectTransform;
-        if (dropdownRect != null) dropdownRect.sizeDelta = new Vector2(playerTypeWidth, playerTypeHeight);
-        Image dropdownImage = playerTypeDropdown.GetComponent<Image>();
-        if (dropdownImage != null)
-        {
-            dropdownImage.sprite = GetRoundedUISprite();
-            dropdownImage.type = Image.Type.Sliced;
-            dropdownImage.color = new Color(0.035f, 0.075f, 0.13f, 0.98f);
-        }
-        if (playerTypeDropdown.captionText != null)
-        {
-            playerTypeDropdown.captionText.fontSize = playerTypeFontSize;
-            playerTypeDropdown.captionText.color = new Color(0.97f, 0.94f, 0.86f, 1f);
-            playerTypeDropdown.captionText.alignment = TextAlignmentOptions.Center;
-            playerTypeDropdown.captionText.fontStyle = FontStyles.Bold;
-        }
-        if (playerTypeDropdown.template != null)
-        {
-            Image templateImage = playerTypeDropdown.template.GetComponent<Image>();
-            if (templateImage != null)
-            {
-                templateImage.sprite = GetRoundedUISprite();
-                templateImage.type = Image.Type.Sliced;
-                templateImage.color = new Color(0.025f, 0.055f, 0.10f, 0.99f);
-            }
-            Outline outline = playerTypeDropdown.template.GetComponent<Outline>();
-            if (outline == null) outline = playerTypeDropdown.template.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0.72f, 0.55f, 0.27f, 0.9f);
-            outline.effectDistance = new Vector2(1f, 1f);
-            Transform item = playerTypeDropdown.template.Find("Viewport/Content/Item");
-            if (item != null)
-            {
-                TMP_Text itemText = item.Find("Item Label")?.GetComponent<TMP_Text>();
-                if (itemText != null)
-                {
-                    itemText.fontSize = playerTypeFontSize;
-                    itemText.color = new Color(0.97f, 0.94f, 0.86f, 1f);
-                }
-                Image itemImage = item.GetComponent<Image>();
-                if (itemImage != null)
-                {
-                    itemImage.sprite = GetRoundedUISprite();
-                    itemImage.type = Image.Type.Sliced;
-                    itemImage.color = new Color(0.06f, 0.10f, 0.16f, 0.98f);
-                }
-            }
-        }
     }
 
     private static Sprite GetRoundedUISprite()
