@@ -130,8 +130,16 @@ public class PropertyBuildingVisual : MonoBehaviour
         for (int i = buildingContainer.childCount - 1; i >= 0; i--)
         {
             GameObject child = buildingContainer.GetChild(i).gameObject;
-            if (child != null)
+            if (child == null)
+                continue;
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+                DestroyImmediate(child);
+            else
                 Destroy(child);
+#else
+            Destroy(child);
+#endif
         }
     }
 }
