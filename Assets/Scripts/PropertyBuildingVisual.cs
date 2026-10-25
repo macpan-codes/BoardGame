@@ -13,6 +13,12 @@ public class PropertyBuildingVisual : MonoBehaviour
     private BoardSpace boardSpace;
     private int lastHouseCount = -1;
     private bool lastHotelState;
+    private Sprite lastHouseSprite;
+    private Sprite lastHotelSprite;
+    private Vector2 lastHouseSize, lastHotelSize;
+    private Vector2 lastBottomOffset, lastRightOffset, lastTopOffset, lastLeftOffset;
+    private float lastBuildingSpacing, lastBottomRotation, lastRightRotation, lastTopRotation, lastLeftRotation;
+    private bool hasLayoutSnapshot;
 
     public void SetContainer(RectTransform container)
     {
@@ -37,7 +43,10 @@ public class PropertyBuildingVisual : MonoBehaviour
                 return;
         }
 
-        if (lastHouseCount != boardSpace.Houses || lastHotelState != boardSpace.HasHotel)
+        // Refresh when shared Inspector layout settings change.
+        if (LayoutSettingsChanged() ||
+            lastHouseCount != boardSpace.Houses ||
+            lastHotelState != boardSpace.HasHotel)
             Refresh();
     }
 
@@ -55,6 +64,7 @@ public class PropertyBuildingVisual : MonoBehaviour
         ClearIndicators();
         lastHouseCount = Mathf.Clamp(boardSpace.Houses, 0, 4);
         lastHotelState = boardSpace.HasHotel;
+        CacheLayoutSettings();
 
         if (boardSpace.HasHotel)
         {
@@ -64,6 +74,42 @@ public class PropertyBuildingVisual : MonoBehaviour
 
         for (int i = 0; i < lastHouseCount; i++)
             CreateIndicator($"House_{i + 1}", boardSpace.HouseSprite, houseColor, boardSpace.HouseVisualSize, i, false);
+    }
+
+    private bool LayoutSettingsChanged()
+    {
+        return !hasLayoutSnapshot ||
+            lastHouseSprite != boardSpace.HouseSprite ||
+            lastHotelSprite != boardSpace.HotelSprite ||
+            lastHouseSize != boardSpace.HouseVisualSize ||
+            lastHotelSize != boardSpace.HotelVisualSize ||
+            lastBottomOffset != boardSpace.BottomBuildingOffset ||
+            lastRightOffset != boardSpace.RightBuildingOffset ||
+            lastTopOffset != boardSpace.TopBuildingOffset ||
+            lastLeftOffset != boardSpace.LeftBuildingOffset ||
+            !Mathf.Approximately(lastBuildingSpacing, boardSpace.BuildingSpacing) ||
+            !Mathf.Approximately(lastBottomRotation, boardSpace.BottomBuildingRotation) ||
+            !Mathf.Approximately(lastRightRotation, boardSpace.RightBuildingRotation) ||
+            !Mathf.Approximately(lastTopRotation, boardSpace.TopBuildingRotation) ||
+            !Mathf.Approximately(lastLeftRotation, boardSpace.LeftBuildingRotation);
+    }
+
+    private void CacheLayoutSettings()
+    {
+        lastHouseSprite = boardSpace.HouseSprite;
+        lastHotelSprite = boardSpace.HotelSprite;
+        lastHouseSize = boardSpace.HouseVisualSize;
+        lastHotelSize = boardSpace.HotelVisualSize;
+        lastBottomOffset = boardSpace.BottomBuildingOffset;
+        lastRightOffset = boardSpace.RightBuildingOffset;
+        lastTopOffset = boardSpace.TopBuildingOffset;
+        lastLeftOffset = boardSpace.LeftBuildingOffset;
+        lastBuildingSpacing = boardSpace.BuildingSpacing;
+        lastBottomRotation = boardSpace.BottomBuildingRotation;
+        lastRightRotation = boardSpace.RightBuildingRotation;
+        lastTopRotation = boardSpace.TopBuildingRotation;
+        lastLeftRotation = boardSpace.LeftBuildingRotation;
+        hasLayoutSnapshot = true;
     }
 
     private void CreateIndicator(string indicatorName, Sprite sprite, Color fallbackColor, Vector2 size, int index, bool isHotel)
