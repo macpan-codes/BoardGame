@@ -15,7 +15,8 @@ public class BoardBuildingVisualSettings : MonoBehaviour
     [Header("Building Size (Unity UI units / Canvas units)")]
     [SerializeField] private Vector2 houseSize = new Vector2(17f, 17f);
     [SerializeField] private Vector2 hotelSize = new Vector2(20f, 20f);
-    [SerializeField, Min(0f)] private float buildingSpacing = 2f;
+    [Tooltip("Gap between neighboring houses. Negative values make houses overlap slightly.")]
+    [SerializeField] private float buildingSpacing = 2f;
 
     [Header("Position From Property Edge")]
     [SerializeField] private Vector2 bottomOffset = new Vector2(0f, 15f);
