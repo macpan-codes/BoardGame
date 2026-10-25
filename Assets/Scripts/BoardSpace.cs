@@ -65,15 +65,30 @@ public class BoardSpace : MonoBehaviour
     [SerializeField] private Vector2 leftBuildingOffset = new Vector2(15f, 0f);
     [SerializeField] private Vector2 rightBuildingOffset = new Vector2(-15f, 0f);
 
-    public Sprite HouseSprite => houseSprite;
-    public Sprite HotelSprite => hotelSprite;
-    public Vector2 HouseVisualSize => houseVisualSize;
-    public Vector2 HotelVisualSize => hotelVisualSize;
-    public float BuildingSpacing => buildingSpacing;
-    public Vector2 BottomBuildingOffset => bottomBuildingOffset;
-    public Vector2 TopBuildingOffset => topBuildingOffset;
-    public Vector2 LeftBuildingOffset => leftBuildingOffset;
-    public Vector2 RightBuildingOffset => rightBuildingOffset;
+    private BoardBuildingVisualSettings SharedBuildingSettings =>
+        FindFirstObjectByType<BoardBuildingVisualSettings>(FindObjectsInactive.Include);
+
+    public Sprite HouseSprite => SharedBuildingSettings != null ? SharedBuildingSettings.HouseSprite : houseSprite;
+    public Sprite HotelSprite => SharedBuildingSettings != null ? SharedBuildingSettings.HotelSprite : hotelSprite;
+    public Vector2 HouseVisualSize => SharedBuildingSettings != null ? SharedBuildingSettings.HouseSize : houseVisualSize;
+    public Vector2 HotelVisualSize => SharedBuildingSettings != null ? SharedBuildingSettings.HotelSize : hotelVisualSize;
+    public float BuildingSpacing => SharedBuildingSettings != null ? SharedBuildingSettings.BuildingSpacing : buildingSpacing;
+    public Vector2 BottomBuildingOffset => SharedBuildingSettings != null ? SharedBuildingSettings.BottomOffset : bottomBuildingOffset;
+    public Vector2 TopBuildingOffset => SharedBuildingSettings != null ? SharedBuildingSettings.TopOffset : topBuildingOffset;
+    public Vector2 LeftBuildingOffset => SharedBuildingSettings != null ? SharedBuildingSettings.LeftOffset : leftBuildingOffset;
+    public Vector2 RightBuildingOffset => SharedBuildingSettings != null ? SharedBuildingSettings.RightOffset : rightBuildingOffset;
+
+    public bool ShouldShowBuildingVisual
+    {
+        get
+        {
+            if (!IsProperty)
+                return false;
+
+            BoardBuildingVisualSettings settings = SharedBuildingSettings;
+            return settings == null || settings.IsEligibleBoardIndex(boardIndex);
+        }
+    }
 
     private PropertyBuildingVisual buildingVisual;
 
@@ -1227,7 +1242,7 @@ public class BoardSpace : MonoBehaviour
     private void SetupBuildingVisual()
     {
         if (!showBuildingVisual ||
-            !IsProperty)
+            !ShouldShowBuildingVisual)
         {
             return;
         }
@@ -1330,7 +1345,7 @@ public class BoardSpace : MonoBehaviour
     public void RefreshBuildingVisual()
     {
         if (!showBuildingVisual ||
-            !IsProperty)
+            !ShouldShowBuildingVisual)
         {
             return;
         }
