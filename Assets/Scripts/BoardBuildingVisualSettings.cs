@@ -24,7 +24,13 @@ public class BoardBuildingVisualSettings : MonoBehaviour
     [SerializeField] private Vector2 topOffset = new Vector2(0f, -15f);
     [SerializeField] private Vector2 leftOffset = new Vector2(15f, 0f);
 
-    [Header("Sprite Rotation By Board Side (degrees)")]\n    [SerializeField] private float bottomRotation = 0f;\n    [SerializeField] private float rightRotation = -90f;\n    [SerializeField] private float topRotation = 180f;\n    [SerializeField] private float leftRotation = 90f;\n\n    [Header("Eligible Property Board Indices")]
+    [Header("Sprite Rotation By Board Side (degrees)")]
+    [SerializeField] private float bottomRotation = 0f;
+    [SerializeField] private float rightRotation = -90f;
+    [SerializeField] private float topRotation = 180f;
+    [SerializeField] private float leftRotation = 90f;
+
+    [Header("Eligible Property Board Indices")]
     [SerializeField] private List<int> eligibleBoardIndices = new List<int>
     {
         1, 3, 6, 8, 9,
