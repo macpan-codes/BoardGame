@@ -82,19 +82,24 @@ public class BoardSpaceArtworkRotation : MonoBehaviour
 
     private Image FindArtworkImage()
     {
-        Image[] images = GetComponentsInChildren<Image>(true);
+        // Most board slots keep their main artwork Image on the same GameObject.
+        Image ownImage = GetComponent<Image>();
+        if (ownImage != null)
+            return ownImage;
+
+        // Otherwise use the first direct-child Image, excluding building indicators.
         Transform buildingVisuals = transform.Find("BuildingVisuals");
+        Image[] images = GetComponentsInChildren<Image>(true);
 
         foreach (Image image in images)
         {
-            if (image == null || image.transform == transform)
+            if (image == null)
                 continue;
 
             if (buildingVisuals != null &&
                 (image.transform == buildingVisuals || image.transform.IsChildOf(buildingVisuals)))
                 continue;
 
-            // Prefer a direct child Image so only the space artwork rotates.
             if (image.transform.parent == transform)
                 return image;
         }
