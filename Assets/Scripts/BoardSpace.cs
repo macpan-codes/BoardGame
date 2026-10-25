@@ -77,6 +77,10 @@ public class BoardSpace : MonoBehaviour
     public Vector2 TopBuildingOffset => SharedBuildingSettings != null ? SharedBuildingSettings.TopOffset : topBuildingOffset;
     public Vector2 LeftBuildingOffset => SharedBuildingSettings != null ? SharedBuildingSettings.LeftOffset : leftBuildingOffset;
     public Vector2 RightBuildingOffset => SharedBuildingSettings != null ? SharedBuildingSettings.RightOffset : rightBuildingOffset;
+    public float BottomBuildingRotation => SharedBuildingSettings != null ? SharedBuildingSettings.BottomRotation : 0f;
+    public float RightBuildingRotation => SharedBuildingSettings != null ? SharedBuildingSettings.RightRotation : -90f;
+    public float TopBuildingRotation => SharedBuildingSettings != null ? SharedBuildingSettings.TopRotation : 180f;
+    public float LeftBuildingRotation => SharedBuildingSettings != null ? SharedBuildingSettings.LeftRotation : 90f;
 
     public bool ShouldShowBuildingVisual
     {
