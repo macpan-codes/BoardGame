@@ -30,6 +30,25 @@ public class BoardBuildingVisualSettings : MonoBehaviour
     [SerializeField] private float topRotation = 180f;
     [SerializeField] private float leftRotation = 90f;
 
+    [Header("Board Space Artwork Rotation (degrees)")]
+    [Tooltip("Rotation applied to the artwork Image for board indices 0-10.")]
+    [SerializeField] private float bottomSpaceRotation = 0f;
+    [Tooltip("Rotation applied to the artwork Image for board indices 11-19.")]
+    [SerializeField] private float rightSpaceRotation = 90f;
+    [Tooltip("Rotation applied to the artwork Image for board indices 20-29.")]
+    [SerializeField] private float topSpaceRotation = 0f;
+    [Tooltip("Rotation applied to the artwork Image for board indices 30-39.")]
+    [SerializeField] private float leftSpaceRotation = -90f;
+
+    public float GetSpaceArtworkRotation(int boardIndex)
+    {
+        if (boardIndex >= 0 && boardIndex <= 10) return bottomSpaceRotation;
+        if (boardIndex >= 11 && boardIndex <= 19) return rightSpaceRotation;
+        if (boardIndex >= 20 && boardIndex <= 29) return topSpaceRotation;
+        if (boardIndex >= 30 && boardIndex <= 39) return leftSpaceRotation;
+        return 0f;
+    }
+
     [Header("Eligible Property Board Indices")]
     [SerializeField] private List<int> eligibleBoardIndices = new List<int>
     {
@@ -68,7 +87,10 @@ public class BoardBuildingVisualSettings : MonoBehaviour
         foreach (BoardSpace space in spaces)
         {
             if (space != null)
+            {
                 space.RefreshBuildingVisual();
+                space.RefreshArtworkRotation();
+            }
         }
     }
 }
