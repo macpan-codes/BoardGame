@@ -92,7 +92,7 @@ public class PropertyBuildingVisual : MonoBehaviour
         if (bottom || top)
         {
             float gap = boardSpace.BuildingSpacing;
-            float totalWidth = isHotel ? 0f : lastHouseCount * size.x + Mathf.Max(0, lastHouseCount - 1) * gap;
+            float totalWidth = isHotel ? 0f : lastHouseCount * size.x + (lastHouseCount - 1) * gap;
             float x = isHotel ? 0f : -totalWidth * 0.5f + size.x * 0.5f + index * (size.x + gap);
             Vector2 offset = bottom ? boardSpace.BottomBuildingOffset : boardSpace.TopBuildingOffset;
             float y = bottom ? halfHeight + offset.y + size.y * 0.5f : -halfHeight + offset.y - size.y * 0.5f;
@@ -101,7 +101,7 @@ public class PropertyBuildingVisual : MonoBehaviour
         else if (left || right)
         {
             float gap = boardSpace.BuildingSpacing;
-            float totalHeight = isHotel ? 0f : lastHouseCount * size.y + Mathf.Max(0, lastHouseCount - 1) * gap;
+            float totalHeight = isHotel ? 0f : lastHouseCount * size.y + (lastHouseCount - 1) * gap;
             float y = isHotel ? 0f : totalHeight * 0.5f - size.y * 0.5f - index * (size.y + gap);
             Vector2 offset = left ? boardSpace.LeftBuildingOffset : boardSpace.RightBuildingOffset;
             float x = left ? halfWidth + offset.x + size.x * 0.5f : -halfWidth + offset.x - size.x * 0.5f;
