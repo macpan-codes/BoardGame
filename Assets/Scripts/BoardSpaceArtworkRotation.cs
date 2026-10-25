@@ -83,14 +83,15 @@ public class BoardSpaceArtworkRotation : MonoBehaviour
     private Image FindArtworkImage()
     {
         Image[] images = GetComponentsInChildren<Image>(true);
+        Transform buildingVisuals = transform.Find("BuildingVisuals");
 
         foreach (Image image in images)
         {
             if (image == null || image.transform == transform)
                 continue;
 
-            if (image.transform.name == "BuildingVisuals" ||
-                image.transform.IsChildOf(transform.Find("BuildingVisuals")))
+            if (buildingVisuals != null &&
+                (image.transform == buildingVisuals || image.transform.IsChildOf(buildingVisuals)))
                 continue;
 
             // Prefer a direct child Image so only the space artwork rotates.
