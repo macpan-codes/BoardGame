@@ -48,12 +48,18 @@ public class BoardBuildingVisualSettings : MonoBehaviour
     public Vector2 RightOffset => rightOffset;
     public Vector2 TopOffset => topOffset;
     public Vector2 LeftOffset => leftOffset;
+    public float BottomRotation => bottomRotation;
+    public float RightRotation => rightRotation;
+    public float TopRotation => topRotation;
+    public float LeftRotation => leftRotation;
 
     public bool IsEligibleBoardIndex(int index) =>
         eligibleBoardIndices != null && eligibleBoardIndices.Contains(index);
 
     private void OnEnable() => RefreshAllBuildingVisuals();
-    private void OnValidate() => RefreshAllBuildingVisuals();
+
+    // Avoid creating/destroying UI objects from OnValidate. Use the context
+    // menu below to refresh after changing Inspector values.
 
     [ContextMenu("Refresh All Building Visuals")]
     public void RefreshAllBuildingVisuals()
