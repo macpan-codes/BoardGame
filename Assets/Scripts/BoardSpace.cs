@@ -304,6 +304,7 @@ public class BoardSpace : MonoBehaviour
 
         SetupBuildingVisual();
         RefreshBuildingVisual();
+        RefreshArtworkRotation();
     }
 
     // ============================================================
@@ -1344,6 +1345,17 @@ public class BoardSpace : MonoBehaviour
         );
 
         buildingVisual.Refresh();
+    }
+
+    public void RefreshArtworkRotation()
+    {
+        BoardSpaceArtworkRotation artworkRotation =
+            GetComponent<BoardSpaceArtworkRotation>();
+
+        if (artworkRotation == null)
+            artworkRotation = gameObject.AddComponent<BoardSpaceArtworkRotation>();
+
+        artworkRotation.RefreshRotation();
     }
 
     public void RefreshBuildingVisual()
