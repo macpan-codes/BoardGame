@@ -2,23 +2,25 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Rotates only the artwork Image inside a board space. The BoardSpace object
-/// and its root/background Image are deliberately never rotated. Assign the
-/// specific artwork Image in the Inspector if automatic child selection is not correct.
+/// Keeps the BoardSpace GameObject/layout fixed while rotating its displayed
+/// artwork. If the artwork is currently the Image on the slot itself, this
+/// component moves that appearance to a child Image automatically.
 /// </summary>
 [ExecuteAlways]
 [DisallowMultipleComponent]
 public class BoardSpaceArtworkRotation : MonoBehaviour
 {
-    [SerializeField] private Image artworkImage;
+    private const string ArtworkChildName = "RotatableArtwork";
 
     private BoardSpace boardSpace;
+    private Image artworkImage;
     private float lastAppliedRotation = float.NaN;
     private int lastAppliedIndex = int.MinValue;
 
     private void OnEnable()
     {
         CacheBoardSpace();
+        EnsureArtworkChild();
         RefreshRotation();
     }
 
@@ -26,6 +28,9 @@ public class BoardSpaceArtworkRotation : MonoBehaviour
     {
         if (boardSpace == null)
             CacheBoardSpace();
+
+        if (artworkImage == null)
+            EnsureArtworkChild();
 
         if (boardSpace != null &&
             (lastAppliedIndex != boardSpace.BoardIndex ||
@@ -38,23 +43,85 @@ public class BoardSpaceArtworkRotation : MonoBehaviour
     public void RefreshRotation()
     {
         CacheBoardSpace();
+        EnsureArtworkChild();
 
-        if (boardSpace == null)
+        if (boardSpace == null || artworkImage == null)
             return;
 
-        if (artworkImage == null || artworkImage.transform == transform)
-            artworkImage = FindArtworkImage();
-
-        if (artworkImage == null)
-            return;
-
-        float rotation = GetDesiredRotation();
         Vector3 angles = artworkImage.rectTransform.localEulerAngles;
-        angles.z = rotation;
+        angles.z = GetDesiredRotation();
         artworkImage.rectTransform.localEulerAngles = angles;
 
         lastAppliedIndex = boardSpace.BoardIndex;
-        lastAppliedRotation = rotation;
+        lastAppliedRotation = GetDesiredRotation();
+    }
+
+    private void EnsureArtworkChild()
+    {
+        if (artworkImage != null)
+            return;
+
+        Transform existingChild = transform.Find(ArtworkChildName);
+        if (existingChild != null)
+        {
+            artworkImage = existingChild.GetComponent<Image>();
+            if (artworkImage != null)
+                return;
+        }
+
+        // The root Image is often the property artwork itself. Move its visual
+        // settings to a child so the slot/layout transform can stay unrotated.
+        Image rootImage = GetComponent<Image>();
+        if (rootImage == null || rootImage.sprite == null)
+        {
+            // If a child artwork Image already exists, use the first direct child.
+            foreach (Image candidate in GetComponentsInChildren<Image>(true))
+            {
+                if (candidate != null && candidate.transform != transform &&
+                    candidate.transform.parent == transform &&
+                    candidate.name != "BuildingVisuals")
+                {
+                    artworkImage = candidate;
+                    return;
+                }
+            }
+            return;
+        }
+
+        GameObject child = new GameObject(ArtworkChildName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        child.layer = gameObject.layer;
+        child.transform.SetParent(transform, false);
+
+        RectTransform childRect = child.GetComponent<RectTransform>();
+        childRect.anchorMin = Vector2.zero;
+        childRect.anchorMax = Vector2.one;
+        childRect.offsetMin = Vector2.zero;
+        childRect.offsetMax = Vector2.zero;
+        childRect.pivot = rootImage.rectTransform.pivot;
+        childRect.localScale = Vector3.one;
+
+        artworkImage = child.GetComponent<Image>();
+        artworkImage.sprite = rootImage.sprite;
+        artworkImage.overrideSprite = rootImage.overrideSprite;
+        artworkImage.type = rootImage.type;
+        artworkImage.preserveAspect = rootImage.preserveAspect;
+        artworkImage.fillCenter = rootImage.fillCenter;
+        artworkImage.fillMethod = rootImage.fillMethod;
+        artworkImage.fillAmount = rootImage.fillAmount;
+        artworkImage.fillClockwise = rootImage.fillClockwise;
+        artworkImage.fillOrigin = rootImage.fillOrigin;
+        artworkImage.color = rootImage.color;
+        artworkImage.material = rootImage.material;
+        artworkImage.raycastTarget = rootImage.raycastTarget;
+        artworkImage.maskable = rootImage.maskable;
+
+        // Keep the original Image component for the slot, but hide its artwork.
+        Color rootColor = rootImage.color;
+        rootColor.a = 0f;
+        rootImage.color = rootColor;
+        rootImage.sprite = null;
+        rootImage.overrideSprite = null;
+        rootImage.raycastTarget = false;
     }
 
     private float GetDesiredRotation()
@@ -78,35 +145,5 @@ public class BoardSpaceArtworkRotation : MonoBehaviour
     {
         if (boardSpace == null)
             boardSpace = GetComponent<BoardSpace>();
-    }
-
-    private Image FindArtworkImage()
-    {
-        // Never rotate the root Image: it may be the slot background/placeholder.
-        Transform buildingVisuals = transform.Find("BuildingVisuals");
-        Image[] images = GetComponentsInChildren<Image>(true);
-
-        foreach (Image image in images)
-        {
-            if (image == null || image.transform == transform)
-                continue;
-
-            if (buildingVisuals != null &&
-                (image.transform == buildingVisuals || image.transform.IsChildOf(buildingVisuals)))
-                continue;
-
-            // Prefer an Image directly inside the slot, not nested UI such as labels.
-            if (image.transform.parent == transform)
-                return image;
-        }
-
-        return null;
-    }
-
-    public void SetArtworkImage(Image image)
-    {
-        // Ignore the root Image to protect the slot placeholder.
-        artworkImage = image != null && image.transform != transform ? image : null;
-        RefreshRotation();
     }
 }
