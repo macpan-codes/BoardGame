@@ -113,6 +113,11 @@ public class PropertyBuildingVisual : MonoBehaviour
         }
 
         rect.anchoredPosition = position;
+        rect.localRotation = Quaternion.Euler(0f, 0f,
+            bottom ? boardSpace.BottomBuildingRotation :
+            right ? boardSpace.RightBuildingRotation :
+            top ? boardSpace.TopBuildingRotation :
+            left ? boardSpace.LeftBuildingRotation : 0f);
         Image image = indicator.GetComponent<Image>();
         if (image != null)
         {
