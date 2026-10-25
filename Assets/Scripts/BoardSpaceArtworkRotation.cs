@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Applies the shared board-side rotation to a space's artwork Image.
-/// Assign Artwork Image in the Inspector when the artwork is not the first
-/// child Image. The board slot and its text/other UI are not rotated.
+/// Rotates only the artwork Image inside a board space. The BoardSpace object
+/// and its root/background Image are deliberately never rotated. Assign the
+/// specific artwork Image in the Inspector if automatic child selection is not correct.
 /// </summary>
 [ExecuteAlways]
 [DisallowMultipleComponent]
@@ -42,7 +42,7 @@ public class BoardSpaceArtworkRotation : MonoBehaviour
         if (boardSpace == null)
             return;
 
-        if (artworkImage == null)
+        if (artworkImage == null || artworkImage.transform == transform)
             artworkImage = FindArtworkImage();
 
         if (artworkImage == null)
@@ -82,24 +82,20 @@ public class BoardSpaceArtworkRotation : MonoBehaviour
 
     private Image FindArtworkImage()
     {
-        // Most board slots keep their main artwork Image on the same GameObject.
-        Image ownImage = GetComponent<Image>();
-        if (ownImage != null)
-            return ownImage;
-
-        // Otherwise use the first direct-child Image, excluding building indicators.
+        // Never rotate the root Image: it may be the slot background/placeholder.
         Transform buildingVisuals = transform.Find("BuildingVisuals");
         Image[] images = GetComponentsInChildren<Image>(true);
 
         foreach (Image image in images)
         {
-            if (image == null)
+            if (image == null || image.transform == transform)
                 continue;
 
             if (buildingVisuals != null &&
                 (image.transform == buildingVisuals || image.transform.IsChildOf(buildingVisuals)))
                 continue;
 
+            // Prefer an Image directly inside the slot, not nested UI such as labels.
             if (image.transform.parent == transform)
                 return image;
         }
@@ -109,7 +105,8 @@ public class BoardSpaceArtworkRotation : MonoBehaviour
 
     public void SetArtworkImage(Image image)
     {
-        artworkImage = image;
+        // Ignore the root Image to protect the slot placeholder.
+        artworkImage = image != null && image.transform != transform ? image : null;
         RefreshRotation();
     }
 }
