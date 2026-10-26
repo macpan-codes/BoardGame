@@ -1221,7 +1221,7 @@ MonoBehaviour:
   startGameButton: {fileID: 1243792262}
   backButton: {fileID: 3100000102}
   mainMenuSceneName: MainMenu
-  playerRowPrefab: {fileID: 1910076789703422758, guid: 6ef0db6cd2a7f1746a7921441756bf81, type: 3}
+  playerRowPrefab: {fileID: 1727928334113515856, guid: 0c59f84ab1024954a9a703f5c0182901, type: 3}
   gameSceneName: MainScene
 --- !u!4 &1147570607
 Transform:
