@@ -147,10 +147,24 @@ public class BoardGenerator : MonoBehaviour
     private void SetupOwnershipMarker(
         BoardSpace space)
     {
-        bool needsMarker =
-            space.IsProperty ||
-            space.IsRailroad ||
-            space.IsUtility;
+        BoardBuildingVisualSettings markerSettings =
+            FindFirstObjectByType<BoardBuildingVisualSettings>(FindObjectsInactive.Include);
+
+        bool showOnAllEligibleSpaces =
+            markerSettings != null &&
+            markerSettings.ShowOnAllEligibleSpaces;
+
+        bool isCornerOrSpecialDrawSpace =
+            space.SpaceType == BoardSpaceType.Go ||
+            space.SpaceType == BoardSpaceType.Jail ||
+            space.SpaceType == BoardSpaceType.GoToJail ||
+            space.SpaceType == BoardSpaceType.FreeParking ||
+            space.SpaceType == BoardSpaceType.Chance ||
+            space.SpaceType == BoardSpaceType.CommunityChest;
+
+        bool needsMarker = showOnAllEligibleSpaces
+            ? !isCornerOrSpecialDrawSpace
+            : space.IsProperty || space.IsRailroad || space.IsUtility;
 
         if (!needsMarker)
             return;
