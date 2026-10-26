@@ -233,7 +233,7 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
         string status = space.IsMortgaged ? "MORTGAGED" : "ACTIVE";
         string buildings = space.HasHotel ? "1 HOTEL" : $"{space.Houses} HOUSES";
         int rent = space.GetRent();
-        string rentLabel = space.IsMortgaged ? "RENT SUSPENDED" : space.IsUtility ? "RENT: DICE × " + (space.GetOwnedPropertyGroupCount() >= 2 ? "10" : "4") : $"RENT: {rent:N0}M";
+        string rentLabel = space.IsMortgaged ? "RENT SUSPENDED" : space.IsUtility ? "RENT: DICE × " + (GetOwnedUtilityCount(space.Owner) >= 2 ? "10" : "4") : $"RENT: {rent:N0}M";
 
         Text main = MakeText("Name", row.transform, space.SpaceName, 16, Color.white, TextAnchor.MiddleLeft);
         Place(main.rectTransform, new Vector2(0, 0.5f), new Vector2(0.66f, 1), new Vector2(18, 0), new Vector2(0, -4));
@@ -256,7 +256,7 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
         string status = s.IsMortgaged ? "MORTGAGED — rent is suspended" : "ACTIVE";
         string buildings = s.HasHotel ? "Houses: 0\nHotels: 1" : $"Houses: {s.Houses}\nHotels: 0";
         string rent = s.IsMortgaged ? "0M (mortgaged)" :
-            s.IsUtility ? $"Variable: dice roll × {(s.GetOwnedPropertyGroupCount() >= 2 ? 10 : 4)}" : $"{s.GetRent():N0}M per landing";
+            s.IsUtility ? $"Variable: dice roll × {(GetOwnedUtilityCount(s.Owner) >= 2 ? 10 : 4)}" : $"{s.GetRent():N0}M per landing";
         detailText.text =
             $"{s.SpaceName.ToUpperInvariant()}\n" +
             $"{(s.PropertyGroup != null ? s.PropertyGroup.GroupName : TypeLabel(s))}\n\n" +
@@ -279,6 +279,13 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
         }
         ClosePanel();
         management.Show(selectedSpace);
+    }
+
+    private int GetOwnedUtilityCount(BoardPlayer player)
+    {
+        if (player == null) return 0;
+        return FindObjectsByType<BoardSpace>(FindObjectsSortMode.None)
+            .Count(s => s != null && s.IsUtility && s.Owner == player && s.IsOwned);
     }
 
     private string TypeLabel(BoardSpace space)
