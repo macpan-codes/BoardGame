@@ -56,6 +56,18 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
 
     private void CreateOpenButton()
     {
+        Transform existing = canvas.transform.Find("MyPropertiesButton");
+        if (existing != null)
+        {
+            Button existingButton = existing.GetComponent<Button>();
+            if (existingButton != null)
+            {
+                existingButton.onClick.RemoveListener(OpenPanel);
+                existingButton.onClick.AddListener(OpenPanel);
+                return;
+            }
+        }
+
         GameObject buttonObject = MakeUI("MyPropertiesButton", canvas.transform, typeof(RectTransform), typeof(Image), typeof(Button));
         RectTransform rect = buttonObject.GetComponent<RectTransform>();
         rect.anchorMin = new Vector2(1, 1);
