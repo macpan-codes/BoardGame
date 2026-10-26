@@ -127,6 +127,12 @@ public class BoardBuildingVisualSettings : MonoBehaviour
             {
                 space.RefreshBuildingVisual();
                 space.RefreshArtworkRotation();
+
+                PropertyOwnershipMarker marker =
+                    space.GetComponentInChildren<PropertyOwnershipMarker>(true);
+
+                if (marker != null)
+                    marker.RefreshLayout();
             }
         }
     }
