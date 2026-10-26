@@ -68,18 +68,9 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
             }
         }
 
-        GameObject buttonObject = MakeUI("MyPropertiesButton", canvas.transform, typeof(RectTransform), typeof(Image), typeof(Button));
-        RectTransform rect = buttonObject.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(1, 1);
-        rect.anchorMax = new Vector2(1, 1);
-        rect.pivot = new Vector2(1, 1);
-        rect.anchoredPosition = new Vector2(-24, -24);
-        rect.sizeDelta = new Vector2(178, 48);
-        buttonObject.GetComponent<Image>().color = Accent;
-        Button button = buttonObject.GetComponent<Button>();
-        button.onClick.AddListener(OpenPanel);
-        Text label = MakeText("Label", buttonObject.transform, "MY PROPERTIES", 16, Color.black, TextAnchor.MiddleCenter);
-        Stretch(label.rectTransform, 8, 4, 8, 4);
+        // Do not create a second button. The user has a designed scene button
+        // with MyProperties.cs attached; this component only builds the panel.
+        Debug.LogWarning("My Properties portfolio: no existing MyPropertiesButton found. No duplicate button was created.");
     }
 
     private void CreatePortfolioPanel()
