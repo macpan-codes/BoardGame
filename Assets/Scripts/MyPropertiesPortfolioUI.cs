@@ -56,21 +56,29 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
 
     private void CreateOpenButton()
     {
-        Transform existing = canvas.transform.Find("MyPropertiesButton");
-        if (existing != null)
+        // Find the user's existing designed button anywhere in the active scene.
+        // It may not be a direct child of the Canvas.
+        Button existingButton = null;
+        Button[] sceneButtons = FindObjectsByType<Button>(FindObjectsSortMode.None);
+        foreach (Button candidate in sceneButtons)
         {
-            Button existingButton = existing.GetComponent<Button>();
-            if (existingButton != null)
+            if (candidate != null && candidate.gameObject.name == "MyPropertiesButton")
             {
-                existingButton.onClick.RemoveListener(OpenPanel);
-                existingButton.onClick.AddListener(OpenPanel);
-                return;
+                existingButton = candidate;
+                break;
             }
         }
 
-        // Do not create a second button. The user has a designed scene button
-        // with MyProperties.cs attached; this component only builds the panel.
-        Debug.LogWarning("My Properties portfolio: no existing MyPropertiesButton found. No duplicate button was created.");
+        // Never create a replacement button. Only connect the existing one.
+        if (existingButton != null)
+        {
+            existingButton.onClick.RemoveListener(OpenPanel);
+            existingButton.onClick.AddListener(OpenPanel);
+        }
+        else
+        {
+            Debug.LogWarning("My Properties portfolio: couldn't find a Button GameObject named 'MyPropertiesButton'. The portfolio panel exists, but no button was connected.");
+        }
     }
 
     private void CreatePortfolioPanel()
