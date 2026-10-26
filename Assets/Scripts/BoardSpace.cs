@@ -100,10 +100,51 @@ public class BoardSpace : MonoBehaviour
     // PUBLIC PROPERTIES
     // ============================================================
 
-    public string SpaceName =>
-        string.IsNullOrWhiteSpace(spaceName)
-            ? gameObject.name
-            : spaceName;
+    // Display names are centralized by board index so every UI flow
+    // (property info, landing prompts, management, trades, and notifications)
+    // uses the current property names without changing prices or group data.
+    public string SpaceName
+    {
+        get
+        {
+            if (IsProperty && TryGetUpdatedPropertyName(boardIndex, out string updatedName))
+                return updatedName;
+
+            return string.IsNullOrWhiteSpace(spaceName)
+                ? gameObject.name
+                : spaceName;
+        }
+    }
+
+    private static bool TryGetUpdatedPropertyName(int index, out string updatedName)
+    {
+        switch (index)
+        {
+            case 1: updatedName = "LA"; return true;
+            case 3: updatedName = "NY"; return true;
+            case 6: updatedName = "DC"; return true;
+            case 8: updatedName = "SF"; return true;
+            case 9: updatedName = "LV"; return true;
+            case 11: updatedName = "Miami"; return true;
+            case 13: updatedName = "Rome"; return true;
+            case 14: updatedName = "Oslo"; return true;
+            case 16: updatedName = "Lima"; return true;
+            case 18: updatedName = "Ctg"; return true;
+            case 19: updatedName = "Pune"; return true;
+            case 21: updatedName = "Agra"; return true;
+            case 23: updatedName = "Bali"; return true;
+            case 24: updatedName = "Bern"; return true;
+            case 26: updatedName = "Nice"; return true;
+            case 27: updatedName = "Lyon"; return true;
+            case 29: updatedName = "Dubai"; return true;
+            case 31: updatedName = "York"; return true;
+            case 32: updatedName = "Leeds"; return true;
+            case 34: updatedName = "Dhaka"; return true;
+            case 37: updatedName = "Tokyo"; return true;
+            case 39: updatedName = "Suva"; return true;
+            default: updatedName = null; return false;
+        }
+    }
 
     public BoardSpaceType SpaceType =>
         spaceType;
