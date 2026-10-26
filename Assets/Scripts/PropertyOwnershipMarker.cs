@@ -15,6 +15,7 @@ public class PropertyOwnershipMarker : MonoBehaviour
     private float lastHeight = float.NaN;
     private Vector2 lastOffset = new Vector2(float.NaN, float.NaN);
     private float lastRotation = float.NaN;
+    private bool lastShowMarkers;
 
     public BoardPlayer Owner => owner;
 
@@ -164,7 +165,8 @@ public class PropertyOwnershipMarker : MonoBehaviour
             Mathf.Approximately(lastWidth, size.x) &&
             Mathf.Approximately(lastHeight, size.y) &&
             lastOffset == offset &&
-            Mathf.Approximately(lastRotation, rotation))
+            Mathf.Approximately(lastRotation, rotation) &&
+            lastShowMarkers == settings.ShowOwnershipMarkers)
             return;
 
         visualRect.sizeDelta = size;
@@ -175,6 +177,7 @@ public class PropertyOwnershipMarker : MonoBehaviour
         lastHeight = size.y;
         lastOffset = offset;
         lastRotation = rotation;
+        lastShowMarkers = settings.ShowOwnershipMarkers;
 
         if (visualObject != null && owner != null)
             visualObject.SetActive(settings.ShowOwnershipMarkers);
