@@ -49,6 +49,43 @@ public class BoardBuildingVisualSettings : MonoBehaviour
         return 0f;
     }
 
+
+    [Header("Ownership Marker - Global Controls")]
+    [SerializeField] private bool showOwnershipMarkers = true;
+    [Tooltip("Length of the rounded ownership line in UI units.")]
+    [SerializeField] private float ownershipMarkerWidth = 52f;
+    [Tooltip("Thickness of the rounded ownership line in UI units.")]
+    [SerializeField] private float ownershipMarkerHeight = 7f;
+    [Tooltip("Extra roundedness is provided automatically by the generated pill sprite.")]
+    [SerializeField] private Vector2 bottomOwnershipOffset = new Vector2(0f, -5f);
+    [SerializeField] private Vector2 rightOwnershipOffset = new Vector2(-5f, 0f);
+    [SerializeField] private Vector2 topOwnershipOffset = new Vector2(0f, 5f);
+    [SerializeField] private Vector2 leftOwnershipOffset = new Vector2(5f, 0f);
+    [SerializeField] private float bottomOwnershipRotation = 0f;
+    [SerializeField] private float rightOwnershipRotation = 90f;
+    [SerializeField] private float topOwnershipRotation = 0f;
+    [SerializeField] private float leftOwnershipRotation = 90f;
+    [Tooltip("If enabled, ownership markers appear on every space except corners, Chance and Community Chest.")]
+    [SerializeField] private bool showOnAllEligibleSpaces = true;
+
+    public bool ShowOwnershipMarkers => showOwnershipMarkers;
+    public bool ShowOnAllEligibleSpaces => showOnAllEligibleSpaces;
+    public Vector2 OwnershipMarkerSize => new Vector2(ownershipMarkerWidth, ownershipMarkerHeight);
+    public Vector2 GetOwnershipOffset(int boardIndex)
+    {
+        if (boardIndex >= 11 && boardIndex <= 19) return rightOwnershipOffset;
+        if (boardIndex >= 21 && boardIndex <= 29) return topOwnershipOffset;
+        if (boardIndex >= 31 && boardIndex <= 39) return leftOwnershipOffset;
+        return bottomOwnershipOffset;
+    }
+    public float GetOwnershipRotation(int boardIndex)
+    {
+        if (boardIndex >= 11 && boardIndex <= 19) return rightOwnershipRotation;
+        if (boardIndex >= 21 && boardIndex <= 29) return topOwnershipRotation;
+        if (boardIndex >= 31 && boardIndex <= 39) return leftOwnershipRotation;
+        return bottomOwnershipRotation;
+    }
+
     [Header("Eligible Property Board Indices")]
     [SerializeField] private List<int> eligibleBoardIndices = new List<int>
     {
