@@ -29,7 +29,7 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
     private void Start()
     {
         gameManager = FindFirstObjectByType<GameManager>();
-        uiFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         canvas = FindFirstObjectByType<Canvas>();
         if (canvas == null)
         {
@@ -310,7 +310,7 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
     {
         GameObject go = MakeUI(objectName, parent, typeof(RectTransform), typeof(Text));
         Text text = go.GetComponent<Text>();
-        text.font = uiFont != null ? uiFont : Resources.GetBuiltinResource<Font>("Arial.ttf");
+        text.font = uiFont != null ? uiFont : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         text.text = value;
         text.fontSize = size;
         text.color = color;
