@@ -179,7 +179,20 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         EnsureMatchEndUI();
+        EnsureMyPropertiesPortfolioUI();
         InitializeGame();
+    }
+
+    private MyPropertiesPortfolioUI EnsureMyPropertiesPortfolioUI()
+    {
+        if (!Application.isPlaying)
+            return null;
+
+        MyPropertiesPortfolioUI portfolio = GetComponent<MyPropertiesPortfolioUI>();
+        if (portfolio == null)
+            portfolio = gameObject.AddComponent<MyPropertiesPortfolioUI>();
+
+        return portfolio;
     }
 
     private MatchEndUI EnsureMatchEndUI()
