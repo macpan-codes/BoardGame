@@ -19,6 +19,7 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
     private BoardSpace selectedSpace;
     private readonly List<GameObject> generatedRows = new List<GameObject>();
     private Font uiFont;
+    private float nextRefreshTime;
 
     private static readonly Color Ink = new Color(0.07f, 0.10f, 0.16f, 0.98f);
     private static readonly Color Card = new Color(0.12f, 0.16f, 0.23f, 1f);
@@ -44,8 +45,9 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
 
     private void Update()
     {
-        if (panel != null && panel.activeSelf)
+        if (panel != null && panel.activeSelf && Time.unscaledTime >= nextRefreshTime)
         {
+            nextRefreshTime = Time.unscaledTime + 0.5f;
             if (gameManager == null)
                 gameManager = FindFirstObjectByType<GameManager>();
             RefreshPortfolio();
@@ -180,6 +182,7 @@ public class MyPropertiesPortfolioUI : MonoBehaviour
     private void RefreshPortfolio()
     {
         if (listContent == null || gameManager == null) return;
+        nextRefreshTime = Time.unscaledTime + 0.5f;
 
         BoardPlayer player = gameManager.CurrentPlayer;
         BoardSpace[] allSpaces = FindObjectsByType<BoardSpace>(FindObjectsSortMode.None);
