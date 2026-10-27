@@ -171,14 +171,20 @@ public class BoardPlayer : MonoBehaviour
         // The imported sprite assets for players 5 and 6 are named in
         // the opposite colour order (5=Orange, 6=Purple). Keep the
         // requested gameplay order: Player 5=Purple, Player 6=Orange.
-        int spriteIndex = index;
-        if (index == 4)
-            spriteIndex = 5;
-        else if (index == 5)
-            spriteIndex = 4;
+        Sprite selectedSprite = null;
 
-        Sprite selectedSprite =
-            sprites[spriteIndex];
+        // Player order is 1 Red, 2 Blue, 3 Green, 4 Yellow,
+        // 5 Purple, 6 Orange. Resolve these two by sprite name because
+        // the imported asset filenames have their numeric suffixes reversed.
+        if (playerNumber == 5)
+            selectedSprite = FindTokenSpriteByColorName(sprites, "Purple");
+        else if (playerNumber == 6)
+            selectedSprite = FindTokenSpriteByColorName(sprites, "Orange");
+
+        // Keep the normal ordered array behavior for players 1–4, and
+        // fall back safely if a sprite's imported name doesn't include its color.
+        if (selectedSprite == null)
+            selectedSprite = sprites[index == 4 ? 5 : index == 5 ? 4 : index];
 
         if (selectedSprite == null)
             return;
@@ -211,6 +217,21 @@ public class BoardPlayer : MonoBehaviour
 
         tokenImage =
             GetComponent<Image>();
+    }
+
+    private Sprite FindTokenSpriteByColorName(Sprite[] sprites, string colorName)
+    {
+        if (sprites == null)
+            return null;
+
+        foreach (Sprite sprite in sprites)
+        {
+            if (sprite != null &&
+                sprite.name.IndexOf(colorName, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return sprite;
+        }
+
+        return null;
     }
 
     private Sprite[] ResolvePlayerTokenSprites()
