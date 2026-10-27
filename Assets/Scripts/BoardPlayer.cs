@@ -168,8 +168,17 @@ public class BoardPlayer : MonoBehaviour
         if (index < 0 || index >= TokenCount)
             return;
 
+        // The imported sprite assets for players 5 and 6 are named in
+        // the opposite colour order (5=Orange, 6=Purple). Keep the
+        // requested gameplay order: Player 5=Purple, Player 6=Orange.
+        int spriteIndex = index;
+        if (index == 4)
+            spriteIndex = 5;
+        else if (index == 5)
+            spriteIndex = 4;
+
         Sprite selectedSprite =
-            sprites[index];
+            sprites[spriteIndex];
 
         if (selectedSprite == null)
             return;
