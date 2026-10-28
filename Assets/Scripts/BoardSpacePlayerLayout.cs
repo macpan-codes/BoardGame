@@ -29,6 +29,9 @@ public class BoardSpacePlayerLayout : MonoBehaviour
     [Header("Regular Spaces: pattern for 1 through 6 players")]
     [SerializeField] private Pattern[] regularPatterns = CreateRegularPatterns();
 
+    [Header("Side Spaces (left/right): pattern for 1 through 6 players")]
+    [SerializeField] private Pattern[] sidePatterns = CreateSidePatterns();
+
     [Header("Corner Spaces: pattern for 1 through 6 players")]
     [SerializeField] private Pattern[] cornerPatterns = CreateCornerPatterns();
 
@@ -53,6 +56,20 @@ public class BoardSpacePlayerLayout : MonoBehaviour
             Make(0.72f, new Vector2(-0.16f, 0.14f), new Vector2(0.16f, 0.14f), new Vector2(-0.16f, -0.14f), new Vector2(0.16f, -0.14f)),
             Make(0.64f, new Vector2(-0.16f, 0.16f), new Vector2(0.16f, 0.16f), new Vector2(0f, 0f), new Vector2(-0.16f, -0.16f), new Vector2(0.16f, -0.16f)),
             Make(0.56f, new Vector2(-0.15f, 0.22f), new Vector2(0.15f, 0.22f), new Vector2(-0.15f, 0f), new Vector2(0.15f, 0f), new Vector2(-0.15f, -0.22f), new Vector2(0.15f, -0.22f))
+        };
+    }
+
+    private static Pattern[] CreateSidePatterns()
+    {
+        // Side slots use a wider three-column layout for six tokens.
+        return new[]
+        {
+            Make(1f, new Vector2(0f, 0f)),
+            Make(0.90f, new Vector2(-0.18f, 0f), new Vector2(0.18f, 0f)),
+            Make(0.82f, new Vector2(-0.22f, 0.15f), new Vector2(0.22f, 0.15f), new Vector2(0f, -0.16f)),
+            Make(0.72f, new Vector2(-0.22f, 0.16f), new Vector2(0.22f, 0.16f), new Vector2(-0.22f, -0.16f), new Vector2(0.22f, -0.16f)),
+            Make(0.64f, new Vector2(-0.22f, 0.20f), new Vector2(0f, 0.20f), new Vector2(0.22f, 0.20f), new Vector2(-0.22f, -0.20f), new Vector2(0.22f, -0.20f)),
+            Make(0.56f, new Vector2(-0.24f, 0.20f), new Vector2(0f, 0.20f), new Vector2(0.24f, 0.20f), new Vector2(-0.24f, -0.20f), new Vector2(0f, -0.20f), new Vector2(0.24f, -0.20f))
         };
     }
 
@@ -96,7 +113,14 @@ public class BoardSpacePlayerLayout : MonoBehaviour
              (space.BoardIndex == 0 || space.BoardIndex == 10 ||
               space.BoardIndex == 20 || space.BoardIndex == 30));
 
-        Pattern pattern = GetPattern(corner ? cornerPatterns : regularPatterns, players.Count);
+        // Standard 40-space board: left side indices 11-19, right side 31-39.
+        bool side = space != null &&
+            ((space.BoardIndex >= 11 && space.BoardIndex <= 19) ||
+             (space.BoardIndex >= 31 && space.BoardIndex <= 39));
+
+        Pattern pattern = GetPattern(
+            corner ? cornerPatterns : side ? sidePatterns : regularPatterns,
+            players.Count);
         if (pattern == null)
             return;
 
