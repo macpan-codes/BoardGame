@@ -1,0 +1,41 @@
+name: Prepare final v1.0.0 release
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/prepare-final-release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create final release draft if needed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v1.0.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "v1.0.0 release already exists; preserving it."
+            exit 0
+          fi
+          gh release create v1.0.0 \
+            --repo "$GITHUB_REPOSITORY" \
+            --target master \
+            --title "Monopoly – Friends Edition | Final Release" \
+            --notes "The completed personal Android edition of Monopoly – Friends Edition.
+
+          🎲 2–6 local players on one device, including AI bots.
+          🏘️ Buy properties, collect rent, build houses and hotels, trade, manage mortgages and survive Chance, Community Chest, jail and bankruptcy.
+          ❤️ Explore Credits for a tribute to everyone who helped create the game.
+
+          Android APK: monopolyfinalversion.apk — attach the signed APK to this draft before publishing.
+
+          Created by Macpan | Macverse. October 2026.
+          The development ends here. The memories stay." \
+            --draft
