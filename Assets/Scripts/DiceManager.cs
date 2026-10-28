@@ -21,8 +21,8 @@ public class DiceManager : MonoBehaviour
     [SerializeField] private Sprite[] diceSprites = new Sprite[6];
 
     [Header("Dice Animation")]
-    [SerializeField] private float rollAnimationDuration = 0.65f;
-    [SerializeField] private float spriteChangeInterval = 0.08f;
+    [SerializeField, Min(0.1f)] private float rollAnimationDuration = 0.6f;
+    [SerializeField, Min(0.02f)] private float spriteChangeInterval = 0.05f;
 
     [Header("Dice Audio")]
     [SerializeField] private AudioClip diceRollClip;
@@ -205,9 +205,9 @@ public class DiceManager : MonoBehaviour
 
         float elapsed = 0f;
 
-        // Ensure the dice animation is visibly readable even if an older
-        // scene has a shorter serialized duration.
-        float visibleRollDuration = Mathf.Max(rollAnimationDuration, 1.25f, diceRollClip != null ? diceRollClip.length : 0f);
+        // Respect the Inspector duration. Do not extend the animation to
+        // match a long audio clip; the visual roll should finish within 1.5s.
+        float visibleRollDuration = Mathf.Clamp(rollAnimationDuration, 0.1f, 1.5f);
 
         while (elapsed < visibleRollDuration)
         {
@@ -233,6 +233,11 @@ public class DiceManager : MonoBehaviour
                 spriteChangeInterval
             );
         }
+
+        // Stop any remaining roll audio so the sound cannot make the roll
+        // feel longer than the visual animation.
+        if (diceAudioSource != null && diceAudioSource.isPlaying)
+            diceAudioSource.Stop();
 
         // --------------------------------------------------------
         // FINAL RESULT
