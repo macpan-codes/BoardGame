@@ -24,6 +24,11 @@ public class DiceManager : MonoBehaviour
     [SerializeField] private float rollAnimationDuration = 0.65f;
     [SerializeField] private float spriteChangeInterval = 0.08f;
 
+    [Header("Dice Audio")]
+    [SerializeField] private AudioClip diceRollClip;
+    [SerializeField, Range(0f, 1f)] private float diceRollVolume = 1f;
+    private AudioSource diceAudioSource;
+
     [Header("Dice Result")]
     [SerializeField] private int firstDie;
     [SerializeField] private int secondDie;
@@ -40,6 +45,12 @@ public class DiceManager : MonoBehaviour
     private void Awake()
     {
         FindGameManager();
+        diceAudioSource = GetComponent<AudioSource>();
+        if (diceAudioSource == null) diceAudioSource = gameObject.AddComponent<AudioSource>();
+        diceAudioSource.playOnAwake = false;
+        diceAudioSource.loop = false;
+        diceAudioSource.spatialBlend = 0f;
+        if (diceRollClip == null) diceRollClip = Resources.Load<AudioClip>("Audio/diceroll");
 
         // Make sure the dice images are visible.
         if (firstDieImage != null)
@@ -181,6 +192,12 @@ public class DiceManager : MonoBehaviour
         BoardPlayer currentPlayer)
     {
         isRolling = true;
+        if (diceRollClip == null) diceRollClip = Resources.Load<AudioClip>("Audio/diceroll");
+        if (diceRollClip != null && diceAudioSource != null)
+        {
+            diceAudioSource.Stop();
+            diceAudioSource.PlayOneShot(diceRollClip, diceRollVolume);
+        }
 
         // --------------------------------------------------------
         // ANIMATION
