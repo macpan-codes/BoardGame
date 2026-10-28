@@ -59,13 +59,7 @@ public class MainMenuController : MonoBehaviour
 
     public void OpenMultiplayer()
     {
-        GameNotificationUI.Show(
-            "MULTIPLAYER IS COMING SOON"
-        );
-
-        Debug.Log(
-            "MainMenuController: Multiplayer selected."
-        );
+        SceneManager.LoadScene("MultiplayerComingSoon");
     }
 
     // ============================================================
