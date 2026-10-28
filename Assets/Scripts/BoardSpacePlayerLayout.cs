@@ -136,6 +136,20 @@ public class BoardSpacePlayerLayout : MonoBehaviour
             originalPositions[token] = token.localPosition;
     }
 
+    public void RestoreToken(Transform token)
+    {
+        if (token == null)
+            return;
+
+        if (originalScales.TryGetValue(token, out Vector3 scale))
+            token.localScale = scale;
+        if (originalPositions.TryGetValue(token, out Vector3 position))
+            token.localPosition = position;
+
+        originalScales.Remove(token);
+        originalPositions.Remove(token);
+    }
+
     public void RestoreOriginals()
     {
         foreach (KeyValuePair<Transform, Vector3> pair in originalScales)
