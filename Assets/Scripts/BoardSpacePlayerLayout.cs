@@ -61,15 +61,16 @@ public class BoardSpacePlayerLayout : MonoBehaviour
 
     private static Pattern[] CreateSidePatterns()
     {
-        // Side slots use a wider three-column layout for six tokens.
+        // Left/right edge spaces are narrow and tall: use two columns and up to
+        // three rows so six tokens fit the tile instead of spreading too wide.
         return new[]
         {
             Make(1f, new Vector2(0f, 0f)),
-            Make(0.90f, new Vector2(-0.18f, 0f), new Vector2(0.18f, 0f)),
-            Make(0.82f, new Vector2(-0.22f, 0.15f), new Vector2(0.22f, 0.15f), new Vector2(0f, -0.16f)),
-            Make(0.72f, new Vector2(-0.22f, 0.16f), new Vector2(0.22f, 0.16f), new Vector2(-0.22f, -0.16f), new Vector2(0.22f, -0.16f)),
-            Make(0.64f, new Vector2(-0.22f, 0.20f), new Vector2(0f, 0.20f), new Vector2(0.22f, 0.20f), new Vector2(-0.22f, -0.20f), new Vector2(0.22f, -0.20f)),
-            Make(0.56f, new Vector2(-0.24f, 0.20f), new Vector2(0f, 0.20f), new Vector2(0.24f, 0.20f), new Vector2(-0.24f, -0.20f), new Vector2(0f, -0.20f), new Vector2(0.24f, -0.20f))
+            Make(0.90f, new Vector2(-0.16f, 0f), new Vector2(0.16f, 0f)),
+            Make(0.82f, new Vector2(-0.16f, 0.20f), new Vector2(0.16f, 0.20f), new Vector2(0f, -0.20f)),
+            Make(0.72f, new Vector2(-0.16f, 0.22f), new Vector2(0.16f, 0.22f), new Vector2(-0.16f, -0.22f), new Vector2(0.16f, -0.22f)),
+            Make(0.64f, new Vector2(-0.16f, 0.25f), new Vector2(0.16f, 0.25f), new Vector2(0f, 0f), new Vector2(-0.16f, -0.25f), new Vector2(0.16f, -0.25f)),
+            Make(0.56f, new Vector2(-0.16f, 0.26f), new Vector2(0.16f, 0.26f), new Vector2(-0.16f, 0f), new Vector2(0.16f, 0f), new Vector2(-0.16f, -0.26f), new Vector2(0.16f, -0.26f))
         };
     }
 
