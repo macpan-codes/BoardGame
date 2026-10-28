@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 
 /// <summary>Self-contained portrait credits screen. All text is editable below.</summary>
 public class CreditsScreen : MonoBehaviour
@@ -75,6 +77,10 @@ public class CreditsScreen : MonoBehaviour
 
     private void Awake()
     {
+        if (FindFirstObjectByType<EventSystem>() == null)
+        {
+            var input = new GameObject("CreditsEventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+        }
         var canvasGO=new GameObject("CreditsCanvas",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));
         var canvas=canvasGO.GetComponent<Canvas>(); canvas.renderMode=RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder=100;
@@ -89,7 +95,7 @@ public class CreditsScreen : MonoBehaviour
 
         var header=UI("Heading",root.transform);
         Stretch(Rect(header),new Vector2(0,1),new Vector2(1,1),new Vector2(32,-310),new Vector2(-32,-42));
-        var heading=Label(header.transform,"THE LEGENDS\\nBEHIND THE GAME",65,gold,TextAlignmentOptions.Center);
+        var heading=Label(header.transform,"THE LEGENDS\nBEHIND THE GAME",65,gold,TextAlignmentOptions.Center);
         Stretch(Rect(heading.gameObject),Vector2.zero,Vector2.one,Vector2.zero,Vector2.zero);
 
         var back=UI("BackButton",root.transform); Fill(back,panel);
@@ -113,14 +119,14 @@ public class CreditsScreen : MonoBehaviour
         {
             int index=i; var p=people[i];
             var card=Block(content.transform,170,panel);
-            var text=Label(card.transform,p.name.ToUpperInvariant()+"  ✦\\n"+p.title+"  ›",40,cream,TextAlignmentOptions.MidlineLeft);
+            var text=Label(card.transform,p.name.ToUpperInvariant()+"  ✦\n"+p.title+"  ›",40,cream,TextAlignmentOptions.MidlineLeft);
             Stretch(Rect(text.gameObject),Vector2.zero,Vector2.one,new Vector2(30,10),new Vector2(-18,-10));
             Clickable(card,()=>ShowPerson(index));
         }
 
         var footer=UI("Dedication",root.transform);
         Stretch(Rect(footer),Vector2.zero,new Vector2(1,0),new Vector2(35,20),new Vector2(-35,150));
-        var foot=Label(footer.transform,"Built with code, chaos, and questionable financial decisions.\\nMade with friends. ♥",29,gold,TextAlignmentOptions.Center);
+        var foot=Label(footer.transform,"Built with code, chaos, and questionable financial decisions.\nMade with friends. ♥",29,gold,TextAlignmentOptions.Center);
         Stretch(Rect(foot.gameObject),Vector2.zero,Vector2.one,Vector2.zero,Vector2.zero);
 
         modal=UI("DetailsOverlay",root.transform); Fill(modal,new Color(.02f,.03f,.01f,.95f));
@@ -135,10 +141,10 @@ public class CreditsScreen : MonoBehaviour
         var p=people[i];
         var box=UI("ContributorDetails",modal.transform); Fill(box,panel);
         Stretch(Rect(box),new Vector2(.06f,.19f),new Vector2(.94f,.84f),Vector2.zero,Vector2.zero);
-        var text=Label(box.transform,p.name.ToUpperInvariant()+"\\n"+p.title+
-            "\\n\\nHOW THEY HELPED\\n"+p.contribution+
-            "\\n\\nFUN FACT\\n"+p.funFact+
-            "\\n\\nACHIEVEMENT UNLOCKED\\n"+p.achievement,40,cream,TextAlignmentOptions.Center);
+        var text=Label(box.transform,p.name.ToUpperInvariant()+"\n"+p.title+
+            "\n\nHOW THEY HELPED\n"+p.contribution+
+            "\n\nFUN FACT\n"+p.funFact+
+            "\n\nACHIEVEMENT UNLOCKED\n"+p.achievement,40,cream,TextAlignmentOptions.Center);
         Stretch(Rect(text.gameObject),Vector2.zero,Vector2.one,new Vector2(30,118),new Vector2(-30,-25));
         text.enableAutoSizing=true; text.fontSizeMin=22; text.fontSizeMax=40;
         var close=UI("CloseDetails",box.transform); Fill(close,background);
