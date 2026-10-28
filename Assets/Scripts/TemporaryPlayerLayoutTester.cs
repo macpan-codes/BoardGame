@@ -27,7 +27,6 @@ public class TemporaryPlayerLayoutTester : MonoBehaviour
     private readonly List<Quaternion> originalRotations = new List<Quaternion>();
     private readonly List<Vector3> originalScales = new List<Vector3>();
     private readonly List<bool> originalActiveStates = new List<bool>();
-    private readonly List<BoardSpace> originalSpaces = new List<BoardSpace>();
 
     private Canvas canvas;
     private GameObject panel;
@@ -235,7 +234,6 @@ public class TemporaryPlayerLayoutTester : MonoBehaviour
         originalRotations.Clear();
         originalScales.Clear();
         originalActiveStates.Clear();
-        originalSpaces.Clear();
 
         FindPlayers();
         foreach (BoardPlayer player in allPlayers)
@@ -246,7 +244,6 @@ public class TemporaryPlayerLayoutTester : MonoBehaviour
             originalRotations.Add(player.transform.localRotation);
             originalScales.Add(player.transform.localScale);
             originalActiveStates.Add(player.gameObject.activeSelf);
-            originalSpaces.Add(player.CurrentSpace);
         }
     }
 
