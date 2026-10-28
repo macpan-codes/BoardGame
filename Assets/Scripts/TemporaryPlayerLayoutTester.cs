@@ -18,7 +18,7 @@ public class TemporaryPlayerLayoutTester : MonoBehaviour
     [Header("Preview")]
     [SerializeField] private bool showOnScreenPanel = true;
     [SerializeField] private Vector2 panelPosition = new Vector2(20f, -20f);
-    [SerializeField] private Vector2 panelSize = new Vector2(300f, 300f);
+    [SerializeField] private Vector2 panelSize = new Vector2(340f, 330f);
     [SerializeField] private bool createRuntimePlayersIfNeeded = true;
 
     private readonly List<BoardPlayer> allPlayers = new List<BoardPlayer>();
@@ -57,17 +57,14 @@ public class TemporaryPlayerLayoutTester : MonoBehaviour
 
     private void BuildPanel()
     {
-        canvas = GetComponentInParent<Canvas>();
-        if (canvas == null)
-            canvas = FindFirstObjectByType<Canvas>();
-
-        if (canvas == null)
-        {
-            GameObject canvasObject = new GameObject("TEMP_LAYOUT_TESTER_CANVAS", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            canvas = canvasObject.GetComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasObject.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        }
+        GameObject canvasObject = new GameObject("TEMP_LAYOUT_TESTER_CANVAS", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        canvas = canvasObject.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 32000;
+        CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
 
         panel = new GameObject(PanelName, typeof(RectTransform), typeof(Image));
         panel.transform.SetParent(canvas.transform, false);
@@ -79,16 +76,16 @@ public class TemporaryPlayerLayoutTester : MonoBehaviour
         rect.sizeDelta = panelSize;
         panel.GetComponent<Image>().color = new Color(0.08f, 0.08f, 0.08f, 0.92f);
 
-        AddLabel("TEMP LAYOUT TESTER", 12, 18, 24, FontStyle.Bold);
-        AddLabel("Target: select a BoardSpace below", 12, 48, 18, FontStyle.Normal);
-        AddButton("Previous Space", 12, 78, 130, 32, () => SelectSpace(-1));
-        AddButton("Next Space", 154, 78, 130, 32, () => SelectSpace(1));
-        AddButton("Players: -", 12, 118, 130, 34, () => SetPlayerCount(-1));
-        AddButton("Players: +", 154, 118, 130, 34, () => SetPlayerCount(1));
-        AddButton("Regular Pattern", 12, 160, 130, 32, () => { useCornerPattern = false; ApplyPreview(); });
-        AddButton("Corner Pattern", 154, 160, 130, 32, () => { useCornerPattern = true; ApplyPreview(); });
-        AddButton("APPLY PREVIEW", 12, 202, 272, 38, ApplyPreview);
-        AddButton("RESTORE / CLEAR", 12, 250, 272, 34, RestorePreview);
+        AddLabel("TEMP LAYOUT TESTER", 12, 12, 26, FontStyle.Bold);
+        AddLabel("Target: choose a board space", 12, 42, 24, FontStyle.Normal);
+        AddButton("Previous Space", 12, 76, 150, 36, () => SelectSpace(-1));
+        AddButton("Next Space", 174, 76, 150, 36, () => SelectSpace(1));
+        AddButton("Players: -", 12, 120, 150, 36, () => SetPlayerCount(-1));
+        AddButton("Players: +", 174, 120, 150, 36, () => SetPlayerCount(1));
+        AddButton("Regular Pattern", 12, 164, 150, 36, () => { useCornerPattern = false; ApplyPreview(); });
+        AddButton("Corner Pattern", 174, 164, 150, 36, () => { useCornerPattern = true; ApplyPreview(); });
+        AddButton("APPLY PREVIEW", 12, 210, 312, 42, ApplyPreview);
+        AddButton("RESTORE / CLEAR", 12, 262, 312, 42, RestorePreview);
         RefreshPanelText();
     }
 
@@ -103,8 +100,8 @@ public class TemporaryPlayerLayoutTester : MonoBehaviour
         rect.anchoredPosition = new Vector2(x, -y);
         rect.sizeDelta = new Vector2(panelSize.x - x * 2, height);
         Text text = obj.GetComponent<Text>();
-        text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-        text.fontSize = 14;
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = 16;
         text.fontStyle = style;
         text.color = Color.white;
         text.alignment = TextAnchor.MiddleLeft;
