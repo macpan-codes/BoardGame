@@ -716,6 +716,7 @@ public class BoardPlayer : MonoBehaviour
 
         if (space.SpaceType == BoardSpaceType.Tax)
         {
+            GameSoundEffects.PlayTaxSound();
             long tax =
                 space.SpaceName
                     .ToUpperInvariant()
