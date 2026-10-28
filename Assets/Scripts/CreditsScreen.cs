@@ -77,6 +77,11 @@ public class CreditsScreen : MonoBehaviour
 
     private void Awake()
     {
+        // This UI-only scene has no camera by default. A persistent music source
+        // still needs an AudioListener to be audible when the MainMenu unloads.
+        if (FindFirstObjectByType<AudioListener>() == null)
+            new GameObject("CreditsAudioListener", typeof(AudioListener));
+
         if (FindFirstObjectByType<EventSystem>() == null)
         {
             var input = new GameObject("CreditsEventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
