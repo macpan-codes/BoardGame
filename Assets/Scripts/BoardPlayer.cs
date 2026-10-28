@@ -108,6 +108,29 @@ public class BoardPlayer : MonoBehaviour
     private void Start()
     {
         // GameManager is the only initialization authority.
+        EnsureMovementAudioSource();
+    }
+
+    private void EnsureMovementAudioSource()
+    {
+        if (movementAudioSource == null)
+            movementAudioSource = GetComponent<AudioSource>();
+
+        if (movementAudioSource == null)
+            movementAudioSource = gameObject.AddComponent<AudioSource>();
+
+        movementAudioSource.playOnAwake = false;
+        movementAudioSource.loop = false;
+        movementAudioSource.spatialBlend = 0f;
+    }
+
+    private void PlayMovementSound()
+    {
+        if (playerMovingClip == null)
+            return;
+
+        EnsureMovementAudioSource();
+        movementAudioSource.PlayOneShot(playerMovingClip);
     }
 
     // ============================================================
@@ -439,6 +462,7 @@ public class BoardPlayer : MonoBehaviour
 
             if (space != null)
             {
+                PlayMovementSound();
                 yield return MoveTokenTo(
                     space.transform
                 );
