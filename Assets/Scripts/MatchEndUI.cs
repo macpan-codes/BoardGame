@@ -347,6 +347,7 @@ public sealed class MatchEndUI : MonoBehaviour
 
     public void ShowFinalResults(GameManager manager, BoardPlayer naturalWinner, string reason)
     {
+        GameSoundEffects.PlayWinSoundOnce();
         if (manager != null)
             gameManager = manager;
 

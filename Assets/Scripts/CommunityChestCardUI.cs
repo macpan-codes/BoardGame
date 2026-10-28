@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -339,11 +340,19 @@ public class CommunityChestCardUI : MonoBehaviour
 
     public void ShowCard(string title, string description)
     {
+        GameSoundEffects.StartCardSound();
+        StartCoroutine(StopCardSoundAfterReveal());
         EnsureBuilt();
         ResetAllSections();
         SetActive(true);
         SetMainCard(title, description);
         SetCloseInteractable(false);
+    }
+
+    private IEnumerator StopCardSoundAfterReveal()
+    {
+        yield return new WaitForSecondsRealtime(Mathf.Max(0.01f, revealDuration));
+        GameSoundEffects.StopCardSound();
     }
 
     private void SetMainCard(string title, string description)
@@ -600,6 +609,7 @@ public class CommunityChestCardUI : MonoBehaviour
 
     public void HideImmediate()
     {
+        GameSoundEffects.StopCardSound();
         SetActive(false);
 
         if (cardTransform != null)
