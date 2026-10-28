@@ -525,6 +525,8 @@ public class BoardPlayer : MonoBehaviour
         BoardSpacePlayerLayout previousLayout = transform.parent != null
             ? transform.parent.GetComponent<BoardSpacePlayerLayout>()
             : null;
+        if (previousLayout != null)
+            previousLayout.RestoreToken(transform);
         transform.SetParent(null, true);
         if (previousLayout != null)
             previousLayout.RefreshLayout();
@@ -607,12 +609,14 @@ public class BoardPlayer : MonoBehaviour
         if (space == null)
             return;
 
-        transform.position =
-            space.transform.position;
-
         BoardSpacePlayerLayout previousLayout = transform.parent != null
             ? transform.parent.GetComponent<BoardSpacePlayerLayout>()
             : null;
+        if (previousLayout != null)
+            previousLayout.RestoreToken(transform);
+
+        transform.position =
+            space.transform.position;
 
         transform.SetParent(
             space.transform,
