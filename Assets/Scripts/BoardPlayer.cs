@@ -62,6 +62,15 @@ public class BoardPlayer : MonoBehaviour
     [Tooltip("Brief pause after each space so individual steps are easy to see.")]
     private float pauseBetweenSteps = 0.04f;
 
+    [Header("Movement Audio")]
+    [SerializeField]
+    [Tooltip("Assign Assets/Audio/playermoving.mp3 here. It plays once for each space moved.")]
+    private AudioClip playerMovingClip;
+
+    [SerializeField]
+    [Tooltip("Optional. If empty, BoardPlayer creates an AudioSource automatically.")]
+    private AudioSource movementAudioSource;
+
     [SerializeField] private bool isMoving;
 
     [Header("Money")]
