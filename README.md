@@ -1,5 +1,7 @@
 # 🎲 Monopoly – Friends Edition
 
+<p align="center"><img src="Assets/Sprites/app/19436233-cf22-4682-8fcd-a97e064d1c4e.png" alt="Monopoly – Friends Edition app icon" width="180"></p>
+
 **A little board game. A lot of memories.**
 
 A Monopoly-inspired 2D board game for Android, made in Unity 6 by **Macpan / Macverse**, with ideas, creativity, and encouragement from friends.
