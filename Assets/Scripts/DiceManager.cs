@@ -207,7 +207,7 @@ public class DiceManager : MonoBehaviour
 
         // Ensure the dice animation is visibly readable even if an older
         // scene has a shorter serialized duration.
-        float visibleRollDuration = Mathf.Max(rollAnimationDuration, 1.25f);
+        float visibleRollDuration = Mathf.Max(rollAnimationDuration, 1.25f, diceRollClip != null ? diceRollClip.length : 0f);
 
         while (elapsed < visibleRollDuration)
         {
