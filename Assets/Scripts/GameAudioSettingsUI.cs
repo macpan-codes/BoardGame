@@ -10,6 +10,7 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
 {
     private const string MasterVolumeKey = "BoardGame.MasterVolume";
     private const string MutedKey = "BoardGame.AudioMuted";
+    private const string BackgroundMusicVolumeKey = "BoardGame.BackgroundMusicVolume";
 
     private static GameAudioSettingsUI instance;
 
@@ -17,6 +18,8 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
     private GameObject panel;
     private Slider masterVolumeSlider;
     private TMP_Text volumeValueText;
+    private Slider backgroundMusicSlider;
+    private TMP_Text backgroundMusicValueText;
     private Button muteButton;
     private TMP_Text muteButtonText;
 
@@ -25,6 +28,9 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
 
     private static bool SavedMuted =>
         PlayerPrefs.GetInt(MutedKey, 0) == 1;
+
+    private static float SavedBackgroundMusicVolume =>
+        Mathf.Clamp01(PlayerPrefs.GetFloat(BackgroundMusicVolumeKey, 0.3f));
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void ApplySavedAudioSettings()
@@ -122,7 +128,7 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
         );
 
         RectTransform panelRect = panel.GetComponent<RectTransform>();
-        AnchorCenter(panelRect, Vector2.zero, new Vector2(640f, 480f));
+        AnchorCenter(panelRect, Vector2.zero, new Vector2(640f, 600f));
 
         Outline panelOutline = panel.AddComponent<Outline>();
         panelOutline.effectColor = new Color(0.96f, 0.74f, 0.30f, 0.95f);
@@ -162,8 +168,8 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
             22f,
             Color.white,
             TextAlignmentOptions.Center,
-            new Vector2(0.08f, 0.63f),
-            new Vector2(0.92f, 0.76f),
+            new Vector2(0.08f, 0.73f),
+            new Vector2(0.92f, 0.83f),
             new Vector2(0.5f, 0.5f),
             Vector2.zero,
             Vector2.zero,
@@ -172,18 +178,41 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
 
         masterVolumeSlider = CreateVolumeSlider(
             panel.transform,
-            new Vector2(0.5f, 0.54f),
+            new Vector2(0.5f, 0.66f),
             new Vector2(440f, 42f)
         );
 
         masterVolumeSlider.SetValueWithoutNotify(SavedMasterVolume);
         masterVolumeSlider.onValueChanged.AddListener(OnVolumeChanged);
 
+        backgroundMusicValueText = CreateText(
+            panel.transform,
+            "BACKGROUND MUSIC  30%",
+            22f,
+            Color.white,
+            TextAlignmentOptions.Center,
+            new Vector2(0.08f, 0.48f),
+            new Vector2(0.92f, 0.58f),
+            new Vector2(0.5f, 0.5f),
+            Vector2.zero,
+            Vector2.zero,
+            FontStyles.Bold
+        );
+
+        backgroundMusicSlider = CreateVolumeSlider(
+            panel.transform,
+            new Vector2(0.5f, 0.42f),
+            new Vector2(440f, 42f)
+        );
+        backgroundMusicSlider.gameObject.name = "BackgroundMusicVolumeSlider";
+        backgroundMusicSlider.SetValueWithoutNotify(SavedBackgroundMusicVolume);
+        backgroundMusicSlider.onValueChanged.AddListener(OnBackgroundMusicVolumeChanged);
+
         muteButton = CreateButton(
             panel.transform,
             "MuteAudioButton",
             "MUTE AUDIO: OFF",
-            new Vector2(0.5f, 0.37f),
+            new Vector2(0.5f, 0.25f),
             new Vector2(320f, 58f),
             new Color(0.16f, 0.22f, 0.32f, 1f),
             out muteButtonText
@@ -194,7 +223,7 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
             panel.transform,
             "CloseAudioSettingsButton",
             "BACK TO GAME",
-            new Vector2(0.5f, 0.14f),
+            new Vector2(0.5f, 0.10f),
             new Vector2(250f, 54f),
             new Color(0.14f, 0.42f, 0.31f, 1f),
             out _
@@ -230,6 +259,8 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
         {
             if (text.text.StartsWith("MASTER VOLUME", System.StringComparison.OrdinalIgnoreCase))
                 volumeValueText = text;
+            else if (text.text.StartsWith("BACKGROUND MUSIC", System.StringComparison.OrdinalIgnoreCase))
+                backgroundMusicValueText = text;
             else if (text.text.StartsWith("MUTE AUDIO", System.StringComparison.OrdinalIgnoreCase))
                 muteButtonText = text;
         }
@@ -241,6 +272,15 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
             masterVolumeSlider.SetValueWithoutNotify(SavedMasterVolume);
             masterVolumeSlider.onValueChanged.RemoveListener(OnVolumeChanged);
             masterVolumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+        }
+
+        Transform musicSliderTransform = panel.transform.Find("BackgroundMusicVolumeSlider");
+        backgroundMusicSlider = musicSliderTransform != null ? musicSliderTransform.GetComponent<Slider>() : null;
+        if (backgroundMusicSlider != null)
+        {
+            backgroundMusicSlider.SetValueWithoutNotify(SavedBackgroundMusicVolume);
+            backgroundMusicSlider.onValueChanged.RemoveListener(OnBackgroundMusicVolumeChanged);
+            backgroundMusicSlider.onValueChanged.AddListener(OnBackgroundMusicVolumeChanged);
         }
 
         Transform muteTransform = panel.transform.Find("MuteAudioButton");
@@ -464,6 +504,14 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
         RefreshLabels();
     }
 
+    private void OnBackgroundMusicVolumeChanged(float value)
+    {
+        PlayerPrefs.SetFloat(BackgroundMusicVolumeKey, Mathf.Clamp01(value));
+        PlayerPrefs.Save();
+        BackgroundMusicController.SetVolume(value);
+        RefreshLabels();
+    }
+
     private void ToggleMute()
     {
         SetMuted(!SavedMuted);
@@ -479,6 +527,16 @@ public sealed class GameAudioSettingsUI : MonoBehaviour
                 Mathf.RoundToInt(SavedMasterVolume * 100f) +
                 "%";
         }
+
+        if (backgroundMusicValueText != null)
+        {
+            backgroundMusicValueText.text =
+                "BACKGROUND MUSIC  " +
+                Mathf.RoundToInt(SavedBackgroundMusicVolume * 100f) +
+                "%";
+        }
+
+        BackgroundMusicController.SetVolume(SavedBackgroundMusicVolume);
 
         if (muteButtonText != null)
         {
