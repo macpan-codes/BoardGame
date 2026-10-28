@@ -23,6 +23,9 @@ public class BoardSpacePlayerLayout : MonoBehaviour
     [SerializeField] private bool detectCornerByBoardIndex = true;
     [SerializeField] private bool useRectTransformBounds = true;
 
+    [Header("Corner Spacing")]
+    [SerializeField, Min(0f)] private float sixPlayerCornerRowSpacing = 12f;
+
     [Header("Regular Spaces: pattern for 1 through 6 players")]
     [SerializeField] private Pattern[] regularPatterns = CreateRegularPatterns();
 
@@ -113,6 +116,15 @@ public class BoardSpacePlayerLayout : MonoBehaviour
             {
                 localPosition.x = normalized.x * rectSize.x;
                 localPosition.y = normalized.y * rectSize.y;
+
+                // Add extra vertical gap between the three rows for six players in corners.
+                if (corner && players.Count == 6)
+                {
+                    int row = i / 2; // 0 = top, 1 = middle, 2 = bottom
+                    localPosition.y += row == 0
+                        ? sixPlayerCornerRowSpacing
+                        : row == 2 ? -sixPlayerCornerRowSpacing : 0f;
+                }
             }
             else
             {
