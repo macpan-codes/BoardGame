@@ -108,6 +108,8 @@ public class BoardGenerator : MonoBehaviour
 
             SetupClickHandler(space);
             SetupOwnershipMarker(space);
+            if (space.GetComponent<BoardSpacePlayerLayout>() == null)
+                space.gameObject.AddComponent<BoardSpacePlayerLayout>();
         }
     }
 
