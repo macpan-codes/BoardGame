@@ -1,4 +1,4 @@
-name: Prepare final v1.0.0 release
+name: Publish final v1.0.0 release
 
 on:
   push:
@@ -11,31 +11,41 @@ permissions:
   contents: write
 
 jobs:
-  prepare-release:
+  publish-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Create final release draft if needed
+      - name: Publish the existing final release draft
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          if gh release view v1.0.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "v1.0.0 release already exists; preserving it."
-            exit 0
-          fi
-          gh release create v1.0.0 \
+          cat > release-notes.md <<'NOTES'
+          # Monopoly – Friends Edition v1.0.0
+
+          <p align="center"><img src="https://raw.githubusercontent.com/macpan-codes/BoardGame/master/Assets/Sprites/app/19436233-cf22-4682-8fcd-a97e064d1c4e.png" alt="Monopoly Friends Edition app icon" width="160"></p>
+
+          **The final personal Android edition.**
+
+          A Monopoly-inspired offline board game built for friends and memories.
+
+          - 2–6 local players on one device, with configurable names and AI bots
+          - Properties, rent, houses, hotels, and player-to-player trades
+          - Chance and Community Chest, utilities, railways, jail, mortgages, taxes, and bankruptcy
+          - Music, sound effects, match results, and a nostalgic interactive Credits section
+
+          **Platform:** Android | **Engine:** Unity 6 | **Multiplayer:** one-device local play (no Bluetooth or online networking)
+
+          **APK:** The final `monopolyfinalversion.apk` is complete, but the release asset must still be attached here. Until it is attached, this release page contains the final source code only.
+
+          **APK SHA-256:** `f27dd6ccfd87daf59305729c134551edd52cd5368cc7a57f0389a5bc9cc1b85a`
+
+          Made by Macpan / Macverse, with ChatGPT, Gemini, Tahsan, Purna, Turjo, and Toha.
+
+          ❤️ *The development ends here. The memories stay.*
+          NOTES
+          gh release edit v1.0.0 \
             --repo "$GITHUB_REPOSITORY" \
-            --target master \
             --title "Monopoly – Friends Edition | Final Release" \
-            --notes "The completed personal Android edition of Monopoly – Friends Edition.
-
-          🎲 2–6 local players on one device, including AI bots.
-          🏘️ Buy properties, collect rent, build houses and hotels, trade, manage mortgages and survive Chance, Community Chest, jail and bankruptcy.
-          ❤️ Explore Credits for a tribute to everyone who helped create the game.
-
-          Android APK: monopolyfinalversion.apk — attach the signed APK to this draft before publishing.
-
-          Created by Macpan | Macverse. October 2026.
-          The development ends here. The memories stay." \
-            --draft
+            --notes-file release-notes.md \
+            --draft=false
