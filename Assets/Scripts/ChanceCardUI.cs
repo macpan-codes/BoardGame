@@ -231,6 +231,7 @@ public class ChanceCardUI : MonoBehaviour
     {
         previewMode = false;
         currentPlayer = player;
+        GameSoundEffects.StartCardSound();
         ResetAllSections();
         SetActive(true);
         SetCloseInteractable(false);
@@ -315,6 +316,7 @@ public class ChanceCardUI : MonoBehaviour
             }
         }
 
+        GameSoundEffects.StopCardSound();
         SetCloseInteractable(true);
         onRevealFinished?.Invoke();
     }
@@ -367,6 +369,7 @@ public class ChanceCardUI : MonoBehaviour
         string title,
         string description)
     {
+        GameSoundEffects.StartCardSound();
         previewMode = false;
         currentPlayer = player;
         ResetAllSections();
@@ -449,6 +452,7 @@ public class ChanceCardUI : MonoBehaviour
 
     public void HideImmediate()
     {
+        GameSoundEffects.StopCardSound();
         SetActive(false);
 
         if (cardTransform != null)
