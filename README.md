@@ -4,6 +4,8 @@
 
 **A little board game. A lot of memories.**
 
+🎉 **Official final release:** [Monopoly – Friends Edition v1.0.0](https://github.com/macpan-codes/BoardGame/releases/tag/v1.0.0)
+
 A Monopoly-inspired 2D board game for Android, made in Unity 6 by **Macpan / Macverse**, with ideas, creativity, and encouragement from friends.
 
 > **Project status: Completed personal edition — October 28, 2026.**  
@@ -60,7 +62,7 @@ See the **in-game Credits** for the playful details and dedications.
 - **Mode:** Offline, turn-based, local play and bots
 - **Main scenes:** MainMenu, GameSetup, MainScene, Credits, MultiplayerComingSoon
 - **Source:** This repository contains the Unity project. To open it, use the matching Unity Editor version.
-- **APK:** The final APK was built separately. It is not included in this repository's files or Releases at the time this page was written.
+- **APK:** The final APK was built separately. The public [v1.0.0 release](https://github.com/macpan-codes/BoardGame/releases/tag/v1.0.0) is published, but its APK download is pending attachment.
 
 This is a personal, fan-made project inspired by classic property-trading board games; it is not an official Monopoly product.
 
