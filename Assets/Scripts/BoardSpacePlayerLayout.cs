@@ -15,7 +15,7 @@ public class BoardSpacePlayerLayout : MonoBehaviour
         [Tooltip("Normalized position inside the space: -0.5 to +0.5 on each axis.")]
         public Vector2[] positions = new Vector2[6];
         [Tooltip("Scale multiplier relative to each token's original scale.")]
-        [Range(0.1f, 1f)] public float scale = 1f;
+        [Range(0.1f, 2f)] public float scale = 1f;
     }
 
     [Header("Layout Type")]
@@ -57,12 +57,12 @@ public class BoardSpacePlayerLayout : MonoBehaviour
     {
         return new[]
         {
-            Make(1f, new Vector2(0f, 0f)),
-            Make(0.88f, new Vector2(-0.12f, 0.12f), new Vector2(0.12f, -0.12f)),
-            Make(0.76f, new Vector2(-0.18f, 0.16f), new Vector2(0.18f, 0.16f), new Vector2(0f, -0.16f)),
-            Make(0.66f, new Vector2(-0.18f, 0.18f), new Vector2(0.18f, 0.18f), new Vector2(-0.18f, -0.18f), new Vector2(0.18f, -0.18f)),
-            Make(0.58f, new Vector2(-0.20f, 0.20f), new Vector2(0.20f, 0.20f), new Vector2(0f, 0f), new Vector2(-0.20f, -0.20f), new Vector2(0.20f, -0.20f)),
-            Make(0.50f, new Vector2(-0.20f, 0.22f), new Vector2(0.20f, 0.22f), new Vector2(-0.20f, 0f), new Vector2(0.20f, 0f), new Vector2(-0.20f, -0.22f), new Vector2(0.20f, -0.22f))
+            Make(2f, new Vector2(0f, 0f)),
+            Make(1.76f, new Vector2(-0.12f, 0.12f), new Vector2(0.12f, -0.12f)),
+            Make(1.52f, new Vector2(-0.18f, 0.16f), new Vector2(0.18f, 0.16f), new Vector2(0f, -0.16f)),
+            Make(1.32f, new Vector2(-0.18f, 0.18f), new Vector2(0.18f, 0.18f), new Vector2(-0.18f, -0.18f), new Vector2(0.18f, -0.18f)),
+            Make(1.16f, new Vector2(-0.20f, 0.20f), new Vector2(0.20f, 0.20f), new Vector2(0f, 0f), new Vector2(-0.20f, -0.20f), new Vector2(0.20f, -0.20f)),
+            Make(1f, new Vector2(-0.20f, 0.22f), new Vector2(0.20f, 0.22f), new Vector2(-0.20f, 0f), new Vector2(0.20f, 0f), new Vector2(-0.20f, -0.22f), new Vector2(0.20f, -0.22f))
         };
     }
 
