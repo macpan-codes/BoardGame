@@ -522,7 +522,12 @@ public class BoardPlayer : MonoBehaviour
         if (target == null)
             yield break;
 
+        BoardSpacePlayerLayout previousLayout = transform.parent != null
+            ? transform.parent.GetComponent<BoardSpacePlayerLayout>()
+            : null;
         transform.SetParent(null, true);
+        if (previousLayout != null)
+            previousLayout.RefreshLayout();
 
         Vector3 startPosition =
             transform.position;
@@ -576,6 +581,11 @@ public class BoardPlayer : MonoBehaviour
             target,
             true
         );
+
+        BoardSpacePlayerLayout targetLayout =
+            target.GetComponent<BoardSpacePlayerLayout>();
+        if (targetLayout != null)
+            targetLayout.RefreshLayout();
     }
 
     public void SnapToCurrentSpace()
@@ -600,10 +610,22 @@ public class BoardPlayer : MonoBehaviour
         transform.position =
             space.transform.position;
 
+        BoardSpacePlayerLayout previousLayout = transform.parent != null
+            ? transform.parent.GetComponent<BoardSpacePlayerLayout>()
+            : null;
+
         transform.SetParent(
             space.transform,
             true
         );
+
+        if (previousLayout != null)
+            previousLayout.RefreshLayout();
+
+        BoardSpacePlayerLayout layout =
+            space.GetComponent<BoardSpacePlayerLayout>();
+        if (layout != null)
+            layout.RefreshLayout();
     }
 
     // ============================================================
