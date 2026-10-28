@@ -66,6 +66,11 @@ public class BoardSpacePlayerLayout : MonoBehaviour
         };
     }
 
+    public void SetTemporaryCornerPattern(bool value)
+    {
+        useCornerLayout = value;
+    }
+
     public void RefreshLayout()
     {
         BoardSpace space = GetComponent<BoardSpace>();
