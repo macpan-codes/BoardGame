@@ -339,6 +339,7 @@ public class CommunityChestCardUI : MonoBehaviour
 
     public void ShowCard(string title, string description)
     {
+        GameSoundEffects.StartCardSound();
         EnsureBuilt();
         ResetAllSections();
         SetActive(true);
@@ -600,6 +601,7 @@ public class CommunityChestCardUI : MonoBehaviour
 
     public void HideImmediate()
     {
+        GameSoundEffects.StopCardSound();
         SetActive(false);
 
         if (cardTransform != null)
