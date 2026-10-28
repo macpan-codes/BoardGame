@@ -50,12 +50,17 @@ public class BoardPlayer : MonoBehaviour
     [Header("Movement")]
     [SerializeField]
     [Min(0.01f)]
-    private float moveDurationPerSpace = 0.15f;
+    private float moveDurationPerSpace = 0.28f;
 
     [SerializeField]
     [Min(0f)]
     [Tooltip("Height of the small hop as the token moves between spaces.")]
     private float hopHeight = 0.3f;
+
+    [SerializeField]
+    [Min(0f)]
+    [Tooltip("Brief pause after each space so individual steps are easy to see.")]
+    private float pauseBetweenSteps = 0.04f;
 
     [SerializeField] private bool isMoving;
 
@@ -462,6 +467,12 @@ public class BoardPlayer : MonoBehaviour
                 $"{PlayerName}: " +
                 $"{previousIndex} -> {currentSpaceIndex}"
             );
+
+            // Keep movement visibly step-by-step, but never run a landing
+            // interaction for intermediate spaces. Landing logic is called
+            // once, after the full dice total has been travelled.
+            if (i < steps - 1 && pauseBetweenSteps > 0f)
+                yield return new WaitForSeconds(pauseBetweenSteps);
         }
 
         isMoving = false;
