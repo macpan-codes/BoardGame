@@ -52,6 +52,11 @@ public class BoardPlayer : MonoBehaviour
     [Min(0.01f)]
     private float moveDurationPerSpace = 0.15f;
 
+    [SerializeField]
+    [Min(0f)]
+    [Tooltip("Height of the small hop as the token moves between spaces.")]
+    private float hopHeight = 0.3f;
+
     [SerializeField] private bool isMoving;
 
     [Header("Money")]
@@ -493,21 +498,29 @@ public class BoardPlayer : MonoBehaviour
         {
             elapsed += Time.deltaTime;
 
-            float progress =
+            float rawProgress =
                 Mathf.Clamp01(
                     elapsed / duration
                 );
 
-            progress =
-                progress * progress *
-                (3f - 2f * progress);
+            float easedProgress =
+                rawProgress * rawProgress *
+                (3f - 2f * rawProgress);
 
-            transform.position =
+            // Move smoothly between the two spaces while lifting the token
+            // along a small arc. Using the raw progress for the arc ensures
+            // the token starts and finishes each hop exactly on the space.
+            Vector3 position =
                 Vector3.Lerp(
                     startPosition,
                     targetPosition,
-                    progress
+                    easedProgress
                 );
+
+            position.y +=
+                Mathf.Sin(rawProgress * Mathf.PI) * hopHeight;
+
+            transform.position = position;
 
             yield return null;
         }
